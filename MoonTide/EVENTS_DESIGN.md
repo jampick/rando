@@ -131,13 +131,13 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 
 ### Quick Reference: Calendar/Omen at a Glance
 
-| Event | Theme | Systems snapshot |
-|---|---|---|
-| 🩸 Blood Moon | Elite danger, high reward | `NPCHealth↑`, `PurgeLevel↑`, `Aggro↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDmgTaken↑`, `HealthbarDist↑`, `ThrallDmgToNPCs↓` |
-| 🔥 Solar Flare | Heat and fatigue | `ActiveThirst↑`, `IdleThirst↓`, `StaminaRegenTime↑`, `SprintCost↑`, `MoveSpeed↓` |
-| ❄️ Winter Solstice | Long, cold nights | `NightSpeed↓`, `DaySpeed↑`, `StaminaCost↑`, `ActiveHunger↑`, `ActiveThirst↑`, `StaminaRegenTime↑`, `PlayerDmgTaken↑`, `HealthbarDist↑` |
-| 🌪️ Storm Season | Environmental hazard | `BuildingDmg↑`, `SprintSpeed↓`, `ConsumeRegenPause↑`, `ExhaustRegenPause↑`, `MoveSpeed↓` |
-| 🔵 Blue Moon | Progression surge | `XPTimeOnline↑`, `XPRate↑`, `XPKill↑`, `XPHarvest↑`, `XPCraft↑` |
+| Event | Theme | Trigger | Systems snapshot |
+|---|---|---|---|
+| 🩸 Blood Moon | Elite danger, high reward | Near full moon (weekend bias, ~24h window) | `NPCHealth↑`, `PurgeLevel↑`, `Aggro↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDmgTaken↑`, `HealthbarDist↑`, `ThrallDmgToNPCs↓` |
+| 🔥 Solar Flare | Heat and fatigue | Summer months, daily 12:00–14:00 | `ActiveThirst↑`, `IdleThirst↓`, `StaminaRegenTime↑`, `SprintCost↑`, `MoveSpeed↓` |
+| ❄️ Winter Solstice | Long, cold nights | Dec 20–23, nights 18:00–06:00 | `NightSpeed↓`, `DaySpeed↑`, `StaminaCost↑`, `ActiveHunger↑`, `ActiveThirst↑`, `StaminaRegenTime↑`, `PlayerDmgTaken↑`, `HealthbarDist↑` |
+| 🌪️ Storm Season | Environmental hazard | Weather trigger (stub) or Sep–Nov seasonal window | `BuildingDmg↑`, `SprintSpeed↓`, `ConsumeRegenPause↑`, `ExhaustRegenPause↑`, `MoveSpeed↓` |
+| 🔵 Blue Moon | Progression surge | Second full moon in month; Fri 18:00–Sun 23:59 | `XPTimeOnline↑(PlayerXPTime↑)`, `XPRate↑`, `XPKill↑`, `XPHarvest↑`, `XPCraft↑` |
 
 ---
 
@@ -190,6 +190,17 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 **MOTD cue**: "Blue Moon: rare augury—unique loot and power await."  
 **Operator tips**: advertise ahead; great for onboarding and catch‑up
 </details>
+
+#### Trigger reference (events.json)
+- Astronomical
+  - `{"type":"astronomical","event":"full_moon","nearest_weekend":true,"window_hours":24}`
+  - `{"type":"astronomical","event":"blue_moon","activate_window":["Fri 18:00","Sun 23:59"],"window_hours":24}`
+- Seasonal window
+  - `{"type":"seasonal_window","months":[6,7,8],"daily_window":["12:00","14:00"]}`
+- Date window
+  - `{"type":"date_window","start":"12-20","end":"12-23","night_window":["18:00","06:00"]}`
+- Weather (stub)
+  - `{"type":"weather","provider":"stub"}`
 
 ---
 
