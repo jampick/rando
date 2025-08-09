@@ -311,9 +311,9 @@
   "string_append_keys": [
     "ServerMessageOfTheDay"
   ],
-  "string_append_joiner": " <BR> ",
+  "string_append_joiner": "<BR>",
   "motd": {
-    "header": "Endure the Exiled Lands. Strength above all. Join the warband: https://discord.gg/g7D3GzVrDt",
+    "header": "Endure the Exiled Lands. Strength above all.<BR>Join the warband: discord.gg/g7D3GzVrDt",
     "footer": "Fight. Build. Bleed. Survive the night.",
     "always_include": false
   },
