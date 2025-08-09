@@ -4,18 +4,24 @@
 
 MoonTide bends the Exiled Lands to the turning of the sky. As the moon waxes and wanes, the land shifts: harvest swells, beasts grow cruel, stamina thins, and rewards tempt fools into the dark. There are nights of calm. There are nights of reckoning. CROM does not explain; he only judges.
 
+See the event concept and detailed breakdown in `MoonTide/EVENTS_DESIGN.md`.
+
 #### Features
-- Continuous scaling (New→Full) using min/max ranges per INI key with optional gamma curve
-- Phase presets (8 buckets: new→waning crescent)
-- Manual events with triggers (astronomical, seasonal/date windows; weather stub)
-- Additive merging across events; per-key caps; configurable backups with rotation
-- Windows pre-start wrapper; Linux systemd ExecStartPre compatible
+- Continuous scaling (New→Full) with per-key min/max and optional gamma
+- Phase presets (8 buckets) layered on top of scaling
+- Calendar/omen events with triggers (astronomical, seasonal/date windows; weather stub)
+- Additive merge (numbers add; configured strings append) with per‑key caps
+- Global MOTD header/footer and per‑event MOTDs (appended with `<BR>`)
+- One‑backup‑per‑run with rotation; idempotent writes
+- Test suite (cycle, MOTD, delta‑verify); Windows wrapper; Linux ExecStartPre
 
 #### Files
 - `conan_moon_tuner.py`: main script
 - `events.json`: configuration (edit this)
 - `events.sample.json`: starter template
+- `EVENTS_DESIGN.md`: event concept and detailed breakdown
 - `start_conan_with_moontide.bat`: Windows wrapper (runs tuner only)
+- `tests/`: cycle, MOTD, and verification runners
 
 #### Quick run
 ```bash
@@ -29,10 +35,13 @@ python3 /absolute/path/MoonTide/conan_moon_tuner.py --ini-path /path/to/ServerSe
 ```
 
 #### Windows wrapper
-Edit paths in `start_conan_with_moontide.bat`. Call it before starting the server:
+Legacy‑style args supported. Call it before starting the server (wrapper does not start the server):
 ```bat
-start_conan_with_moontide.bat
-REM then start your server in your own script
+REM legacy‑compatible example (MOTD arg ignored)
+start_conan_with_moontide.bat -f "C:\ExiledLands\DedicatedServerLauncher\ConanExilesDedicatedServer\ConanSandbox\Saved\Config\WindowsServer\ServerSettings.ini" -m "C:\path\MOTD.txt"
+
+REM specify events file and pass flags through
+start_conan_with_moontide.bat -f "C:\path\ServerSettings.ini" -e "C:\path\events.json" --no-restart
 ```
 
 #### Linux systemd (ExecStartPre)
@@ -43,39 +52,37 @@ ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/conan_moon_tuner.py --ini-
 ```
 
 #### Config (`events.json`)
-- Event concept (CROM will not repeat himself):
-  - Phases: eight moon buckets. Their flavor alters the world—subtle at first, savage at full.
-  - Calendar: rare omens and seasons. Some nights drag on, some storms bite harder.
-  - Weather: when the sky howls, so does the land. (You’ll know when it’s time.)
-  - Custom: if you insist on meddling, do it here. CROM will not save you from your own events.
 - `moon_phase`: continuous scaling
   - `enabled`: true/false
   - `gamma`: curve shaping (1.0 linear; <1 early boost; >1 delayed)
-  - `mapping`: `{ INI_KEY: {"min": x, "max": y } }` (e.g., `HarvestAmountMultiplier`, `NPCDamageMultiplier`, `NPCDamageTakenMultiplier`)
-- `events.phases`: 8 day-bucket presets (leave keys empty to let continuous scaling drive them)
-- `events.calendar[]`: calendar/date/astronomical events
-- `events.weather[]`: weather-driven events (currently stubbed)
-- `events.custom[]`: additional active events with no trigger
-  - `trigger` types (for `calendar` and `weather`):
-    - `astronomical`: `full_moon` (optional `nearest_weekend`, `window_hours`), `blue_moon` (with `activate_window`)
-    - `seasonal_window`: `months: [..]`, optional `daily_window: [HH:MM, HH:MM]`
-    - `date_window`: `start: MM-DD`, `end: MM-DD`, optional `night_window`
-    - `weather`: stubbed (inactive)
-  - `settings`: INI key/value pairs (numeric values add across events)
-- `insert_missing_keys`: false to only change keys that already exist in INI
-- `caps`: per-key `{min,max}` clamps applied after merging
+  - `mapping`: `{ INI_KEY: {"min": x, "max": y } }` (explicit INI keys supported)
+- `events.phases`: 8 day‑bucket presets (leave keys empty to let scaling drive them)
+- `events.calendar[]`, `events.weather[]`, `events.custom[]`: additional events and triggers
+  - triggers: `astronomical` (full_moon/blue_moon), `seasonal_window`, `date_window`, `weather` (stub)
+  - `settings`: INI key/value pairs (numbers add; strings append if configured)
+- `string_append_keys`: e.g., `["ServerMessageOfTheDay"]`
+- `string_append_joiner`: default ` <BR> `
+- `motd`: optional `{ header, footer, always_include }`
+- `insert_missing_keys`: default false (only update existing INI keys)
+- `caps`: per‑key `{min,max}` clamps after merging
 - `backup`: `{ dir, keep, one_backup_per_run }` (defaults to `<ini_dir>/backups`, keep 10)
 - `restart`: optional command (avoid when using ExecStartPre or wrapper)
 
 #### Behavior and precedence
 1) Continuous scaling applies first (if enabled)
 2) Active phase preset is gathered (by detailed bucket or broad phase fallback)
-3) All enabled manual events are gathered
-4) Events are merged additively for numeric keys; non-numeric last-wins
-5) Caps clamp results; only one backup per run
-6) Writes only if values change; unknown keys skipped unless `insert_missing_keys=true`
+3) All enabled events: `calendar` → `weather` → `custom`
+4) Merge: numbers add; strings append (if configured); otherwise last‑wins
+5) Caps clamp results; one backup per run; idempotent writes
+6) Unknown keys skipped unless `insert_missing_keys=true`
 
 #### Restore backup
 Backups are saved as `ServerSettings.ini.bak.YYYYMMDD-HHMMSS` in the backup dir. To restore, stop server, copy a backup over `ServerSettings.ini`, start server.
+
+#### Tests (local)
+- One‑shot: `tests/run_all_tests.sh [INI] [events.json]`
+- Cycle preview: `tests/run_cycle_test.sh [INI] [events.json]`
+- MOTD checks: `tests/test_motd.sh [INI] [events.json]`
+- Delta verify example: `tests/run_verify_example.sh`
 
 
