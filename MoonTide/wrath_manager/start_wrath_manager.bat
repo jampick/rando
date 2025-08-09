@@ -17,18 +17,22 @@ set "EVENT_FILE=%SCRIPT_DIR%events.json"
 set "INI_PATH="
 set "EXTRA_ARGS="
 set "MAP=exiled"
+set "CLI_INI=0"
+set "CLI_EVENTS=0"
 
 rem ---- Parse args ----
 :parse_args
 if "%~1"=="" goto done_parse
 if /I "%~1"=="-f" (
   set "INI_PATH=%~2"
+  set "CLI_INI=1"
   shift
   shift
   goto parse_args
 )
 if /I "%~1"=="-e" (
   set "EVENT_FILE=%~2"
+  set "CLI_EVENTS=1"
   shift
   shift
   goto parse_args
@@ -71,11 +75,17 @@ if exist "%SECRETS_FILE%" (
   echo [MoonTide][WARN] Secrets file not found: %SECRETS_FILE%
 )
 
-if not defined INI_PATH (
-  set "INI_PATH=%SCRIPT_DIR%configs\%MAP%\ServerSettings.ini"
+rem Prefer CLI -f; else allow secrets to define INI_PATH; else fallback to map default
+if "%CLI_INI%"=="0" (
+  if not defined INI_PATH (
+    set "INI_PATH=%SCRIPT_DIR%configs\%MAP%\ServerSettings.ini"
+  )
 )
-if "%EVENT_FILE%"=="%SCRIPT_DIR%events.json" (
-  if exist "%SCRIPT_DIR%configs\%MAP%\events.json" set "EVENT_FILE=%SCRIPT_DIR%configs\%MAP%\events.json"
+rem Prefer CLI -e; else allow secrets to define EVENT_FILE; else fallback to map default if present
+if "%CLI_EVENTS%"=="0" (
+  if "%EVENT_FILE%"=="%SCRIPT_DIR%events.json" (
+    if exist "%SCRIPT_DIR%configs\%MAP%\events.json" set "EVENT_FILE=%SCRIPT_DIR%configs\%MAP%\events.json"
+  )
 )
 
 if not defined INI_PATH (
