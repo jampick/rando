@@ -293,12 +293,20 @@
     },
     "StaminaRegenerationTime": {
       "min": 0.1,
-      "max": 10.0
+      "max": 8.0
     },
     "PlayerXPTimeMultiplier": {
       "min": 0.1,
       "max": 10.0
     }
+  },
+  "merge": {
+    "multiplicative_keys": [
+      "PlayerMovementSpeedScale",
+      "PlayerSprintSpeedScale"
+    ],
+    "min_keys": [],
+    "max_keys": []
   },
   "string_append_keys": [
     "ServerMessageOfTheDay"
