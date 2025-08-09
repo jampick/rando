@@ -370,14 +370,40 @@ class BackupManager:
             pass
 
 
-def read_text_lines(path: str) -> List[str]:
-    with open(path, "r", encoding="utf-8", errors="replace") as f:
-        return f.read().splitlines()
+def _detect_encoding_and_newline(path: str) -> Tuple[str, str]:
+    with open(path, "rb") as f:
+        data = f.read()
+    # Detect newline
+    newline = "\r\n" if b"\r\n" in data else "\n"
+    # Detect BOM/encoding
+    if data.startswith(b"\xff\xfe"):
+        return ("utf-16-le", newline)
+    if data.startswith(b"\xfe\xff"):
+        return ("utf-16-be", newline)
+    if data.startswith(b"\xef\xbb\xbf"):
+        return ("utf-8-sig", newline)
+    # Heuristic: presence of many NUL bytes suggests UTF-16
+    if b"\x00" in data[:200]:
+        # Default to utf-16-le which is common on Windows INI files
+        return ("utf-16-le", newline)
+    return ("utf-8", newline)
 
 
-def write_text_lines(path: str, lines: List[str]) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
+def read_text_lines_with_meta(path: str) -> Tuple[List[str], str, str]:
+    enc, newline = _detect_encoding_and_newline(path)
+    try:
+        with open(path, "r", encoding=enc, errors="replace", newline="") as f:
+            text = f.read()
+    except Exception:
+        with open(path, "r", encoding="utf-8", errors="replace", newline="") as f:
+            text = f.read()
+        enc = "utf-8"
+    return text.splitlines(), enc, newline
+
+
+def write_text_lines_with_meta(path: str, lines: List[str], encoding: str, newline: str) -> None:
+    with open(path, "w", encoding=encoding, newline="") as f:
+        f.write(newline.join(lines) + newline)
 
 
 def find_section_ranges(lines: List[str]) -> Dict[str, Tuple[int, int]]:
@@ -449,7 +475,7 @@ def apply_settings(
     backup_manager: BackupManager,
 ) -> Tuple[bool, List[str]]:
     changes: List[str] = []
-    lines = read_text_lines(ini_path)
+    lines, file_encoding, file_newline = read_text_lines_with_meta(ini_path)
 
     def set_key(k: str, v: float) -> None:
         nonlocal lines
@@ -469,7 +495,7 @@ def apply_settings(
         return True, changes
 
     backup_path = backup_manager.ensure_backup()
-    write_text_lines(ini_path, lines)
+    write_text_lines_with_meta(ini_path, lines, file_encoding, file_newline)
     result_msgs = changes if backup_path is None else [f"Backup: {backup_path}"] + changes
     return True, result_msgs
 
@@ -574,7 +600,7 @@ def apply_settings_map(
     backup_manager: BackupManager,
 ) -> Tuple[bool, List[str]]:
     changes: List[str] = []
-    lines = read_text_lines(ini_path)
+    lines, file_encoding, file_newline = read_text_lines_with_meta(ini_path)
 
     for key, raw_value in settings.items():
         value_str = format_value(raw_value, precision)
@@ -594,7 +620,7 @@ def apply_settings_map(
         return True, changes
 
     backup_path = backup_manager.ensure_backup()
-    write_text_lines(ini_path, lines)
+    write_text_lines_with_meta(ini_path, lines, file_encoding, file_newline)
     result_msgs = changes if backup_path is None else [f"Backup: {backup_path}"] + changes
     return True, result_msgs
 
