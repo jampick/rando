@@ -16,56 +16,96 @@
         "enabled": true,
         "name": "New Moon - The Calm",
         "settings": {
-          "ServerMessageOfTheDay": "New Moon: safer world, lean harvest. Explore, build, and prepare."
+          "ServerMessageOfTheDay": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
+          "MaxAggroRange": 7000,
+          "NPCMaxSpawnCapMultiplier": 0.8,
+          "NPCRespawnMultiplier": 1.2,
+          "PlayerHealthRegenSpeedScale": 1.3,
+          "PlayerDamageTakenMultiplier": 0.9
         }
       },
       "waxing_crescent": {
         "enabled": true,
         "name": "Waxing Crescent - The Stirring",
         "settings": {
-          "ServerMessageOfTheDay": "Waxing Crescent: the Stirring—threats rising, gains growing."
+          "ServerMessageOfTheDay": "Waxing Crescent: the Stirring—threats rising, gains growing.",
+          "MaxAggroRange": 9000,
+          "NPCMaxSpawnCapMultiplier": 1.0,
+          "NPCRespawnMultiplier": 0.95,
+          "StaminaRegenerationTime": 3.9,
+          "PlayerStaminaCostSprintMultiplier": 1.1
         }
       },
       "first_quarter": {
         "enabled": true,
         "name": "First Quarter - The Ascent",
         "settings": {
-          "ServerMessageOfTheDay": "First Quarter: the Ascent—adventure awaits; resources improving."
+          "ServerMessageOfTheDay": "First Quarter: the Ascent—adventure awaits; resources improving.",
+          "MaxAggroRange": 10500,
+          "NPCMaxSpawnCapMultiplier": 1.2,
+          "NPCRespawnMultiplier": 0.9,
+          "StaminaRegenerationTime": 4.1,
+          "PlayerStaminaCostSprintMultiplier": 1.15
         }
       },
       "waxing_gibbous": {
         "enabled": true,
         "name": "Waxing Gibbous - The Surge",
         "settings": {
-          "ServerMessageOfTheDay": "Waxing Gibbous: the Surge—stronger foes, richer rewards."
+          "ServerMessageOfTheDay": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
+          "MaxAggroRange": 12000,
+          "NPCMaxSpawnCapMultiplier": 1.3,
+          "NPCRespawnMultiplier": 0.85,
+          "StaminaRegenerationTime": 4.2,
+          "PlayerStaminaCostSprintMultiplier": 1.2
         }
       },
       "full": {
         "enabled": true,
         "name": "Full Moon - The Hunt",
         "settings": {
-          "ServerMessageOfTheDay": "Full Moon: the Hunt—enemies at peak power; harvest at its best."
+          "ServerMessageOfTheDay": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
+          "MaxAggroRange": 15000,
+          "NPCMaxSpawnCapMultiplier": 1.5,
+          "NPCRespawnMultiplier": 0.75,
+          "PlayerDamageTakenMultiplier": 1.2,
+          "ThrallDamageToNPCsMultiplier": 0.4
         }
       },
       "waning_gibbous": {
         "enabled": true,
         "name": "Waning Gibbous - The Fade",
         "settings": {
-          "ServerMessageOfTheDay": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful."
+          "ServerMessageOfTheDay": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful.",
+          "MaxAggroRange": 13000,
+          "NPCMaxSpawnCapMultiplier": 1.4,
+          "NPCRespawnMultiplier": 0.9,
+          "StaminaRegenerationTime": 4.1,
+          "PlayerStaminaCostSprintMultiplier": 1.15
         }
       },
       "last_quarter": {
         "enabled": true,
         "name": "Last Quarter - The Ebb",
         "settings": {
-          "ServerMessageOfTheDay": "Last Quarter: the Ebb—press on; fortunes balancing."
+          "ServerMessageOfTheDay": "Last Quarter: the Ebb—press on; fortunes balancing.",
+          "MaxAggroRange": 10000,
+          "NPCMaxSpawnCapMultiplier": 1.1,
+          "NPCRespawnMultiplier": 0.95,
+          "StaminaRegenerationTime": 3.9,
+          "PlayerStaminaCostSprintMultiplier": 1.1
         }
       },
       "waning_crescent": {
         "enabled": true,
         "name": "Waning Crescent - The Dusk",
         "settings": {
-          "ServerMessageOfTheDay": "Waning Crescent: the Dusk—quiet returns; stock your stores."
+          "ServerMessageOfTheDay": "Waning Crescent: the Dusk—quiet returns; stock your stores.",
+          "MaxAggroRange": 8000,
+          "NPCMaxSpawnCapMultiplier": 0.9,
+          "NPCRespawnMultiplier": 1.05,
+          "StaminaRegenerationTime": 3.8,
+          "PlayerStaminaCostSprintMultiplier": 1.05
         }
       }
     },
@@ -84,7 +124,13 @@
           "NPCHealthMultiplier": 2.5,
           "LootDropMultiplier": 2.0,
           "PurgeLevel": 6,
-          "ServerMessageOfTheDay": "Blood Moon Event: Elite monsters prowl! High risk, high reward."
+          "ServerMessageOfTheDay": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
+          "MaxAggroRange": 15000,
+          "NPCMaxSpawnCapMultiplier": 2.0,
+          "NPCRespawnMultiplier": 0.5,
+          "PlayerDamageTakenMultiplier": 1.3,
+          "HealthbarVisibilityDistance": 10000,
+          "ThrallDamageToNPCsMultiplier": 0.3
         }
       },
       {
@@ -97,9 +143,11 @@
           "timezone_offset_hours": 0
         },
         "settings": {
-          "PlayerThirstRateScale": 2.0,
-          "PlayerStaminaCostSprintMultiplier": 1.5,
-          "PlayerTemperatureIncreaseRate": 2.5,
+          "PlayerActiveThirstMultiplier": 2.0,
+          "PlayerIdleThirstMultiplier": 0.2,
+          "StaminaRegenerationTime": 5.0,
+          "PlayerStaminaCostSprintMultiplier": 1.8,
+          "PlayerMovementSpeedScale": 0.95,
           "ServerMessageOfTheDay": "Solar Flare: brutal heat and thirst—seek shade and water."
         }
       },
@@ -117,7 +165,12 @@
           "NightTimeSpeedScale": 0.25,
           "DayTimeSpeedScale": 2.0,
           "StaminaCostMultiplier": 1.3,
-          "ServerMessageOfTheDay": "Winter Solstice: longer nights and chill winds—bundle up."
+          "ServerMessageOfTheDay": "Winter Solstice: longer nights and chill winds—bundle up.",
+          "PlayerActiveHungerMultiplier": 2.0,
+          "PlayerActiveThirstMultiplier": 1.8,
+          "StaminaRegenerationTime": 4.5,
+          "PlayerDamageTakenMultiplier": 1.1,
+          "HealthbarVisibilityDistance": 12000
         }
       },
       {
@@ -132,7 +185,11 @@
         },
         "settings": {
           "XPTimeOnlineMultiplier": 2.0,
-          "ServerMessageOfTheDay": "Blue Moon: rare augury—unique loot and power await."
+          "ServerMessageOfTheDay": "Blue Moon: rare augury—unique loot and power await.",
+          "PlayerXPRateMultiplier": 4.0,
+          "PlayerXPKillMultiplier": 2.0,
+          "PlayerXPHarvestMultiplier": 1.5,
+          "PlayerXPCraftMultiplier": 1.5
         }
       }
     ],
@@ -147,7 +204,11 @@
         "settings": {
           "BuildingDamageMultiplier": 2.0,
           "StaminaRegenerationTime": 1.5,
-          "ServerMessageOfTheDay": "Storm Season: howling winds batter builds; move carefully."
+          "ServerMessageOfTheDay": "Storm Season: howling winds batter builds; move carefully.",
+          "PlayerSprintSpeedScale": 0.9,
+          "StaminaOnConsumeRegenPause": 1.8,
+          "StaminaOnExhaustionRegenPause": 3.2,
+          "PlayerMovementSpeedScale": 0.95
         }
       }
     ],
