@@ -494,8 +494,13 @@ def _post_discord_summary(
     event_settings: Dict[str, Union[int, float, str, bool]] = {},
     moon_settings: Dict[str, Union[int, float, str, bool]] = {},
 ) -> None:
-    # Build a single consolidated settings list titled "Event Settings".
-    # Do NOT include MOTD content in Discord post.
+    # Start with the event-specific MOTD (if any), followed by a blank line.
+    content = ""
+    motd_clean = str(motd or "").strip()
+    if motd_clean:
+        content = motd_clean + "\n\n"
+
+    # Build a single consolidated settings list titled "Event Settings" (excluding MOTD key).
     def _fmt_num(v: Union[int, float, str, bool]) -> str:
         if isinstance(v, bool):
             return "true" if v else "false"
@@ -505,7 +510,10 @@ def _post_discord_summary(
 
     merged: Dict[str, Union[int, float, str, bool]] = {}
     if isinstance(event_settings, dict):
-        merged.update(event_settings)
+        for k, v in event_settings.items():
+            if k == "ServerMessageOfTheDay":
+                continue
+            merged[k] = v
     if isinstance(moon_settings, dict):
         for k, v in moon_settings.items():
             if k not in merged:
@@ -515,7 +523,7 @@ def _post_discord_summary(
         return
 
     setting_lines = [f"{k}={_fmt_num(v)}" for k, v in sorted(merged.items())]
-    content = "Event Settings:\n" + "\n".join(setting_lines)
+    content += "Event Settings:\n" + "\n".join(setting_lines)
     if not content:
         return
     payload = {"content": content}
