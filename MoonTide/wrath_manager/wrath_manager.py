@@ -492,6 +492,7 @@ def _post_discord_summary(
     events_applied: List[str],
     motd: str,
     event_settings: Dict[str, Union[int, float, str, bool]] = {},
+    moon_settings: Dict[str, Union[int, float, str, bool]] = {},
 ) -> None:
     # Only send the event-specific MOTD content (no headers/footers or extra summary)
     content = str(motd or "").strip()
@@ -509,6 +510,18 @@ def _post_discord_summary(
         setting_parts = [f"{k}={_fmt(v)}" for k, v in sorted(event_settings.items())]
         settings_block = "Settings:\n" + "\n".join(setting_parts)
         content = (content + ("\n\n" if content else "")) + settings_block
+    if moon_settings:
+        def _fmt2(v: Union[int, float, str, bool]) -> str:
+            if isinstance(v, bool):
+                return "true" if v else "false"
+            if isinstance(v, int):
+                return str(v)
+            if isinstance(v, float):
+                return f"{v:.6g}"
+            return str(v)
+        moon_parts = [f"{k}={_fmt2(v)}" for k, v in sorted(moon_settings.items())]
+        moon_block = "Moon phase:\n" + "\n".join(moon_parts)
+        content = (content + ("\n\n" if content else "")) + moon_block
     if not content:
         return
     payload = {"content": content}
@@ -793,6 +806,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     summary: Dict[str, Union[str, int, float, Dict, List]] = {}
     last_event_motd: str = ""
     last_event_settings_for_discord: Dict[str, Union[int, float, str, bool]] = {}
+    last_moon_settings_for_discord: Dict[str, Union[int, float, str, bool]] = {}
 
     # Track keys set during this run (for default reversion later)
     set_keys_current_run: set = set()
@@ -860,6 +874,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             )
             any_changes = any_changes or changed
             change_msgs.extend(msgs)
+            last_moon_settings_for_discord = dict(scaled_values)
 
     # 2) Apply discrete event presets, if any are active
     events_cfg = (config or {}).get("events", {})
@@ -1027,6 +1042,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                         applied_event_names,
                         last_event_motd,
                         last_event_settings_for_discord,
+                        last_moon_settings_for_discord,
                     )
                     print("Posted summary to Discord.")
                 except Exception as _exc:
@@ -1051,6 +1067,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     applied_event_names,
                     last_event_motd,
                     last_event_settings_for_discord,
+                    last_moon_settings_for_discord,
                 )
                 print("Posted summary to Discord.")
             except Exception as _exc:
