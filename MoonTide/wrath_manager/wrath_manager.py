@@ -507,7 +507,8 @@ def _post_discord_summary(
                 return f"{v:.6g}"
             return str(v)
         setting_parts = [f"{k}={_fmt(v)}" for k, v in sorted(event_settings.items())]
-        content = (content + ("\n\n" if content else "")) + "Settings: " + ", ".join(setting_parts)
+        settings_block = "Settings:\n" + "\n".join(setting_parts)
+        content = (content + ("\n\n" if content else "")) + settings_block
     if not content:
         return
     payload = {"content": content}
