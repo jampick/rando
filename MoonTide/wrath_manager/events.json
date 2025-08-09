@@ -74,7 +74,7 @@
         "name": "Waxing Gibbous - The Surge",
         "motd": {
           "en": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
-          "ja": "十三夜：敵は強く、報酬は豊かに。"
+          "ja": "十三夜：敵は強く、報酬は豊かになる。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
@@ -156,7 +156,7 @@
         "name": "Blood Moon - The Reckoning",
         "motd": {
           "en": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
-          "ja": "血の満月イベント：精鋭モンスターが徘徊！ 危険は大きく、報酬もまた大きい。"
+          "ja": "血の満月イベント：精鋭モンスターが徘徊する！ 危険は大きく、報酬もまた大きい。"
         },
         "trigger": {
           "type": "astronomical",
@@ -188,7 +188,7 @@
         "name": "Blue Moon - The Forgotten Prophecy",
         "motd": {
           "en": "Blue Moon: rare augury—unique loot and power await.",
-          "ja": "青い満月：稀なる兆し。特別な戦利品と力が待つ。"
+          "ja": "青い満月：稀なる兆し。特別な戦利品と力が待ち受ける。"
         },
         "trigger": {
           "type": "astronomical",
@@ -216,11 +216,11 @@
     "languages": ["en", "ja"],
     "header": {
       "en": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt",
-      "ja": "[EDIT ME] JA header …"
+      "ja": "クロムはお前の運命に興味はない。<BR>これはムーンタイドだ。耐えよ、さもなくば滅べ。<BR>戦団に参加: discord.gg/g7D3GzVrDt"
     },
     "footer": {
       "en": "Fight. Build. Bleed. Survive the night.",
-      "ja": "[EDIT ME] JA footer …"
+      "ja": "戦え。築け。血を流せ。夜を生き延びろ。"
     },
     "always_include": true
   }
