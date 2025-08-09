@@ -227,3 +227,5 @@ tests/run_all_tests.sh        # full battery, single command
 **MOTD**: optional global header and footer, events append
 
 ---
+
+(note) synced precision in example
