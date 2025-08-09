@@ -129,7 +129,13 @@
           "NPCRespawnMultiplier": 0.5,
           "PlayerDamageTakenMultiplier": 1.3,
           "HealthbarVisibilityDistance": 10000,
-          "ThrallDamageToNPCsMultiplier": 0.3
+          "ThrallDamageToNPCsMultiplier": 0.3,
+          "StormEnabled": true,
+          "StormAlwaysOn": true,
+          "StormMinimumHours": 0.1,
+          "StormMaximumHours": 0.1,
+          "ElderThingsEnabled": true,
+          "ElderThingsIdleLifespan": 600
         }
       },
       {
@@ -146,8 +152,7 @@
           "PlayerIdleThirstMultiplier": 0.2,
           "StaminaRegenerationTime": 5.0,
           "PlayerStaminaCostSprintMultiplier": 1.8,
-          "PlayerMovementSpeedScale": 0.95,
-          "ServerMessageOfTheDay": "Solar Flare: brutal heat and thirst—seek shade and water."
+          "PlayerMovementSpeedScale": 0.95
         }
       },
       {
@@ -164,7 +169,6 @@
           "NightTimeSpeedScale": 0.25,
           "DayTimeSpeedScale": 2.0,
           "StaminaCostMultiplier": 1.3,
-          "ServerMessageOfTheDay": "Winter Solstice: longer nights and chill winds—bundle up.",
           "PlayerActiveHungerMultiplier": 2.0,
           "PlayerActiveThirstMultiplier": 1.8,
           "StaminaRegenerationTime": 4.5,
@@ -203,7 +207,6 @@
         "settings": {
           "BuildingDamageMultiplier": 2.0,
           "StaminaRegenerationTime": 1.5,
-          "ServerMessageOfTheDay": "Storm Season: howling winds batter builds; move carefully.",
           "PlayerSprintSpeedScale": 0.9,
           "StaminaOnConsumeRegenPause": 1.8,
           "StaminaOnExhaustionRegenPause": 3.2,
@@ -248,5 +251,3 @@
     "command": null
   }
 }
-
-
