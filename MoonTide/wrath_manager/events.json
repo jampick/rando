@@ -26,7 +26,7 @@
         "name": "New Moon - The Calm",
         "motd": {
           "en": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
-          "ja": "New Moon: safer world, lean harvest. Explore, build, and prepare."
+          "ja": "新月：世界は安全だが、収穫は乏しい。探索し、築き、備えよ。"
         },
         "settings": {
           "ServerMessageOfTheDay": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
@@ -42,7 +42,7 @@
         "name": "Waxing Crescent - The Stirring",
         "motd": {
           "en": "Waxing Crescent: the Stirring—threats rising, gains growing.",
-          "ja": "Waxing Crescent: the Stirring—threats rising, gains growing."
+          "ja": "三日月：脅威が増し、収穫も増え始める。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waxing Crescent: the Stirring—threats rising, gains growing.",
@@ -58,7 +58,7 @@
         "name": "First Quarter - The Ascent",
         "motd": {
           "en": "First Quarter: the Ascent—adventure awaits; resources improving.",
-          "ja": "First Quarter: the Ascent—adventure awaits; resources improving."
+          "ja": "上弦の月：冒険が待ち受け、資源が豊かになる。"
         },
         "settings": {
           "ServerMessageOfTheDay": "First Quarter: the Ascent—adventure awaits; resources improving.",
@@ -74,7 +74,7 @@
         "name": "Waxing Gibbous - The Surge",
         "motd": {
           "en": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
-          "ja": "Waxing Gibbous: the Surge—stronger foes, richer rewards."
+          "ja": "十三夜：敵は強く、報酬は豊かに。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
@@ -90,7 +90,7 @@
         "name": "Full Moon - The Hunt",
         "motd": {
           "en": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
-          "ja": "満月：敵は最強、収穫は最良。"
+          "ja": "満月：敵は最強、収穫は最高潮。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
@@ -106,7 +106,7 @@
         "name": "Waning Gibbous - The Fade",
         "motd": {
           "en": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful.",
-          "ja": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful."
+          "ja": "十六夜：戦いの激しさは和らぐが、宝はまだ豊富だ。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful.",
@@ -122,7 +122,7 @@
         "name": "Last Quarter - The Ebb",
         "motd": {
           "en": "Last Quarter: the Ebb—press on; fortunes balancing.",
-          "ja": "Last Quarter: the Ebb—press on; fortunes balancing."
+          "ja": "下弦の月：進み続けよ。運は均衡へ向かう。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Last Quarter: the Ebb—press on; fortunes balancing.",
@@ -138,7 +138,7 @@
         "name": "Waning Crescent - The Dusk",
         "motd": {
           "en": "Waning Crescent: the Dusk—quiet returns; stock your stores.",
-          "ja": "Waning Crescent: the Dusk—quiet returns; stock your stores."
+          "ja": "二十六夜：静けさが戻る。備蓄を満たせ。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waning Crescent: the Dusk—quiet returns; stock your stores.",
@@ -156,7 +156,7 @@
         "name": "Blood Moon - The Reckoning",
         "motd": {
           "en": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
-          "ja": "Blood Moon Event: Elite monsters prowl! High risk, high reward."
+          "ja": "血の満月イベント：精鋭モンスターが徘徊！ 危険は大きく、報酬もまた大きい。"
         },
         "trigger": {
           "type": "astronomical",
@@ -185,58 +185,10 @@
       },
       {
         "enabled": false,
-        "name": "Solar Flare - The Burning Sky",
-        "trigger": {
-          "type": "seasonal_window",
-          "months": [
-            6,
-            7,
-            8
-          ],
-          "daily_window": [
-            "12:00",
-            "14:00"
-          ],
-          "timezone_offset_hours": 0
-        },
-        "settings": {
-          "PlayerActiveThirstMultiplier": 2.0,
-          "PlayerIdleThirstMultiplier": 0.2,
-          "StaminaRegenerationTime": 4.0,
-          "PlayerStaminaCostSprintMultiplier": 1.8,
-          "PlayerMovementSpeedScale": 0.95
-        }
-      },
-      {
-        "enabled": false,
-        "name": "Winter Solstice - The Long Night",
-        "trigger": {
-          "type": "date_window",
-          "start": "12-20",
-          "end": "12-23",
-          "night_window": [
-            "18:00",
-            "06:00"
-          ],
-          "timezone_offset_hours": 0
-        },
-        "settings": {
-          "NightTimeSpeedScale": 0.25,
-          "DayTimeSpeedScale": 2.0,
-          "StaminaCostMultiplier": 1.3,
-          "PlayerActiveHungerMultiplier": 2.0,
-          "PlayerActiveThirstMultiplier": 1.8,
-          "StaminaRegenerationTime": 4.5,
-          "PlayerDamageTakenMultiplier": 1.1,
-          "HealthbarVisibilityDistance": 12000
-        }
-      },
-      {
-        "enabled": false,
         "name": "Blue Moon - The Forgotten Prophecy",
         "motd": {
           "en": "Blue Moon: rare augury—unique loot and power await.",
-          "ja": "Blue Moon: rare augury—unique loot and power await."
+          "ja": "青い満月：稀なる兆し。特別な戦利品と力が待つ。"
         },
         "trigger": {
           "type": "astronomical",
@@ -257,143 +209,6 @@
           "PlayerXPCraftMultiplier": 1.5
         }
       }
-    ],
-    "weather": [
-      {
-        "enabled": false,
-        "name": "Storm Season - The Howling Winds",
-        "trigger": {
-          "type": "weather",
-          "provider": "stub"
-        },
-        "settings": {
-          "BuildingDamageMultiplier": 2.0,
-          "StaminaRegenerationTime": 1.5,
-          "PlayerSprintSpeedScale": 0.9,
-          "StaminaOnConsumeRegenPause": 1.8,
-          "StaminaOnExhaustionRegenPause": 3.2,
-          "PlayerMovementSpeedScale": 0.95
-        }
-      }
-    ],
-    "custom": []
-  },
-  "caps": {
-    "HarvestAmountMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "NPCDamageMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "NPCDamageTakenMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "NPCHealthMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "LootDropMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "PurgeLevel": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "PlayerThirstRateScale": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "PlayerStaminaCostSprintMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "PlayerTemperatureIncreaseRate": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "NightTimeSpeedScale": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "DayTimeSpeedScale": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "StaminaCostMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "BuildingDamageMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    },
-    "StaminaRegenerationTime": {
-      "min": 0.1,
-      "max": 8.0
-    },
-    "PlayerXPTimeMultiplier": {
-      "min": 0.1,
-      "max": 10.0
-    }
-  },
-  "merge": {
-    "multiplicative_keys": [
-      "PlayerMovementSpeedScale",
-      "PlayerSprintSpeedScale"
-    ],
-    "min_keys": [],
-    "max_keys": []
-  },
-  "string_append_keys": [
-    "ServerMessageOfTheDay"
-  ],
-  "string_append_joiner": "<BR>",
-  "motd": {
-    "languages": ["en", "ja"],
-    "header": {
-      "en": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt",
-      "ja": "クロムはお前の運命に興味はない。<BR>これはムーンタイドだ。耐えよ、さもなくば滅べ。<BR>戦団に参加: discord.gg/g7D3GzVrDt"
-    },
-    "footer": {
-      "en": "Fight. Build. Bleed. Survive the night.",
-      "ja": "戦え。築け。血を流せ。夜を生き延びろ。"
-    },
-    "always_include": true
-  },
-  "backup": {
-    "dir": null,
-    "keep": 10,
-    "one_backup_per_run": true
-  },
-  "restart": {
-    "command": null
-  },
-  "managed_keys": [
-    "MaxAggroRange",
-    "NPCMaxSpawnCapMultiplier",
-    "NPCRespawnMultiplier",
-    "PlayerDamageTakenMultiplier",
-    "ThrallDamageToNPCsMultiplier",
-    "MinionDamageTakenMultiplier",
-    "PlayerMovementSpeedScale",
-    "PlayerSprintSpeedScale",
-    "StaminaRegenerationTime",
-    "ServerMessageOfTheDay"
-  ],
-  "defaults": {
-    "MaxAggroRange": 9000,
-    "NPCMaxSpawnCapMultiplier": 1.0,
-    "NPCRespawnMultiplier": 1.0,
-    "PlayerDamageTakenMultiplier": 1.0,
-    "ThrallDamageToNPCsMultiplier": 1.0,
-    "MinionDamageTakenMultiplier": 1.0,
-    "PlayerMovementSpeedScale": 1.0,
-    "PlayerSprintSpeedScale": 1.0,
-    "StaminaRegenerationTime": 3.75,
-    "ServerMessageOfTheDay": ""
+    ]
   }
 }
