@@ -20,7 +20,7 @@ See the event concept and detailed breakdown in `MoonTide/EVENTS_DESIGN.md`.
 - `events.json`: configuration (edit this)
 - `events.sample.json`: starter template
 - `EVENTS_DESIGN.md`: event concept and detailed breakdown
-- `start_conan_with_moontide.bat`: Windows wrapper (runs tuner only)
+- `start_wrath_manager.bat`: Windows wrapper (runs tuner only)
 - `tests/`: cycle, MOTD, and verification runners
 
 #### Quick run
@@ -38,10 +38,10 @@ python3 /absolute/path/MoonTide/wrath_manager.py --ini-path /path/to/ServerSetti
 Legacy‑style args supported. Call it before starting the server (wrapper does not start the server):
 ```bat
 REM legacy‑compatible example (MOTD arg ignored)
-start_conan_with_moontide.bat -f "C:\ExiledLands\DedicatedServerLauncher\ConanExilesDedicatedServer\ConanSandbox\Saved\Config\WindowsServer\ServerSettings.ini" -m "C:\path\MOTD.txt"
+start_wrath_manager.bat -f "C:\ExiledLands\DedicatedServerLauncher\ConanExilesDedicatedServer\ConanSandbox\Saved\Config\WindowsServer\ServerSettings.ini" -m "C:\path\MOTD.txt"
 
 REM specify events file and pass flags through
-start_conan_with_moontide.bat -f "C:\path\ServerSettings.ini" -e "C:\path\events.json" --no-restart
+start_wrath_manager.bat -f "C:\path\ServerSettings.ini" -e "C:\path\events.json" --no-restart
 ```
 
 #### Linux systemd (ExecStartPre)
