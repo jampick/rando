@@ -24,6 +24,10 @@
       "new": {
         "enabled": true,
         "name": "New Moon - The Calm",
+        "motd": {
+          "en": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
+          "ja": "New Moon: safer world, lean harvest. Explore, build, and prepare."
+        },
         "settings": {
           "ServerMessageOfTheDay": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
           "MaxAggroRange": 7000,
@@ -36,6 +40,10 @@
       "waxing_crescent": {
         "enabled": true,
         "name": "Waxing Crescent - The Stirring",
+        "motd": {
+          "en": "Waxing Crescent: the Stirring—threats rising, gains growing.",
+          "ja": "Waxing Crescent: the Stirring—threats rising, gains growing."
+        },
         "settings": {
           "ServerMessageOfTheDay": "Waxing Crescent: the Stirring—threats rising, gains growing.",
           "MaxAggroRange": 9000,
@@ -48,6 +56,10 @@
       "first_quarter": {
         "enabled": true,
         "name": "First Quarter - The Ascent",
+        "motd": {
+          "en": "First Quarter: the Ascent—adventure awaits; resources improving.",
+          "ja": "First Quarter: the Ascent—adventure awaits; resources improving."
+        },
         "settings": {
           "ServerMessageOfTheDay": "First Quarter: the Ascent—adventure awaits; resources improving.",
           "MaxAggroRange": 10500,
@@ -60,6 +72,10 @@
       "waxing_gibbous": {
         "enabled": true,
         "name": "Waxing Gibbous - The Surge",
+        "motd": {
+          "en": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
+          "ja": "Waxing Gibbous: the Surge—stronger foes, richer rewards."
+        },
         "settings": {
           "ServerMessageOfTheDay": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
           "MaxAggroRange": 12000,
@@ -72,12 +88,12 @@
       "full": {
         "enabled": true,
         "name": "Full Moon - The Hunt",
+        "motd": {
+          "en": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
+          "ja": "満月：敵は最強、収穫は最良。"
+        },
         "settings": {
           "ServerMessageOfTheDay": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
-          "motd": {
-            "en": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
-            "ja": "満月：敵は最強、収穫は最良。"
-          },
           "MaxAggroRange": 15000,
           "NPCMaxSpawnCapMultiplier": 1.5,
           "NPCRespawnMultiplier": 0.75,
@@ -88,6 +104,10 @@
       "waning_gibbous": {
         "enabled": true,
         "name": "Waning Gibbous - The Fade",
+        "motd": {
+          "en": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful.",
+          "ja": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful."
+        },
         "settings": {
           "ServerMessageOfTheDay": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful.",
           "MaxAggroRange": 13000,
@@ -100,6 +120,10 @@
       "last_quarter": {
         "enabled": true,
         "name": "Last Quarter - The Ebb",
+        "motd": {
+          "en": "Last Quarter: the Ebb—press on; fortunes balancing.",
+          "ja": "Last Quarter: the Ebb—press on; fortunes balancing."
+        },
         "settings": {
           "ServerMessageOfTheDay": "Last Quarter: the Ebb—press on; fortunes balancing.",
           "MaxAggroRange": 10000,
@@ -112,6 +136,10 @@
       "waning_crescent": {
         "enabled": true,
         "name": "Waning Crescent - The Dusk",
+        "motd": {
+          "en": "Waning Crescent: the Dusk—quiet returns; stock your stores.",
+          "ja": "Waning Crescent: the Dusk—quiet returns; stock your stores."
+        },
         "settings": {
           "ServerMessageOfTheDay": "Waning Crescent: the Dusk—quiet returns; stock your stores.",
           "MaxAggroRange": 8000,
@@ -126,6 +154,10 @@
       {
         "enabled": false,
         "name": "Blood Moon - The Reckoning",
+        "motd": {
+          "en": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
+          "ja": "Blood Moon Event: Elite monsters prowl! High risk, high reward."
+        },
         "trigger": {
           "type": "astronomical",
           "event": "full_moon",
@@ -202,6 +234,10 @@
       {
         "enabled": false,
         "name": "Blue Moon - The Forgotten Prophecy",
+        "motd": {
+          "en": "Blue Moon: rare augury—unique loot and power await.",
+          "ja": "Blue Moon: rare augury—unique loot and power await."
+        },
         "trigger": {
           "type": "astronomical",
           "event": "blue_moon",
