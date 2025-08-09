@@ -1,6 +1,6 @@
 {
   "precision": 7,
-  "insert_missing_keys": false,
+  "insert_missing_keys": true,
   "moon_phase": {
     "enabled": true,
     "gamma": 1.0,
