@@ -37,7 +37,7 @@ fi
 echo
 
 # 2) MOTD test
-echo "[2/3] MOTD presence and append test"
+echo "[2/4] MOTD presence and append test"
 set +e
 bash "$ROOT/tests/test_motd.sh" "$INI" "$EVENTS" > >(tee /dev/stderr) 2>/dev/null
 motd_status=$?
@@ -51,8 +51,23 @@ else
 fi
 echo
 
-# 3) Verify actual write deltas on a temp copy (Full Moon example)
-echo "[3/3] Verify updated INI only changes expected keys (Full Moon example)"
+# 3) Bilingual MOTD order
+echo "[3/4] Bilingual MOTD order test (EN then JA)"
+set +e
+bash "$ROOT/tests/test_bilingual_motd.sh" "$INI" "$EVENTS" > >(tee /dev/stderr) 2>/dev/null
+bi_status=$?
+set -e
+if [[ $bi_status -eq 0 ]]; then
+  echo " - bilingual motd: PASS"
+  ((overall_pass++))
+else
+  echo " - bilingual motd: FAIL (see output above)" >&2
+  ((overall_fail++))
+fi
+echo
+
+# 4) Verify actual write deltas on a temp copy (Full Moon example)
+echo "[4/4] Verify updated INI only changes expected keys (Full Moon example)"
 TMP_INI=$(mktemp)
 TMP_RAW=$(mktemp)
 TMP_JSON=$(mktemp)

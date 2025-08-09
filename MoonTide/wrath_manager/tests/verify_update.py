@@ -2,7 +2,7 @@
 import sys
 import json
 import re
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 
 def parse_serversettings_ini(path: str) -> Dict[str, str]:
@@ -35,10 +35,14 @@ def as_float_if_possible(s: str):
         return s
 
 
-def nearly_equal(a, b, tol=1e-5):
+def nearly_equal(a, b, tol=1e-5, precision: Optional[int] = None):
     try:
         af = float(a)
         bf = float(b)
+        if precision is not None:
+            af = round(af, precision)
+            bf = round(bf, precision)
+            return af == bf
         return abs(af - bf) <= tol
     except Exception:
         return str(a) == str(b)
@@ -50,6 +54,7 @@ def main():
         return 2
     orig_ini, upd_ini, expected_json = sys.argv[1:4]
     events_json = sys.argv[4] if len(sys.argv) >= 5 else None
+    precision: Optional[int] = None
 
     orig = parse_serversettings_ini(orig_ini)
     upd = parse_serversettings_ini(upd_ini)
@@ -68,6 +73,8 @@ def main():
         try:
             with open(events_json, "r", encoding="utf-8") as f:
                 ev = json.load(f)
+            if isinstance(ev.get("precision"), int):
+                precision = int(ev.get("precision"))
             managed = list(ev.get("managed_keys", [])) if isinstance(ev.get("managed_keys", []), list) else []
             defaults = ev.get("defaults", {}) if isinstance(ev.get("defaults", {}), dict) else {}
             for k in managed:
@@ -92,7 +99,7 @@ def main():
         if k not in upd:
             missing_expected.append(k)
         else:
-            if not nearly_equal(upd[k], expected_map[k]):
+            if not nearly_equal(upd[k], expected_map[k], precision=precision):
                 wrong_values.append((k, upd[k], expected_map[k]))
 
     ok = not unexpected_changes and not missing_expected and not wrong_values
