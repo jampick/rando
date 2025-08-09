@@ -149,6 +149,10 @@
     "StaminaRegenerationTime": { "min": 0.1, "max": 10.0 },
     "XPTimeOnlineMultiplier": { "min": 0.1, "max": 10.0 }
   },
+  "string_append_keys": [
+    "ServerMessageOfTheDay"
+  ],
+  "string_append_joiner": " <BR> ",
   "backup": {
     "dir": null,
     "keep": 10,

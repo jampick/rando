@@ -520,17 +520,35 @@ def is_numeric_value(value: Union[int, float, str, bool]) -> bool:
     return (isinstance(value, (int, float)) and not isinstance(value, bool))
 
 
+def is_string_value(value: Union[int, float, str, bool]) -> bool:
+    return isinstance(value, str)
+
+
 def merge_settings_additive(
-    maps: List[Dict[str, Union[int, float, str, bool]]]
+    maps: List[Dict[str, Union[int, float, str, bool]]],
+    append_string_keys: Optional[List[str]] = None,
+    string_joiner: str = " <BR> ",
 ) -> Dict[str, Union[int, float, str, bool]]:
-    """Merge multiple settings dicts additively for numeric values; last-wins otherwise."""
+    """Merge settings across multiple maps.
+
+    - Numeric values are added
+    - For keys in append_string_keys, string values are appended using string_joiner
+    - Otherwise, last value wins
+    """
+    append_set = set(append_string_keys or [])
     merged: Dict[str, Union[int, float, str, bool]] = {}
     for m in maps:
         for k, v in m.items():
             if k in merged and is_numeric_value(merged[k]) and is_numeric_value(v):
                 merged[k] = float(merged[k]) + float(v)  # type: ignore[arg-type]
-            else:
-                merged[k] = v
+                continue
+            if k in merged and k in append_set and is_string_value(merged[k]) and is_string_value(v):
+                left = str(merged[k])
+                right = str(v)
+                if right and right not in left:
+                    merged[k] = (left + string_joiner + right) if left else right
+                continue
+            merged[k] = v
     return merged
 
 
@@ -609,6 +627,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         default=None,
         help="Override using a synthetic timestamp for the given lunar day index (0..29)",
     )
+    parser.add_argument(
+        "--json-summary",
+        action="store_true",
+        help="Emit a JSON summary of computed values and applied settings to stdout",
+    )
     return parser.parse_args(argv)
 
 
@@ -674,6 +697,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         one_backup_per_run=backup_one,
     )
 
+    # Prepare JSON summary (filled progressively if requested)
+    summary: Dict[str, Union[str, int, float, Dict, List]] = {}
+
     # 1) Apply continuous moon-phase mapping, if enabled
     moon_cfg = (config or {}).get("moon_phase", {})
     any_changes = False
@@ -711,6 +737,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         if scaled_values:
             pretty = ", ".join(f"{k}: {v:.3f}" for k, v in scaled_values.items())
             print(f"Continuous scaled -> {pretty}")
+
+        if args.json_summary:
+            summary.update({
+                "timestamp_utc": now_utc.isoformat(),
+                "phase_day": int(math.floor(phase_days)),
+                "illumination": illumination_fraction,
+                "phase_name": phase_name,
+                "phase_bucket": phase_bucket,
+                "gamma": gamma,
+                "mapping": minmax_by_key,
+                "caps": caps_cfg if isinstance(caps_cfg, dict) else {},
+                "scaled_values": scaled_values,
+            })
 
         if scaled_values:
             changed, msgs = apply_settings_map(
@@ -767,12 +806,24 @@ def main(argv: Optional[List[str]] = None) -> int:
         applied_event_names.append(name)
 
     if merged_event_settings:
-        additive_settings = merge_settings_additive(merged_event_settings)
+        append_keys = []
+        try:
+            append_keys = list((config or {}).get("string_append_keys", []))
+        except Exception:
+            append_keys = []
+        additive_settings = merge_settings_additive(
+            merged_event_settings,
+            append_string_keys=append_keys,
+            string_joiner=str((config or {}).get("string_append_joiner", " <BR> ")),
+        )
         caps_cfg = (config or {}).get("caps", {})
         if isinstance(caps_cfg, dict):
             additive_settings = apply_caps(additive_settings, caps_cfg)  
         pretty = ", ".join(f"{k}: {v}" for k, v in additive_settings.items())
         print(f"Applying merged events: {', '.join(applied_event_names)} -> {pretty}")
+        if args.json_summary:
+            summary["events_applied"] = applied_event_names
+            summary["additive_event_settings"] = additive_settings
         changed, msgs = apply_settings_map(
             ini_path=ini_path,
             settings=additive_settings, 
@@ -784,6 +835,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         any_changes = any_changes or changed
         for name in applied_event_names:
             change_msgs.extend([f"[{name}] {m}" for m in msgs])
+
+    if args.json_summary and summary:
+        try:
+            print(json.dumps(summary))
+        except Exception:
+            pass
 
     if not any_changes:
         print("No changes necessary (already up to date).")
