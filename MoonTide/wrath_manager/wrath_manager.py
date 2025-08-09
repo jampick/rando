@@ -494,29 +494,28 @@ def _post_discord_summary(
     event_settings: Dict[str, Union[int, float, str, bool]] = {},
     moon_settings: Dict[str, Union[int, float, str, bool]] = {},
 ) -> None:
-    # Only send the event-specific MOTD content (no headers/footers or extra summary)
-    content = str(motd or "").strip()
-    # Append event settings that were modified (post-caps), if any
-    if event_settings:
-        def _fmt(v: Union[int, float, str, bool]) -> str:
-            if isinstance(v, bool):
-                return "true" if v else "false"
-            if isinstance(v, (int, float)) and not isinstance(v, bool):
-                return f"{float(v):.1f}"
-            return str(v)
-        setting_parts = [f"{k}={_fmt(v)}" for k, v in sorted(event_settings.items())]
-        settings_block = "Settings:\n" + "\n".join(setting_parts)
-        content = (content + ("\n\n" if content else "")) + settings_block
-    if moon_settings:
-        def _fmt2(v: Union[int, float, str, bool]) -> str:
-            if isinstance(v, bool):
-                return "true" if v else "false"
-            if isinstance(v, (int, float)) and not isinstance(v, bool):
-                return f"{float(v):.1f}"
-            return str(v)
-        moon_parts = [f"{k}={_fmt2(v)}" for k, v in sorted(moon_settings.items())]
-        moon_block = "Moon phase:\n" + "\n".join(moon_parts)
-        content = (content + ("\n\n" if content else "")) + moon_block
+    # Build a single consolidated settings list titled "Event Settings".
+    # Do NOT include MOTD content in Discord post.
+    def _fmt_num(v: Union[int, float, str, bool]) -> str:
+        if isinstance(v, bool):
+            return "true" if v else "false"
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return f"{float(v):.1f}"
+        return str(v)
+
+    merged: Dict[str, Union[int, float, str, bool]] = {}
+    if isinstance(event_settings, dict):
+        merged.update(event_settings)
+    if isinstance(moon_settings, dict):
+        for k, v in moon_settings.items():
+            if k not in merged:
+                merged[k] = v
+
+    if not merged:
+        return
+
+    setting_lines = [f"{k}={_fmt_num(v)}" for k, v in sorted(merged.items())]
+    content = "Event Settings:\n" + "\n".join(setting_lines)
     if not content:
         return
     payload = {"content": content}
