@@ -154,11 +154,11 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 <details>
 <summary>🔥 Solar Flare - The Burning Sky</summary>
 **Theme**: heat punishes the unprepared  
-**Systems**: `PlayerActiveThirstMultiplier↑`, `PlayerIdleThirstMultiplier↓`, `StaminaRegenerationTime↑`, `PlayerStaminaCostSprintMultiplier↑`, `PlayerMovementSpeedScale↓`  
+**Systems**: `PlayerActiveThirstMultiplier↑`, `PlayerIdleThirstMultiplier↓`, `StaminaRegenerationTime↑` (e.g., ~4.0 during peak), `PlayerStaminaCostSprintMultiplier↑`, `PlayerMovementSpeedScale↓`  
 **Intent**: travel and combat become resource games; the sun is the enemy  
 **Trigger**: seasonal midday windows in summer  
 **MOTD cue**: "Solar Flare: brutal heat and thirst—seek shade and water."  
-**Operator tips**: remind players about water/ice; nudge caravan/supply play
+**Operator tips**: remind players about water/ice; nudge caravan/supply play; movement/sprint speed merge multiplicatively to avoid additive speed-ups
 </details>
 
 <details>
