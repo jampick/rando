@@ -210,5 +210,18 @@
         }
       }
     ]
+  },
+  "string_append_joiner": "<BR>",
+  "motd": {
+    "languages": ["en", "ja"],
+    "header": {
+      "en": "[EDIT ME] EN header …",
+      "ja": "[編集可] JA ヘッダー …"
+    },
+    "footer": {
+      "en": "[EDIT ME] EN footer …",
+      "ja": "[編集可] JA フッター …"
+    },
+    "always_include": true
   }
 }
