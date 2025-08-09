@@ -63,7 +63,7 @@ $PY "$ROOT/wrath_manager.py" \
   --ini-path "$TMP_INI" \
   --event-file "$EVENTS" \
   --phase-day 15 \
-  --json-summary --no-restart > "$TMP_RAW" 2>/dev/null
+  --json-summary > "$TMP_RAW" 2>/dev/null
 grep -E '^\{' "$TMP_RAW" | tail -n 1 > "$TMP_JSON" || true
 $PY "$ROOT/tests/verify_update.py" "$INI" "$TMP_INI" "$TMP_JSON" "$EVENTS" | tee /dev/stderr
 verify_status=${PIPESTATUS[0]}

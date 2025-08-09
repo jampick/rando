@@ -42,7 +42,7 @@ if /I "%~1"=="--dry-run" (
   shift
   goto parse_args
 )
-rem pass-through any other args (e.g., --no-restart)
+rem pass-through any other args
 set "EXTRA_ARGS=%EXTRA_ARGS% %~1"
 shift
 goto parse_args
@@ -51,7 +51,7 @@ goto parse_args
 
 if not defined INI_PATH (
   echo [MoonTide][ERROR] Missing required -f ^<ServerSettings.ini^>
-  echo Usage: %~nx0 -f "C:\path\to\ServerSettings.ini" [-e "C:\path\to\events.json"] [--dry-run] [--no-restart]
+  echo Usage: %~nx0 -f "C:\path\to\ServerSettings.ini" [-e "C:\path\to\events.json"] [--dry-run]
   exit /b 2
 )
 
@@ -80,7 +80,7 @@ echo    INI:    %INI_PATH%
 echo    EVENTS: %EVENT_FILE%
 echo    EXTRA:  %EXTRA_ARGS%
 
-"%PYTHON_EXE%" %PY_ARGS% "%MOONTIDE_SCRIPT%" --ini-path "%INI_PATH%" --event-file "%EVENT_FILE%" --no-restart %EXTRA_ARGS%
+"%PYTHON_EXE%" %PY_ARGS% "%MOONTIDE_SCRIPT%" --ini-path "%INI_PATH%" --event-file "%EVENT_FILE%" %EXTRA_ARGS%
 set "RC=%ERRORLEVEL%"
 if not "%RC%"=="0" (
   echo [MoonTide][WARN] Tuner exited with code %RC%

@@ -679,11 +679,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="Optional shell command to restart the server after writing",
     )
     parser.add_argument(
-        "--no-restart",
-        action="store_true",
-        help="Do not restart even if restart is configured",
-    )
-    parser.add_argument(
         "--precision",
         type=int,
         default=6,
@@ -1040,7 +1035,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     # Determine restart command: CLI override > event file > none
     restart_cfg = (config or {}).get("restart", {})
     restart_cmd = args.restart_cmd or restart_cfg.get("command")
-    if not args.no_restart and restart_cmd:
+    if restart_cmd:
         print(f"Restarting server: {restart_cmd}")
         try:
             completed = subprocess.run(

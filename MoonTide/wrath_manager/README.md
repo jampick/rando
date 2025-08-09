@@ -50,14 +50,14 @@ REM legacy‑compatible example (MOTD arg ignored)
 start_wrath_manager.bat -f "C:\ExiledLands\DedicatedServerLauncher\ConanExilesDedicatedServer\ConanSandbox\Saved\Config\WindowsServer\ServerSettings.ini" -m "C:\path\MOTD.txt"
 
 REM specify events file and pass flags through
-start_wrath_manager.bat -f "C:\path\ServerSettings.ini" -e "C:\path\events.json" --no-restart
+start_wrath_manager.bat -f "C:\path\ServerSettings.ini" -e "C:\path\events.json"
 ```
 
 #### Linux systemd (ExecStartPre)
 Add to your unit or an override:
 ```
 [Service]
-ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/wrath_manager/wrath_manager.py --ini-path /abs/path/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini --event-file /absolute/path/MoonTide/wrath_manager/events.json --no-restart
+ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/wrath_manager/wrath_manager.py --ini-path /abs/path/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini --event-file /absolute/path/MoonTide/wrath_manager/events.json
 ```
 
 #### Config (`events.json`)
