@@ -46,9 +46,10 @@ def nearly_equal(a, b, tol=1e-5):
 
 def main():
     if len(sys.argv) < 4:
-        print("Usage: verify_update.py ORIGINAL_INI UPDATED_INI EXPECTED_JSON", file=sys.stderr)
+        print("Usage: verify_update.py ORIGINAL_INI UPDATED_INI EXPECTED_JSON [EVENTS_JSON]", file=sys.stderr)
         return 2
     orig_ini, upd_ini, expected_json = sys.argv[1:4]
+    events_json = sys.argv[4] if len(sys.argv) >= 5 else None
 
     orig = parse_serversettings_ini(orig_ini)
     upd = parse_serversettings_ini(upd_ini)
@@ -61,6 +62,19 @@ def main():
     expected_map: Dict[str, str] = {}
     for k, v in {**scaled, **added}.items():
         expected_map[k] = str(v)
+
+    # If events.json provided, include default reverts for managed_keys not set this run
+    if events_json:
+        try:
+            with open(events_json, "r", encoding="utf-8") as f:
+                ev = json.load(f)
+            managed = list(ev.get("managed_keys", [])) if isinstance(ev.get("managed_keys", []), list) else []
+            defaults = ev.get("defaults", {}) if isinstance(ev.get("defaults", {}), dict) else {}
+            for k in managed:
+                if k not in expected_map and k in defaults:
+                    expected_map[k] = str(defaults[k])
+        except Exception:
+            pass
 
     # compute changed keys
     changed = {}

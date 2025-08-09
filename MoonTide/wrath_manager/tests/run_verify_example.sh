@@ -21,7 +21,7 @@ python3 "$ROOT/wrath_manager.py" \
 # Extract JSON from mixed output
 grep -E '^\{' "$OUT_RAW" | tail -n 1 > "$OUT_JSON" || true
 
-python3 "$ROOT/tests/verify_update.py" "$INI_ORIG" "$INI_TMP" "$OUT_JSON"
+python3 "$ROOT/tests/verify_update.py" "$INI_ORIG" "$INI_TMP" "$OUT_JSON" "$EVENTS"
 
 rm -f "$INI_TMP" "$OUT_JSON" "$OUT_RAW"
 echo "Verification complete"
