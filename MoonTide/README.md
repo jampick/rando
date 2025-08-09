@@ -85,4 +85,7 @@ Backups are saved as `ServerSettings.ini.bak.YYYYMMDD-HHMMSS` in the backup dir.
 - MOTD checks: `tests/test_motd.sh [INI] [events.json]`
 - Delta verify example: `tests/run_verify_example.sh`
 
+#### Maintainer tip
+- When you update `events.json`, update `EVENTS_DESIGN.md` in the same commit. A guard script exists at `scripts/guard_events_doc_sync.sh` you can run in CI to enforce this.
+
 
