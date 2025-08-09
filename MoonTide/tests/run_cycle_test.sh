@@ -19,15 +19,33 @@ SCRIPT_DIR=$(cd "$(dirname "$0")/.." && pwd)
 PY=${PYTHON:-python3}
 
 echo "Testing full lunar cycle (phase-day 0..29) in dry-run mode..."
+pass=0
+fail=0
+tmp_out=$(mktemp)
+tmp_json=$(mktemp)
 for d in $(seq 0 29); do
   echo "--- phase-day=$d ---"
-  "$PY" "$SCRIPT_DIR/conan_moon_tuner.py" \
+  if "$PY" "$SCRIPT_DIR/conan_moon_tuner.py" \
     --ini-path "$INI_PATH" \
     --event-file "$EVENT_FILE" \
     --phase-day "$d" \
-    --dry-run
+    --dry-run --json-summary > "$tmp_out"; then
+    # Extract JSON summary line(s) from mixed output
+    grep -E "^\{" "$tmp_out" | tail -n 1 > "$tmp_json" || true
+    # Basic assertion: scaled values should exist for continuous mapping keys
+    if [[ -s "$tmp_json" ]] && jq -e '.scaled_values | has("HarvestAmountMultiplier")' "$tmp_json" >/dev/null 2>&1; then
+      ((pass++))
+    else
+      echo "[WARN] Missing scaled HarvestAmountMultiplier in summary for day $d" >&2
+      ((fail++))
+    fi
+  else
+    echo "[FAIL] Script error on day $d" >&2
+    ((fail++))
+  fi
 done
-
-echo "Done."
+rm -f "$tmp_out" "$tmp_json"
+echo "Done. Pass: $pass  Fail: $fail  Total: $((pass+fail))"
+test $fail -eq 0
 
 
