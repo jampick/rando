@@ -816,6 +816,24 @@ def main(argv: Optional[List[str]] = None) -> int:
             append_string_keys=append_keys,
             string_joiner=str((config or {}).get("string_append_joiner", " <BR> ")),
         )
+        # Optional MOTD header/footer
+        motd_cfg = (config or {}).get("motd", {})
+        if isinstance(motd_cfg, dict):
+            header = str(motd_cfg.get("header", ""))
+            footer = str(motd_cfg.get("footer", ""))
+            always = bool(motd_cfg.get("always_include", False))
+            joiner = str((config or {}).get("string_append_joiner", " <BR> "))
+            has_motd = "ServerMessageOfTheDay" in additive_settings and isinstance(additive_settings["ServerMessageOfTheDay"], str)
+            if (header or footer) and (has_motd or always):
+                base = str(additive_settings.get("ServerMessageOfTheDay", ""))
+                parts = []
+                if header:
+                    parts.append(header)
+                if base:
+                    parts.append(base)
+                if footer:
+                    parts.append(footer)
+                additive_settings["ServerMessageOfTheDay"] = joiner.join([p for p in parts if p])
         caps_cfg = (config or {}).get("caps", {})
         if isinstance(caps_cfg, dict):
             additive_settings = apply_caps(additive_settings, caps_cfg)  
