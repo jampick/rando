@@ -14,42 +14,42 @@
     "phases": {
       "new": {
         "enabled": true,
-        "name": "New Moon (0, 29) - The Calm",
+        "name": "New Moon - The Calm",
         "settings": {}
       },
       "waxing_crescent": {
         "enabled": true,
-        "name": "Waxing Crescent (1–5) - The Stirring",
+        "name": "Waxing Crescent - The Stirring",
         "settings": {}
       },
       "first_quarter": {
         "enabled": true,
-        "name": "First Quarter (6–9) - The Ascent",
+        "name": "First Quarter - The Ascent",
         "settings": {}
       },
       "waxing_gibbous": {
         "enabled": true,
-        "name": "Waxing Gibbous (10–14) - The Surge",
+        "name": "Waxing Gibbous - The Surge",
         "settings": {}
       },
       "full": {
         "enabled": true,
-        "name": "Full Moon (15–16) - The Hunt",
+        "name": "Full Moon - The Hunt",
         "settings": {}
       },
       "waning_gibbous": {
         "enabled": true,
-        "name": "Waning Gibbous (17–20) - The Fade",
+        "name": "Waning Gibbous - The Fade",
         "settings": {}
       },
       "last_quarter": {
         "enabled": true,
-        "name": "Last Quarter (21–23) - The Ebb",
+        "name": "Last Quarter - The Ebb",
         "settings": {}
       },
       "waning_crescent": {
         "enabled": true,
-        "name": "Waning Crescent (24–28) - The Dusk",
+        "name": "Waning Crescent - The Dusk",
         "settings": {}
       }
     },
