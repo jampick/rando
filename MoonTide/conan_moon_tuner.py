@@ -77,6 +77,19 @@ def compute_lunar_state(timestamp_utc: dt.datetime) -> Tuple[float, float, float
     return illumination, phase_days, synodic_days
 
 
+def reference_new_moon_datetime() -> dt.datetime:
+    return dt.datetime(2000, 1, 6, 18, 14, tzinfo=dt.timezone.utc)
+
+
+def timestamp_for_phase_day(day_index: int) -> dt.datetime:
+    """Return a synthetic UTC timestamp corresponding to a given phase day.
+
+    Places the time near midday UTC for stability.
+    """
+    base = reference_new_moon_datetime()
+    return base + dt.timedelta(days=day_index, hours=12)
+
+
 def categorize_moon_phase(
     illumination_fraction: float,
     phase_days: float,
@@ -585,6 +598,17 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         default=6,
         help="Decimal precision when writing values",
     )
+    parser.add_argument(
+        "--now",
+        default=None,
+        help="Override current time (ISO 8601, e.g., 2025-08-01T00:00:00Z)",
+    )
+    parser.add_argument(
+        "--phase-day",
+        type=int,
+        default=None,
+        help="Override using a synthetic timestamp for the given lunar day index (0..29)",
+    )
     return parser.parse_args(argv)
 
 
@@ -613,7 +637,27 @@ def main(argv: Optional[List[str]] = None) -> int:
     precision = int(config.get("precision", args.precision))
 
     # Decide behavior: phase mapping and/or discrete events
-    now_utc = dt.datetime.now(dt.timezone.utc)
+    # Time override handling for tests
+    if args.phase_day is not None:
+        if args.phase_day < 0 or args.phase_day > 29:
+            print("ERROR: --phase-day must be between 0 and 29", file=sys.stderr)
+            return 2
+        now_utc = timestamp_for_phase_day(args.phase_day)
+    elif args.now:
+        raw = str(args.now).strip()
+        # Accept 'Z' suffix
+        if raw.endswith('Z'):
+            raw = raw[:-1] + '+00:00'
+        try:
+            parsed = dt.datetime.fromisoformat(raw)
+        except Exception as exc:
+            print(f"ERROR: Failed to parse --now: {exc}", file=sys.stderr)
+            return 2
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=dt.timezone.utc)
+        now_utc = parsed.astimezone(dt.timezone.utc)
+    else:
+        now_utc = dt.datetime.now(dt.timezone.utc)
     illumination_fraction, phase_days, synodic_days = compute_lunar_state(now_utc)
     phase_name = categorize_moon_phase(illumination_fraction, phase_days, synodic_days)
     phase_bucket = categorize_phase_bucket_by_day(phase_days)
