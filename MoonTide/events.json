@@ -1,13 +1,22 @@
 {
-  "precision": 6,
+  "precision": 7,
   "insert_missing_keys": false,
   "moon_phase": {
     "enabled": true,
     "gamma": 1.0,
     "mapping": {
-      "HarvestAmountMultiplier": { "min": 1.0, "max": 6.0 },
-      "NPCDamageMultiplier": { "min": 1.0, "max": 2.0 },
-      "NPCDamageTakenMultiplier": { "min": 1.0, "max": 0.5 }
+      "HarvestAmountMultiplier": {
+        "min": 1.0,
+        "max": 6.0
+      },
+      "NPCDamageMultiplier": {
+        "min": 1.0,
+        "max": 2.0
+      },
+      "NPCDamageTakenMultiplier": {
+        "min": 1.0,
+        "max": 0.5
+      }
     }
   },
   "events": {
@@ -143,14 +152,21 @@
         "name": "Solar Flare - The Burning Sky",
         "trigger": {
           "type": "seasonal_window",
-          "months": [6, 7, 8],
-          "daily_window": ["12:00", "14:00"],
+          "months": [
+            6,
+            7,
+            8
+          ],
+          "daily_window": [
+            "12:00",
+            "14:00"
+          ],
           "timezone_offset_hours": 0
         },
         "settings": {
           "PlayerActiveThirstMultiplier": 2.0,
           "PlayerIdleThirstMultiplier": 0.2,
-          "StaminaRegenerationTime": 5.0,
+          "StaminaRegenerationTime": 4.0,
           "PlayerStaminaCostSprintMultiplier": 1.8,
           "PlayerMovementSpeedScale": 0.95
         }
@@ -162,7 +178,10 @@
           "type": "date_window",
           "start": "12-20",
           "end": "12-23",
-          "night_window": ["18:00", "06:00"],
+          "night_window": [
+            "18:00",
+            "06:00"
+          ],
           "timezone_offset_hours": 0
         },
         "settings": {
@@ -182,7 +201,10 @@
         "trigger": {
           "type": "astronomical",
           "event": "blue_moon",
-          "activate_window": ["Fri 18:00", "Sun 23:59"],
+          "activate_window": [
+            "Fri 18:00",
+            "Sun 23:59"
+          ],
           "window_hours": 24,
           "timezone_offset_hours": 0
         },
@@ -217,21 +239,74 @@
     "custom": []
   },
   "caps": {
-    "HarvestAmountMultiplier": { "min": 0.1, "max": 10.0 },
-    "NPCDamageMultiplier": { "min": 0.1, "max": 10.0 },
-    "NPCDamageTakenMultiplier": { "min": 0.1, "max": 10.0 },
-    "NPCHealthMultiplier": { "min": 0.1, "max": 10.0 },
-    "LootDropMultiplier": { "min": 0.1, "max": 10.0 },
-    "PurgeLevel": { "min": 0.1, "max": 10.0 },
-    "PlayerThirstRateScale": { "min": 0.1, "max": 10.0 },
-    "PlayerStaminaCostSprintMultiplier": { "min": 0.1, "max": 10.0 },
-    "PlayerTemperatureIncreaseRate": { "min": 0.1, "max": 10.0 },
-    "NightTimeSpeedScale": { "min": 0.1, "max": 10.0 },
-    "DayTimeSpeedScale": { "min": 0.1, "max": 10.0 },
-    "StaminaCostMultiplier": { "min": 0.1, "max": 10.0 },
-    "BuildingDamageMultiplier": { "min": 0.1, "max": 10.0 },
-    "StaminaRegenerationTime": { "min": 0.1, "max": 10.0 },
-    "PlayerXPTimeMultiplier": { "min": 0.1, "max": 10.0 }
+    "HarvestAmountMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "NPCDamageMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "NPCDamageTakenMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "NPCHealthMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "LootDropMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "PurgeLevel": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "PlayerThirstRateScale": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "PlayerStaminaCostSprintMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "PlayerTemperatureIncreaseRate": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "NightTimeSpeedScale": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "DayTimeSpeedScale": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "StaminaCostMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "BuildingDamageMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "StaminaRegenerationTime": {
+      "min": 0.1,
+      "max": 8.0
+    },
+    "PlayerXPTimeMultiplier": {
+      "min": 0.1,
+      "max": 10.0
+    }
+  },
+  "merge": {
+    "multiplicative_keys": [
+      "PlayerMovementSpeedScale",
+      "PlayerSprintSpeedScale"
+    ],
+    "min_keys": [],
+    "max_keys": []
   },
   "string_append_keys": [
     "ServerMessageOfTheDay"

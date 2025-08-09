@@ -528,20 +528,39 @@ def merge_settings_additive(
     maps: List[Dict[str, Union[int, float, str, bool]]],
     append_string_keys: Optional[List[str]] = None,
     string_joiner: str = " <BR> ",
+    merge_rules: Optional[Dict[str, List[str]]] = None,
 ) -> Dict[str, Union[int, float, str, bool]]:
     """Merge settings across multiple maps.
 
-    - Numeric values are added
-    - For keys in append_string_keys, string values are appended using string_joiner
-    - Otherwise, last value wins
+    Strategies:
+      - Default numeric: add
+      - multiplicative_keys: multiply numeric values
+      - min_keys / max_keys: take min/max of numeric
+      - append_string_keys: append strings using joiner
+      - Otherwise last value wins
     """
     append_set = set(append_string_keys or [])
+    multiplicative = set((merge_rules or {}).get("multiplicative_keys", []))
+    min_keys = set((merge_rules or {}).get("min_keys", []))
+    max_keys = set((merge_rules or {}).get("max_keys", []))
+
     merged: Dict[str, Union[int, float, str, bool]] = {}
     for m in maps:
         for k, v in m.items():
-            if k in merged and is_numeric_value(merged[k]) and is_numeric_value(v):
-                merged[k] = float(merged[k]) + float(v)  # type: ignore[arg-type]
+            if is_numeric_value(v) and k in merged and is_numeric_value(merged[k]):
+                cur = float(merged[k])  # type: ignore[arg-type]
+                val = float(v)
+                if k in multiplicative:
+                    merged[k] = cur * val
+                elif k in min_keys:
+                    merged[k] = min(cur, val)
+                elif k in max_keys:
+                    merged[k] = max(cur, val)
+                else:
+                    merged[k] = cur + val
                 continue
+
+                
             if k in merged and k in append_set and is_string_value(merged[k]) and is_string_value(v):
                 left = str(merged[k])
                 right = str(v)
@@ -811,10 +830,23 @@ def main(argv: Optional[List[str]] = None) -> int:
             append_keys = list((config or {}).get("string_append_keys", []))
         except Exception:
             append_keys = []
+        merge_rules = {}
+        try:
+            cfg_rules = (config or {}).get("merge", {})
+            if isinstance(cfg_rules, dict):
+                merge_rules = {
+                    "multiplicative_keys": list(cfg_rules.get("multiplicative_keys", [])),
+                    "min_keys": list(cfg_rules.get("min_keys", [])),
+                    "max_keys": list(cfg_rules.get("max_keys", [])),
+                }
+        except Exception:
+            merge_rules = {}
+
         additive_settings = merge_settings_additive(
             merged_event_settings,
             append_string_keys=append_keys,
             string_joiner=str((config or {}).get("string_append_joiner", " <BR> ")),
+            merge_rules=merge_rules,
         )
         # Optional MOTD header/footer
         motd_cfg = (config or {}).get("motd", {})
