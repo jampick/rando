@@ -491,9 +491,23 @@ def _post_discord_summary(
     illumination: float,
     events_applied: List[str],
     motd: str,
+    event_settings: Dict[str, Union[int, float, str, bool]] = {},
 ) -> None:
     # Only send the event-specific MOTD content (no headers/footers or extra summary)
     content = str(motd or "").strip()
+    # Append event settings that were modified (post-caps), if any
+    if event_settings:
+        def _fmt(v: Union[int, float, str, bool]) -> str:
+            if isinstance(v, bool):
+                return "true" if v else "false"
+            if isinstance(v, int):
+                return str(v)
+            if isinstance(v, float):
+                # compact float
+                return f"{v:.6g}"
+            return str(v)
+        setting_parts = [f"{k}={_fmt(v)}" for k, v in sorted(event_settings.items())]
+        content = (content + ("\n\n" if content else "")) + "Settings: " + ", ".join(setting_parts)
     if not content:
         return
     payload = {"content": content}
@@ -777,6 +791,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     # Prepare JSON summary (filled progressively if requested)
     summary: Dict[str, Union[str, int, float, Dict, List]] = {}
     last_event_motd: str = ""
+    last_event_settings_for_discord: Dict[str, Union[int, float, str, bool]] = {}
 
     # Track keys set during this run (for default reversion later)
     set_keys_current_run: set = set()
@@ -914,6 +929,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         # Capture event-only MOTD BEFORE adding global header/footer so Discord gets only event text
         if isinstance(additive_settings.get("ServerMessageOfTheDay"), str):
             last_event_motd = str(additive_settings.get("ServerMessageOfTheDay"))
+        # Use post-cap, merged event settings for Discord details
+        last_event_settings_for_discord = dict(additive_settings)
 
         # Optional MOTD header/footer (applies to INI only)
         motd_cfg = (config or {}).get("motd", {})
@@ -1008,6 +1025,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                         illumination_fraction,
                         applied_event_names,
                         last_event_motd,
+                        last_event_settings_for_discord,
                     )
                     print("Posted summary to Discord.")
                 except Exception as _exc:
@@ -1024,7 +1042,15 @@ def main(argv: Optional[List[str]] = None) -> int:
         webhook = args.discord_webhook_url or os.environ.get("DISCORD_WEBHOOK_URL")
         if webhook:
             try:
-                _post_discord_summary(webhook, phase_name, phase_bucket, illumination_fraction, applied_event_names, last_event_motd)
+                _post_discord_summary(
+                    webhook,
+                    phase_name,
+                    phase_bucket,
+                    illumination_fraction,
+                    applied_event_names,
+                    last_event_motd,
+                    last_event_settings_for_discord,
+                )
                 print("Posted summary to Discord.")
             except Exception as _exc:
                 print("WARNING: Failed to post Discord summary.")
