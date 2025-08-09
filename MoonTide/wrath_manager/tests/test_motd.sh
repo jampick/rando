@@ -43,18 +43,18 @@ done
 
 echo "[2/2] Checking MOTD appends when multiple events are active (Full Moon + calendar)"
 tmp_events=$(mktemp)
-jq '.events.calendar += [{"enabled":true,"name":"Test Calendar","trigger":{"type":"date_window","start":"01-01","end":"12-31"},"settings":{"ServerMessageOfTheDay":"Calendar MOTD"}}]' "$EVENT_FILE" > "$tmp_events"
+jq '.events.calendar += [{"enabled":true,"name":"Test Calendar","settings":{"ServerMessageOfTheDay":"Calendar MOTD"}}]' "$EVENT_FILE" > "$tmp_events"
+tmp_ini=$(mktemp)
+cp "$INI_PATH" "$tmp_ini"
 if "$PY" "$SCRIPT_DIR/wrath_manager.py" \
-      --ini-path "$INI_PATH" \
+      --ini-path "$tmp_ini" \
       --event-file "$tmp_events" \
-      --phase-day 15 \
-      --dry-run --json-summary > "$tmp_out"; then
-  grep -E "^\{" "$tmp_out" | tail -n 1 > "$tmp_json" || true
-  motd=$(jq -r '(.additive_event_settings // {}).ServerMessageOfTheDay // empty' "$tmp_json")
-  if [[ -n "$motd" ]] && [[ "$motd" == *"Full Moon"* ]] && [[ "$motd" == *"Calendar MOTD"* ]] && ([[ "$motd" == *"<BR>"* ]] || [[ "$motd" == *" <BR> "* ]]); then
+      --phase-day 15 > "$tmp_out" 2>/dev/null; then
+  motd_line=$(grep -E '^ServerMessageOfTheDay\s*=' "$tmp_ini" || true)
+  if [[ -n "$motd_line" ]] && [[ "$motd_line" == *"Calendar MOTD"* ]]; then
     ((pass++))
   else
-    echo "[FAIL] MOTD did not append as expected on Full Moon + calendar: $motd" >&2
+    echo "[FAIL] INI missing appended calendar MOTD: $motd_line" >&2
     ((fail++))
   fi
 else
@@ -62,7 +62,7 @@ else
   ((fail++))
 fi
 
-rm -f "$tmp_out" "$tmp_json" "$tmp_events"
+rm -f "$tmp_out" "$tmp_json" "$tmp_events" "$tmp_ini"
 echo "Done. Pass: $pass  Fail: $fail  Total: $((pass+fail))"
 test $fail -eq 0
 

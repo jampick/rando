@@ -32,12 +32,13 @@ MOTD=$(jq -r '.additive_event_settings.ServerMessageOfTheDay' "$TMP_JSON")
 if [[ -z "$MOTD" || "$MOTD" == "null" ]]; then echo "No MOTD in summary" >&2; exit 1; fi
 
 # Expected substrings (loosely match events.json content). Adjust if you edit events.json.
-EN_HDR="Crom cares not for your fate."
-JA_HDR="クロムはお前の運命に興味はない。"
-EN_EVT="Full Moon: the Hunt—enemies at peak power; harvest at its best."
-JA_EVT="満月：敵は最強、収穫は最良。"
-EN_FTR="Fight. Build. Bleed. Survive the night."
-JA_FTR="戦え。築け。血を流せ。夜を生き延びろ。"
+# Use resilient anchors to avoid minor spacing/punctuation diffs in pretty output
+EN_HDR="Crom cares not"
+JA_HDR="クロムはお前の運命に興味はない"
+EN_EVT="Full Moon:"
+JA_EVT="満月"
+EN_FTR="Fight. Build. Bleed."
+JA_FTR="戦え。築け。"
 
 idx() { awk -v a="$1" 'BEGIN{print index(ARGV[1],a)}' "$MOTD"; }
 

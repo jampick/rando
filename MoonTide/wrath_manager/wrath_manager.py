@@ -1007,7 +1007,12 @@ def main(argv: Optional[List[str]] = None) -> int:
             footer_map = to_lang_map(motd_cfg.get("footer", "")) if motd_cfg.get("footer") else {}
             event_map: Dict[str, str] = {}
 
-            # Collect event-level motds if provided; otherwise use existing string as EN
+            # Start with the merged/appended event message (EN base), so appended calendar text survives
+            base_msg = str(additive_settings.get("ServerMessageOfTheDay", "")) if isinstance(additive_settings.get("ServerMessageOfTheDay"), str) else ""
+            if base_msg:
+                event_map[languages[0]] = base_msg
+
+            # Then overlay any localized motd entries (append per language)
             if collected_event_motds:
                 for m in collected_event_motds:
                     m_map = to_lang_map(m)
@@ -1015,11 +1020,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                         val = m_map.get(lang, "").strip()
                         if not val:
                             continue
-                        event_map[lang] = (event_map[lang] + joiner + val) if lang in event_map and event_map[lang] else val
-            else:
-                base_msg = str(additive_settings.get("ServerMessageOfTheDay", "")) if isinstance(additive_settings.get("ServerMessageOfTheDay"), str) else ""
-                if base_msg:
-                    event_map[languages[0]] = base_msg
+                        event_map[lang] = (event_map.get(lang, "") + joiner + val) if event_map.get(lang, "") else val
 
             # Build full strings per language, then EN block followed by JA block
             def build_full_for_lang(lang: str) -> str:
