@@ -215,12 +215,12 @@
   "motd": {
     "languages": ["en", "ja"],
     "header": {
-      "en": "[EDIT ME] EN header …",
-      "ja": "[編集可] JA ヘッダー …"
+      "en": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt",
+      "ja": "[EDIT ME] JA header …"
     },
     "footer": {
-      "en": "[EDIT ME] EN footer …",
-      "ja": "[編集可] JA フッター …"
+      "en": "Fight. Build. Bleed. Survive the night.",
+      "ja": "[EDIT ME] JA footer …"
     },
     "always_include": true
   }
