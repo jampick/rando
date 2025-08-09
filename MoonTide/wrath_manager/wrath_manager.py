@@ -492,11 +492,10 @@ def _post_discord_summary(
     events_applied: List[str],
     motd: str,
 ) -> None:
-    content = (
-        f"**MoonTide** — phase: `{phase_name}` bucket: `{phase_bucket}` illum: `{illumination:.3f}`\n"
-        f"Events: {', '.join(events_applied) if events_applied else 'none'}\n\n"
-        f"MOTD:\n{motd}"
-    )
+    # Only send the event-specific MOTD content (no headers/footers or extra summary)
+    content = str(motd or "").strip()
+    if not content:
+        return
     payload = {"content": content}
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
