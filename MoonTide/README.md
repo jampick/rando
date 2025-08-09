@@ -1,6 +1,8 @@
 ### MoonTide – Conan Exiles Moon-Driven Server Tuning
 
-Adjust server multipliers and events based on the real-world moon cycle.
+“Listen, exile. CROM does not coddle. The moon turns, the world hardens, and you either sharpen your blade or become bones under the sand.”
+
+MoonTide bends the Exiled Lands to the turning of the sky. As the moon waxes and wanes, the land shifts: harvest swells, beasts grow cruel, stamina thins, and rewards tempt fools into the dark. There are nights of calm. There are nights of reckoning. CROM does not explain; he only judges.
 
 #### Features
 - Continuous scaling (New→Full) using min/max ranges per INI key with optional gamma curve
@@ -41,6 +43,11 @@ ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/conan_moon_tuner.py --ini-
 ```
 
 #### Config (`events.json`)
+- Event concept (CROM will not repeat himself):
+  - Phases: eight moon buckets. Their flavor alters the world—subtle at first, savage at full.
+  - Calendar: rare omens and seasons. Some nights drag on, some storms bite harder.
+  - Weather: when the sky howls, so does the land. (You’ll know when it’s time.)
+  - Custom: if you insist on meddling, do it here. CROM will not save you from your own events.
 - `moon_phase`: continuous scaling
   - `enabled`: true/false
   - `gamma`: curve shaping (1.0 linear; <1 early boost; >1 delayed)
