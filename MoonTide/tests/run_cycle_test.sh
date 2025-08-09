@@ -25,7 +25,7 @@ tmp_out=$(mktemp)
 tmp_json=$(mktemp)
 for d in $(seq 0 29); do
   echo "--- phase-day=$d ---"
-  if "$PY" "$SCRIPT_DIR/conan_moon_tuner.py" \
+  if "$PY" "$SCRIPT_DIR/wrath_manager.py" \
     --ini-path "$INI_PATH" \
     --event-file "$EVENT_FILE" \
     --phase-day "$d" \

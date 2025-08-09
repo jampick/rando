@@ -16,7 +16,7 @@ See the event concept and detailed breakdown in `MoonTide/EVENTS_DESIGN.md`.
 - Test suite (cycle, MOTD, delta‑verify); Windows wrapper; Linux ExecStartPre
 
 #### Files
-- `conan_moon_tuner.py`: main script
+- `wrath_manager.py`: main script
 - `events.json`: configuration (edit this)
 - `events.sample.json`: starter template
 - `EVENTS_DESIGN.md`: event concept and detailed breakdown
@@ -25,13 +25,13 @@ See the event concept and detailed breakdown in `MoonTide/EVENTS_DESIGN.md`.
 
 #### Quick run
 ```bash
-python3 /absolute/path/MoonTide/conan_moon_tuner.py \
+python3 /absolute/path/MoonTide/wrath_manager.py \
   --ini-path /absolute/path/to/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini \
   --event-file /absolute/path/MoonTide/events.json
 ```
 Dry run:
 ```bash
-python3 /absolute/path/MoonTide/conan_moon_tuner.py --ini-path /path/to/ServerSettings.ini --event-file /absolute/path/MoonTide/events.json --dry-run
+python3 /absolute/path/MoonTide/wrath_manager.py --ini-path /path/to/ServerSettings.ini --event-file /absolute/path/MoonTide/events.json --dry-run
 ```
 
 #### Windows wrapper
@@ -48,7 +48,7 @@ start_conan_with_moontide.bat -f "C:\path\ServerSettings.ini" -e "C:\path\events
 Add to your unit or an override:
 ```
 [Service]
-ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/conan_moon_tuner.py --ini-path /abs/path/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini --event-file /absolute/path/MoonTide/events.json --no-restart
+ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/wrath_manager.py --ini-path /abs/path/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini --event-file /absolute/path/MoonTide/events.json --no-restart
 ```
 
 #### Config (`events.json`)

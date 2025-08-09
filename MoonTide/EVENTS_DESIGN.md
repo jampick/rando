@@ -224,7 +224,8 @@ tests/run_all_tests.sh        # full battery, single command
 
 **Backups**: one per run, rotating  
 **Caps**: tune per audience in `events.json`  
-**MOTD**: optional global header and footer, events append
+**MOTD**: optional global header and footer, events append  
+**CLI**: `wrath_manager.py` is the entry point
 
 ---
 

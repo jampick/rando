@@ -12,7 +12,7 @@ OUT_RAW=$(mktemp)
 
 cp "$INI_ORIG" "$INI_TMP"
 
-python3 "$ROOT/conan_moon_tuner.py" \
+python3 "$ROOT/wrath_manager.py" \
   --ini-path "$INI_TMP" \
   --event-file "$EVENTS" \
   --phase-day 15 \

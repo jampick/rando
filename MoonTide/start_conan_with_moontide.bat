@@ -11,7 +11,7 @@ rem    --dry-run                 (OPTIONAL)
 rem ================================================
 
 set "SCRIPT_DIR=%~dp0"
-set "MOONTIDE_SCRIPT=%SCRIPT_DIR%conan_moon_tuner.py"
+set "MOONTIDE_SCRIPT=%SCRIPT_DIR%wrath_manager.py"
 set "EVENT_FILE=%SCRIPT_DIR%events.json"
 set "INI_PATH="
 set "EXTRA_ARGS="

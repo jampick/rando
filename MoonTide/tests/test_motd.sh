@@ -23,7 +23,7 @@ tmp_json=$(mktemp)
 
 echo "[1/2] Checking MOTD exists for all phase days (0..29)"
 for d in $(seq 0 29); do
-  if "$PY" "$SCRIPT_DIR/conan_moon_tuner.py" \
+  if "$PY" "$SCRIPT_DIR/wrath_manager.py" \
       --ini-path "$INI_PATH" \
       --event-file "$EVENT_FILE" \
       --phase-day "$d" \
@@ -44,7 +44,7 @@ done
 echo "[2/2] Checking MOTD appends when multiple events are active (Full Moon + calendar)"
 tmp_events=$(mktemp)
 jq '.events.calendar += [{"enabled":true,"name":"Test Calendar","trigger":{"type":"date_window","start":"01-01","end":"12-31"},"settings":{"ServerMessageOfTheDay":"Calendar MOTD"}}]' "$EVENT_FILE" > "$tmp_events"
-if "$PY" "$SCRIPT_DIR/conan_moon_tuner.py" \
+if "$PY" "$SCRIPT_DIR/wrath_manager.py" \
       --ini-path "$INI_PATH" \
       --event-file "$tmp_events" \
       --phase-day 15 \

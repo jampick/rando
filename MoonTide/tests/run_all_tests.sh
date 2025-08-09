@@ -59,7 +59,7 @@ TMP_JSON=$(mktemp)
 cp "$INI" "$TMP_INI"
 
 set +e
-$PY "$ROOT/conan_moon_tuner.py" \
+$PY "$ROOT/wrath_manager.py" \
   --ini-path "$TMP_INI" \
   --event-file "$EVENTS" \
   --phase-day 15 \
