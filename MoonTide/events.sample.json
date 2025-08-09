@@ -1,0 +1,17 @@
+{
+  "precision": 6,
+  "moon_phase": {
+    "enabled": true,
+    "gamma": 1.0,
+    "mapping": {
+      "harvest": { "min": 1.0, "max": 5.0 },
+      "npc_damage": { "min": 0.6, "max": 2.0 },
+      "npc_health": { "min": 0.7, "max": 2.5 }
+    }
+  },
+  "restart": {
+    "command": null
+  }
+}
+
+
