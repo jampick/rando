@@ -46,8 +46,10 @@ ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/conan_moon_tuner.py --ini-
   - `gamma`: curve shaping (1.0 linear; <1 early boost; >1 delayed)
   - `mapping`: `{ INI_KEY: {"min": x, "max": y } }` (e.g., `HarvestAmountMultiplier`, `NPCDamageMultiplier`, `NPCDamageTakenMultiplier`)
 - `events.phases`: 8 day-bucket presets (leave keys empty to let continuous scaling drive them)
-- `events.manual[]`: extra events
-  - `trigger` types:
+- `events.calendar[]`: calendar/date/astronomical events
+- `events.weather[]`: weather-driven events (currently stubbed)
+- `events.custom[]`: additional active events with no trigger
+  - `trigger` types (for `calendar` and `weather`):
     - `astronomical`: `full_moon` (optional `nearest_weekend`, `window_hours`), `blue_moon` (with `activate_window`)
     - `seasonal_window`: `months: [..]`, optional `daily_window: [HH:MM, HH:MM]`
     - `date_window`: `start: MM-DD`, `end: MM-DD`, optional `night_window`

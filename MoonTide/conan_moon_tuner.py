@@ -690,11 +690,13 @@ def main(argv: Optional[List[str]] = None) -> int:
     if isinstance(selected_phase_event, dict) and selected_phase_event.get("enabled", True):
         active_events.append(selected_phase_event)
 
-    # Manual events list
-    manual_events = events_cfg.get("manual", []) if isinstance(events_cfg.get("manual", []), list) else []
-    for evt in manual_events:
-        if isinstance(evt, dict) and evt.get("enabled", False):
-            active_events.append(evt)
+    # Additional event categories: calendar, weather, custom
+    for key in ["calendar", "weather", "custom"]:
+        lst = events_cfg.get(key, [])
+        if isinstance(lst, list):
+            for evt in lst:
+                if isinstance(evt, dict) and evt.get("enabled", False):
+                    active_events.append(evt)
 
     # Collect and merge active events first, then apply once additively
     merged_event_settings: List[Dict[str, Union[int, float, str, bool]]] = []
