@@ -1020,7 +1020,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                         val = m_map.get(lang, "").strip()
                         if not val:
                             continue
-                        event_map[lang] = (event_map.get(lang, "") + joiner + val) if event_map.get(lang, "") else val
+                        existing = event_map.get(lang, "")
+                        if not existing:
+                            event_map[lang] = val
+                        else:
+                            # Avoid duplicate append if the same line already present
+                            if val not in existing:
+                                event_map[lang] = existing + joiner + val
 
             # Build full strings per language, then EN block followed by JA block
             def build_full_for_lang(lang: str) -> str:
