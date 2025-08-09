@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+r"""
 Conan Exiles Moon Tuner
 
 Adjusts Conan Exiles server settings based on the real-world moon cycle.
@@ -29,7 +29,7 @@ Usage examples
 Notes
 - Typical INI paths:
   - Linux:   ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini
-  - Windows: ConanSandbox\Saved\Config\WindowsServer\ServerSettings.ini
+- Windows: ConanSandbox\\Saved\\Config\\WindowsServer\\ServerSettings.ini
 - Schedule daily (e.g., midnight UTC) to track the moon smoothly.
 """
 
