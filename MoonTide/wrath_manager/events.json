@@ -324,5 +324,29 @@
   },
   "restart": {
     "command": null
+  },
+  "managed_keys": [
+    "MaxAggroRange",
+    "NPCMaxSpawnCapMultiplier",
+    "NPCRespawnMultiplier",
+    "PlayerDamageTakenMultiplier",
+    "ThrallDamageToNPCsMultiplier",
+    "MinionDamageTakenMultiplier",
+    "PlayerMovementSpeedScale",
+    "PlayerSprintSpeedScale",
+    "StaminaRegenerationTime",
+    "ServerMessageOfTheDay"
+  ],
+  "defaults": {
+    "MaxAggroRange": 9000,
+    "NPCMaxSpawnCapMultiplier": 1.0,
+    "NPCRespawnMultiplier": 1.0,
+    "PlayerDamageTakenMultiplier": 1.0,
+    "ThrallDamageToNPCsMultiplier": 1.0,
+    "MinionDamageTakenMultiplier": 1.0,
+    "PlayerMovementSpeedScale": 1.0,
+    "PlayerSprintSpeedScale": 1.0,
+    "StaminaRegenerationTime": 3.75,
+    "ServerMessageOfTheDay": ""
   }
 }

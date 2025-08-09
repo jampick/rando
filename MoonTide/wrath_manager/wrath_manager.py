@@ -719,6 +719,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     # Prepare JSON summary (filled progressively if requested)
     summary: Dict[str, Union[str, int, float, Dict, List]] = {}
 
+    # Track keys set during this run (for default reversion later)
+    set_keys_current_run: set = set()
+
     # 1) Apply continuous moon-phase mapping, if enabled
     moon_cfg = (config or {}).get("moon_phase", {})
     any_changes = False
@@ -771,6 +774,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             })
 
         if scaled_values:
+            set_keys_current_run.update(scaled_values.keys())
             changed, msgs = apply_settings_map(
                 ini_path=ini_path,
                 settings=scaled_values,
@@ -874,6 +878,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         if args.json_summary:
             summary["events_applied"] = applied_event_names
             summary["additive_event_settings"] = additive_settings
+        # Track keys set via events
+        set_keys_current_run.update(additive_settings.keys())
         changed, msgs = apply_settings_map(
             ini_path=ini_path,
             settings=additive_settings, 
@@ -885,6 +891,41 @@ def main(argv: Optional[List[str]] = None) -> int:
         any_changes = any_changes or changed
         for name in applied_event_names:
             change_msgs.extend([f"[{name}] {m}" for m in msgs])
+
+    # 3) Revert managed keys not set this run back to defaults
+    managed_keys = []
+    try:
+        managed_keys = list((config or {}).get("managed_keys", []))
+    except Exception:
+        managed_keys = []
+    defaults_map = {}
+    try:
+        defaults_cfg = (config or {}).get("defaults", {})
+        if isinstance(defaults_cfg, dict):
+            defaults_map = defaults_cfg
+    except Exception:
+        defaults_map = {}
+
+    if managed_keys and defaults_map:
+        revert_settings = {}
+        for k in managed_keys:
+            if k not in set_keys_current_run and k in defaults_map:
+                revert_settings[k] = defaults_map[k]
+        if revert_settings:
+            print(
+                "Reverting unmanaged keys to defaults: "
+                + ", ".join(f"{k}={v}" for k, v in revert_settings.items())
+            )
+            changed, msgs = apply_settings_map(
+                ini_path=ini_path,
+                settings=revert_settings,
+                dry_run=args.dry_run,
+                precision=precision,
+                insert_missing_keys=bool(config.get("insert_missing_keys", False)),
+                backup_manager=backup_manager,
+            )
+            any_changes = any_changes or changed
+            change_msgs.extend([f"[defaults] {m}" for m in msgs])
 
     if args.json_summary and summary:
         try:
