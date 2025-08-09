@@ -166,7 +166,7 @@
         "settings": {
           "PlayerActiveThirstMultiplier": 2.0,
           "PlayerIdleThirstMultiplier": 0.2,
-          "StaminaRegenerationTime": 5.0,
+          "StaminaRegenerationTime": 4.0,
           "PlayerStaminaCostSprintMultiplier": 1.8,
           "PlayerMovementSpeedScale": 0.95
         }
