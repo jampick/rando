@@ -1,127 +1,196 @@
-### MoonTide Event Design
 
-“CROM does not guide your hand. He turns the sky, and the land answers. Learn the rhythm or be broken by it.”
+# MoonTide Event Design
 
-This document explains the event concept and design behind MoonTide. It gives just enough to align operators and moderators, without spoiling the mystery for players.
-
-#### Concept – Layers of a Living World
-- Continuous scaling: The world shifts smoothly with the real moon’s light. New Moon is calm; Full Moon is merciless. Only a small set of core multipliers follow this curve so it feels organic, not chaotic.
-- Phase presets: Eight lunar “moods” (new → waning crescent) add flavor and nudge systems. They don’t fight the curve; they complete the feeling of the night.
-- Calendar/omens: Rare nights and seasonal happenings bend rules further (Blood Moon, Solstice, etc.). They stack additively and can carry their own Message of the Day.
-
-Design goals
-- Atmosphere and anticipation: players read the sky and plan.
-- Fairness by predictability: big nights are signposted, not random.
-- Low operator toil: JSON-configurable, testable, reversible.
-
-#### Mechanics (operator view)
-- Order of application
-  1) Continuous scaling (from `moon_phase.mapping`) for keys like `HarvestAmountMultiplier`, `NPCDamageMultiplier`, `NPCDamageTakenMultiplier`.
-  2) Phase preset for the current bucket (e.g., `waxing_gibbous`).
-  3) All enabled `events.calendar`, then `events.weather`, then `events.custom`.
-- Merging
-  - Numeric values: add together.
-  - Strings for listed keys (e.g., `ServerMessageOfTheDay`): append with ` <BR> `.
-  - Everything else: last value wins.
-- Caps: Per-key clamps guard extremes.
-- Backups: One backup per run to a rotating backup dir.
-- MOTD: Optional global header/footer; event MOTDs append.
+> *“CROM does not hold your hand. He turns the heavens, and the earth answers in blood, frost, and shadow.”*
 
 ---
 
-### Phase Events (8 buckets)
-Each phase lists a guiding theme, the mood, systems touched (keys already present in your INI), and the intended effect. Values shown are typical; exact numbers live in `events.json` and can be tuned.
+## 🗡️ Core Concept
 
-- New Moon – The Calm
-  - Mood: safer nights to explore and build; low pressure.
-  - Systems: `MaxAggroRange↓`, `NPCMaxSpawnCapMultiplier↓`, `NPCRespawnMultiplier↑`, `PlayerHealthRegenSpeedScale↑`, `PlayerDamageTakenMultiplier↓`.
-  - Intent: breathe, travel, craft; not a loot night.
-
-- Waxing Crescent – The Stirring
-  - Mood: threats rising, gains growing.
-  - Systems: `MaxAggroRange↗`, `NPCMaxSpawnCapMultiplier↗`, `NPCRespawnMultiplier↘`, light stamina friction (`StaminaRegenerationTime↗`, `PlayerStaminaCostSprintMultiplier↗`).
-  - Intent: gentle pressure; groups begin to form.
-
-- First Quarter – The Ascent
-  - Mood: adventure invites; returns improve.
-  - Systems: Same vector as waxing crescent, slightly stronger.
-  - Intent: parties roam; dungeons start feeling spicy.
-
-- Waxing Gibbous – The Surge
-  - Mood: stronger foes, richer rewards.
-  - Systems: `MaxAggroRange↗↗`, `SpawnCap↗`, `Respawn↘`, more stamina tax.
-  - Intent: prelude to Full; stock up and commit.
-
-- Full Moon – The Hunt
-  - Mood: apex challenge; the land hunts back.
-  - Systems: `MaxAggroRange↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDamageTakenMultiplier↑`, `ThrallDamageToNPCsMultiplier↓`.
-  - Intent: real risk, real payoff. Duo+ recommended; thralls won’t carry you.
-
-- Waning Gibbous – The Fade
-  - Mood: intensity easing; treasure still good.
-  - Systems: step values back from Full toward neutral.
-  - Intent: decompress without becoming trivial.
-
-- Last Quarter – The Ebb
-  - Mood: fortunes balancing.
-  - Systems: continue easing stamina/aggro toward New.
-  - Intent: travel-heavy nights feel good again.
-
-- Waning Crescent – The Dusk
-  - Mood: quiet returns; prepare for the next cycle.
-  - Systems: near-New values with a touch of movement.
-  - Intent: reset the board; rebuild and plan.
+This server runs **seasonal events synced to the real-world lunar cycle and calendar**.  
+The moon you see outside shapes the dangers, resources, and atmosphere inside the game.  
+Full moons bring lethal predators and rich rewards. New moons offer safety and breathing space.  
+Rare celestial and seasonal events stack on top of the lunar phases to create moments of high stakes and unique opportunities.
 
 ---
 
-### Calendar/Omen Events
-These are rarer overlays with clear themes and stronger identity. They stack on top of phase effects.
-
-- Blood Moon – The Reckoning
-  - Theme: elite monsters prowl; high reward for the fearless.
-  - Systems: `NPCHealthMultiplier↑`, `LootDropMultiplier↑`, `PurgeLevel↑`, `MaxAggroRange↑`, `NPCMaxSpawnCapMultiplier↑`, `NPCRespawnMultiplier↓`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`, `ThrallDamageToNPCsMultiplier↓`.
-  - Intent: raids feel alive, elites are dangerous, loot is juicy; not for solo casuals.
-  - Trigger: near full moon (weekend bias).
-
-- Solar Flare – The Burning Sky
-  - Theme: brutal heat and fatigue.
-  - Systems: `PlayerActiveThirstMultiplier↑`, `PlayerIdleThirstMultiplier↓`, `StaminaRegenerationTime↑`, `PlayerStaminaCostSprintMultiplier↑`, `PlayerMovementSpeedScale↓`.
-  - Intent: travel and combat become resource games; heat is the enemy.
-  - Trigger: seasonal midday windows (summer months).
-
-- Winter Solstice – The Long Night
-  - Theme: long, cold nights with lurking danger.
-  - Systems: `NightTimeSpeedScale↓`, `DayTimeSpeedScale↑`, `StaminaCostMultiplier↑`, `PlayerActiveHungerMultiplier↑`, `PlayerActiveThirstMultiplier↑`, `StaminaRegenerationTime↑`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`.
-  - Intent: push survival kit discipline; lights and teamwork matter.
-  - Trigger: date window around solstice nights.
-
-- Storm Season – The Howling Winds
-  - Theme: the environment itself fights you.
-  - Systems: `BuildingDamageMultiplier↑`, `PlayerSprintSpeedScale↓`, `StaminaOnConsumeRegenPause↑`, `StaminaOnExhaustionRegenPause↑`, `PlayerMovementSpeedScale↓`.
-  - Intent: traversal and sieges are messy and slow; storms punish overextension.
-  - Trigger: weather stub (placeholder), or seasonal windows.
-
-- Blue Moon – The Forgotten Prophecy
-  - Theme: rare augury; progression surges.
-  - Systems: `XPTimeOnlineMultiplier↑`, `PlayerXPRateMultiplier↑`, `PlayerXPKillMultiplier↑`, `PlayerXPHarvestMultiplier↑`, `PlayerXPCraftMultiplier↑`.
-  - Intent: a few nights a year where progression pops; bring new blood up to speed.
-  - Trigger: true blue moon (second full moon in a month) with weekend window.
+![Build Status](https://img.shields.io/badge/status-active-green) ![Automation](https://img.shields.io/badge/automation-JSON__driven-blue) ![Spoilers](https://img.shields.io/badge/player%20spoilers-minimal-lightgrey)
 
 ---
 
-### Balancing Notes (operator cheatsheet)
-- Thralls: nerf follower damage on hard nights so they don’t trivialize.
-- New players: keep early-phase multipliers gentle; let Crescents be training wheels.
-- Purges: don’t stack the harshest purge levels with Full unless it’s an announced challenge weekend.
-- Economy: reserve 6x harvest for Full/rare omens; 3–4.5x feels good otherwise.
-- Caps: adjust `caps` in `events.json` to fit your audience; leave headroom for special events.
+## Concept: Layers of a Living World
 
-### Testing and Safety
-- Dry-run all days: `tests/run_cycle_test.sh` – confirms scaler output each day.
-- MOTD test: `tests/test_motd.sh` – ensures event MOTDs exist and append.
-- Delta verify: `tests/run_verify_example.sh` – ensures only intended keys change.
-- One-shot runner: `tests/run_all_tests.sh` – all of the above with summary.
+- **Continuous scaling**: The land breathes with the real moon. New Moon is calm. Full Moon is merciless. Core multipliers follow this curve.  
+- **Phase presets**: Eight lunar moods from New to Waning Crescent add flavor and pressure.  
+- **Calendar and Omens**: Rare nights and seasonal signs twist the rules. They stack with the phase to create bigger danger and better rewards.
 
-Operate with a light touch. Nudge, don’t jerk. Let players feel the sky turning—and let them tell the stories. CROM will be listening.
+**Design goals**
+- Atmosphere and anticipation: the sky is your clock  
+- Fairness through inevitability: big nights are signposted  
+- Low operator toil: JSON driven, testable, reversible
 
+---
 
+## Mechanics: Operator View
+
+**Order of application**
+1. Continuous scaling: `moon_phase.mapping` for harvest, damage dealt, damage taken  
+2. Phase preset for the current bucket  
+3. All enabled events in order: `calendar` → `weather` → `custom`
+
+**Merging rules**
+- Numbers: add  
+- Strings like `ServerMessageOfTheDay`: append using `<BR>`  
+- Everything else: last value wins
+
+**Safety nets**
+- Caps per key  
+- Rotating backups per run  
+- Optional global MOTD header and footer, event MOTDs append
+
+---
+
+## Quick Reference: Phases at a Glance
+
+> Use this strip for planning and moderation
+
+| Phase | Mood | Systems snapshot |
+|---|---|---|
+| 🌑 New Moon | The land rests | `MaxAggroRange↓`, `NPCMaxSpawnCapMultiplier↓`, `NPCRespawnMultiplier↑`, `PlayerHealthRegenSpeedScale↑`, `PlayerDamageTakenMultiplier↓` |
+| 🌒 Waxing Crescent | Distant drums | `MaxAggroRange↗`, `NPCMaxSpawnCapMultiplier↗`, `NPCRespawnMultiplier↘`, `StaminaRegenerationTime↗`, `PlayerStaminaCostSprintMultiplier↗` |
+| 🌓 First Quarter | The hunt begins | Same vector as waxing crescent, slightly stronger |
+| 🌔 Waxing Gibbous | The land sharpens its teeth | `MaxAggroRange↗↗`, `NPCMaxSpawnCapMultiplier↗↗`, `NPCRespawnMultiplier↘`, `StaminaRegenerationTime↑`, `PlayerStaminaCostSprintMultiplier↑` |
+| 🌕 Full Moon | Apex predators rule | `MaxAggroRange↑`, `NPCMaxSpawnCapMultiplier↑`, `NPCRespawnMultiplier↓`, `PlayerDamageTakenMultiplier↑`, `ThrallDamageToNPCsMultiplier↓` |
+| 🌖 Waning Gibbous | The storm passes | Step values back from Full toward neutral |
+| 🌗 Last Quarter | The tide falls | Ease stamina and aggro toward New |
+| 🌘 Waning Crescent | Quiet returns | Near-New calm with slight movement |
+
+---
+
+## Phase Details
+
+<details>
+<summary>🌑 New Moon - The Calm</summary>
+**Mood**: the land rests  
+**Systems**: `MaxAggroRange↓`, `NPCMaxSpawnCapMultiplier↓`, `NPCRespawnMultiplier↑`, `PlayerHealthRegenSpeedScale↑`, `PlayerDamageTakenMultiplier↓`  
+**Intent**: explore, build, breathe
+</details>
+
+<details>
+<summary>🌒 Waxing Crescent - The Stirring</summary>
+**Mood**: distant drums  
+**Systems**: `MaxAggroRange↗`, `NPCMaxSpawnCapMultiplier↗`, `NPCRespawnMultiplier↘`, `StaminaRegenerationTime↗`, `PlayerStaminaCostSprintMultiplier↗`  
+**Intent**: pressure builds
+</details>
+
+<details>
+<summary>🌓 First Quarter - The Ascent</summary>
+**Mood**: the hunt begins  
+**Systems**: same vector as waxing crescent, slightly stronger  
+**Intent**: adventure invites and rewards
+</details>
+
+<details>
+<summary>🌔 Waxing Gibbous - The Surge</summary>
+**Mood**: the land sharpens its teeth  
+**Systems**: `MaxAggroRange↗↗`, `NPCMaxSpawnCapMultiplier↗↗`, `NPCRespawnMultiplier↘`, `StaminaRegenerationTime↑`, `PlayerStaminaCostSprintMultiplier↑`  
+**Intent**: stock up, commit
+</details>
+
+<details>
+<summary>🌕 Full Moon - The Hunt</summary>
+**Mood**: apex predators rule the night  
+**Systems**: `MaxAggroRange↑`, `NPCMaxSpawnCapMultiplier↑`, `NPCRespawnMultiplier↓`, `PlayerDamageTakenMultiplier↑`, `ThrallDamageToNPCsMultiplier↓`  
+**Intent**: risk everything, gain everything
+</details>
+
+<details>
+<summary>🌖 Waning Gibbous - The Fade</summary>
+**Mood**: the storm passes  
+**Systems**: step values back from Full toward neutral  
+**Intent**: keep rewards high, lower the grind
+</details>
+
+<details>
+<summary>🌗 Last Quarter - The Ebb</summary>
+**Mood**: the tide falls  
+**Systems**: ease stamina and aggro toward New  
+**Intent**: travel and trade flourish
+</details>
+
+<details>
+<summary>🌘 Waning Crescent - The Dusk</summary>
+**Mood**: quiet returns  
+**Systems**: near-New calm with slight movement  
+**Intent**: reset the board
+</details>
+
+---
+
+## Calendar and Omen Events
+
+<details>
+<summary>🩸 Blood Moon - The Reckoning</summary>
+**Theme**: the strong hunt the strong  
+**Systems**: `NPCHealthMultiplier↑`, `LootDropMultiplier↑`, `PurgeLevel↑`, `MaxAggroRange↑`, `NPCMaxSpawnCapMultiplier↑`, `NPCRespawnMultiplier↓`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`, `ThrallDamageToNPCsMultiplier↓`  
+**Intent**: glory or death  
+**Trigger**: near full moon with weekend bias
+</details>
+
+<details>
+<summary>🔥 Solar Flare - The Burning Sky</summary>
+**Theme**: heat punishes the unprepared  
+**Systems**: `PlayerActiveThirstMultiplier↑`, `PlayerIdleThirstMultiplier↓`, `StaminaRegenerationTime↑`, `PlayerStaminaCostSprintMultiplier↑`, `PlayerMovementSpeedScale↓`  
+**Intent**: the sun itself is the enemy  
+**Trigger**: seasonal midday windows in summer
+</details>
+
+<details>
+<summary>❄️ Winter Solstice - The Long Night</summary>
+**Theme**: cold and darkness close in  
+**Systems**: `NightTimeSpeedScale↓`, `DayTimeSpeedScale↑`, `StaminaCostMultiplier↑`, `PlayerActiveHungerMultiplier↑`, `PlayerActiveThirstMultiplier↑`, `StaminaRegenerationTime↑`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`  
+**Intent**: test discipline and preparation  
+**Trigger**: solstice date window
+</details>
+
+<details>
+<summary>🌪️ Storm Season - The Howling Winds</summary>
+**Theme**: the sky strikes  
+**Systems**: `BuildingDamageMultiplier↑`, `PlayerSprintSpeedScale↓`, `StaminaOnConsumeRegenPause↑`, `StaminaOnExhaustionRegenPause↑`, `PlayerMovementSpeedScale↓`  
+**Intent**: turn the map into a siege  
+**Trigger**: weather system or seasonal schedule
+</details>
+
+<details>
+<summary>🔵 Blue Moon - The Forgotten Prophecy</summary>
+**Theme**: a rare surge in power  
+**Systems**: `XPTimeOnlineMultiplier↑`, `PlayerXPRateMultiplier↑`, `PlayerXPKillMultiplier↑`, `PlayerXPHarvestMultiplier↑`, `PlayerXPCraftMultiplier↑`  
+**Intent**: let new blood rise  
+**Trigger**: true blue moon with weekend window
+</details>
+
+---
+
+## 🛡️ Operator Cheatsheet
+
+- Thralls: reduce follower damage on hard nights so they do not trivialize  
+- New players: crescents should feel safe as training wheels  
+- Purges: only stack the harshest purge levels with Full during announced weekends  
+- Economy: save 6x harvest for Full and rare omens, keep most nights between 3x and 4.5x
+
+---
+
+## 🧪 Testing and Safety
+
+~~~bash
+tests/run_cycle_test.sh       # preview daily scalers
+tests/test_motd.sh            # verify MOTD append behavior
+tests/run_verify_example.sh   # confirm only intended keys change
+tests/run_all_tests.sh        # full battery, single command
+~~~
+
+**Backups**: one per run, rotating  
+**Caps**: tune per audience in `events.json`  
+**MOTD**: optional global header and footer, events append
+
+---
