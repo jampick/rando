@@ -501,11 +501,8 @@ def _post_discord_summary(
         def _fmt(v: Union[int, float, str, bool]) -> str:
             if isinstance(v, bool):
                 return "true" if v else "false"
-            if isinstance(v, int):
-                return str(v)
-            if isinstance(v, float):
-                # compact float
-                return f"{v:.6g}"
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                return f"{float(v):.1f}"
             return str(v)
         setting_parts = [f"{k}={_fmt(v)}" for k, v in sorted(event_settings.items())]
         settings_block = "Settings:\n" + "\n".join(setting_parts)
@@ -514,10 +511,8 @@ def _post_discord_summary(
         def _fmt2(v: Union[int, float, str, bool]) -> str:
             if isinstance(v, bool):
                 return "true" if v else "false"
-            if isinstance(v, int):
-                return str(v)
-            if isinstance(v, float):
-                return f"{v:.6g}"
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                return f"{float(v):.1f}"
             return str(v)
         moon_parts = [f"{k}={_fmt2(v)}" for k, v in sorted(moon_settings.items())]
         moon_block = "Moon phase:\n" + "\n".join(moon_parts)
