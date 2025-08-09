@@ -1,6 +1,6 @@
 # rando
 
-This repo contains various experiments. For the Conan Exiles moon-driven server tuner, see:
+This repo may host multiple projects; for now it contains the Conan Exiles moon‑driven server tuner (MoonTide). See:
 
 - MoonTide overview: `MoonTide/README.md`
 - Event design (spoiler-light, operator-focused): `MoonTide/EVENTS_DESIGN.md`
