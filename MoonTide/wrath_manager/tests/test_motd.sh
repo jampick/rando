@@ -51,7 +51,7 @@ if "$PY" "$SCRIPT_DIR/wrath_manager.py" \
       --dry-run --json-summary > "$tmp_out"; then
   grep -E "^\{" "$tmp_out" | tail -n 1 > "$tmp_json" || true
   motd=$(jq -r '(.additive_event_settings // {}).ServerMessageOfTheDay // empty' "$tmp_json")
-  if [[ -n "$motd" ]] && [[ "$motd" == *"Full Moon"* ]] && [[ "$motd" == *"Calendar MOTD"* ]] && [[ "$motd" == *" <BR> "* ]]; then
+  if [[ -n "$motd" ]] && [[ "$motd" == *"Full Moon"* ]] && [[ "$motd" == *"Calendar MOTD"* ]] && ([[ "$motd" == *"<BR>"* ]] || [[ "$motd" == *" <BR> "* ]]); then
     ((pass++))
   else
     echo "[FAIL] MOTD did not append as expected on Full Moon + calendar: $motd" >&2
