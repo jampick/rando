@@ -74,6 +74,10 @@
         "name": "Full Moon - The Hunt",
         "settings": {
           "ServerMessageOfTheDay": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
+          "motd": {
+            "en": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
+            "ja": "満月：敵は最強、収穫は最良。"
+          },
           "MaxAggroRange": 15000,
           "NPCMaxSpawnCapMultiplier": 1.5,
           "NPCRespawnMultiplier": 0.75,
@@ -313,8 +317,15 @@
   ],
   "string_append_joiner": "<BR>",
   "motd": {
-    "header": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt<BR>",
-    "footer": "<BR>Fight. Build. Bleed. Survive the night.",
+    "languages": ["en", "ja"],
+    "header": {
+      "en": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt",
+      "ja": "クロムはお前の運命に興味はない。<BR>これはムーンタイドだ。耐えよ、さもなくば滅べ。<BR>戦団に参加: discord.gg/g7D3GzVrDt"
+    },
+    "footer": {
+      "en": "Fight. Build. Bleed. Survive the night.",
+      "ja": "戦え。築け。血を流せ。夜を生き延びろ。"
+    },
     "always_include": true
   },
   "backup": {

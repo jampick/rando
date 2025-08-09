@@ -981,24 +981,40 @@ def main(argv: Optional[List[str]] = None) -> int:
         # Use post-cap, merged event settings for Discord details
         last_event_settings_for_discord = dict(additive_settings)
 
-        # Optional MOTD header/footer (applies to INI only)
+        # Optional bilingual MOTD header/footer (applies to INI only). EN then JA.
         motd_cfg = (config or {}).get("motd", {})
         if isinstance(motd_cfg, dict):
-            header = str(motd_cfg.get("header", ""))
-            footer = str(motd_cfg.get("footer", ""))
-            always = bool(motd_cfg.get("always_include", False))
+            # Language order with default EN -> JA
+            languages = motd_cfg.get("languages") if isinstance(motd_cfg.get("languages"), list) else ["en", "ja"]
             joiner = str((config or {}).get("string_append_joiner", " <BR> "))
-            has_motd = "ServerMessageOfTheDay" in additive_settings and isinstance(additive_settings["ServerMessageOfTheDay"], str)
-            if (header or footer) and (has_motd or always):
-                base = str(additive_settings.get("ServerMessageOfTheDay", ""))
-                parts = []
-                if header:
-                    parts.append(header)
-                if base:
-                    parts.append(base)
-                if footer:
-                    parts.append(footer)
-                additive_settings["ServerMessageOfTheDay"] = joiner.join([p for p in parts if p])
+            always = bool(motd_cfg.get("always_include", False))
+
+            def build_bilingual_text(value: Union[str, Dict[str, str]]) -> str:
+                # Accept either a plain string (replicate for all langs) or a {lang: text} map
+                if isinstance(value, dict):
+                    per = {str(k): str(v) for k, v in value.items()}
+                    ordered = [per.get(lang, "") for lang in languages]
+                else:
+                    base = str(value)
+                    ordered = [base for _ in languages]
+                return joiner.join([s for s in ordered if s])
+
+            has_base = "ServerMessageOfTheDay" in additive_settings and isinstance(additive_settings["ServerMessageOfTheDay"], str)
+            header_val = motd_cfg.get("header", "")
+            footer_val = motd_cfg.get("footer", "")
+
+            if (header_val or footer_val) and (has_base or always):
+                # Event-specific message (treat as EN; duplicate for JA unless provided in map form earlier)
+                base_msg = str(additive_settings.get("ServerMessageOfTheDay", ""))
+                event_bilingual = build_bilingual_text({languages[0]: base_msg}) if base_msg else ""
+                # Save event-only bilingual for Discord
+                if event_bilingual:
+                    last_event_motd = event_bilingual
+                header_bilingual = build_bilingual_text(header_val) if header_val else ""
+                footer_bilingual = build_bilingual_text(footer_val) if footer_val else ""
+                parts = [p for p in [header_bilingual, event_bilingual, footer_bilingual] if p]
+                if parts:
+                    additive_settings["ServerMessageOfTheDay"] = joiner.join(parts)
         caps_cfg = (config or {}).get("caps", {})
         if isinstance(caps_cfg, dict):
             additive_settings = apply_caps(additive_settings, caps_cfg)  
