@@ -129,44 +129,66 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 
 ## Calendar and Omen Events
 
+### Quick Reference: Calendar/Omen at a Glance
+
+| Event | Theme | Systems snapshot |
+|---|---|---|
+| 🩸 Blood Moon | Elite danger, high reward | `NPCHealth↑`, `LootDrop↑`, `PurgeLevel↑`, `Aggro↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDmgTaken↑`, `HealthbarDist↑`, `ThrallDmgToNPCs↓` |
+| 🔥 Solar Flare | Heat and fatigue | `ActiveThirst↑`, `IdleThirst↓`, `StaminaRegenTime↑`, `SprintCost↑`, `MoveSpeed↓` |
+| ❄️ Winter Solstice | Long, cold nights | `NightSpeed↓`, `DaySpeed↑`, `StaminaCost↑`, `ActiveHunger↑`, `ActiveThirst↑`, `StaminaRegenTime↑`, `PlayerDmgTaken↑`, `HealthbarDist↑` |
+| 🌪️ Storm Season | Environmental hazard | `BuildingDmg↑`, `SprintSpeed↓`, `ConsumeRegenPause↑`, `ExhaustRegenPause↑`, `MoveSpeed↓` |
+| 🔵 Blue Moon | Progression surge | `XPTimeOnline↑`, `XPRate↑`, `XPKill↑`, `XPHarvest↑`, `XPCraft↑` |
+
+---
+
 <details>
 <summary>🩸 Blood Moon - The Reckoning</summary>
 **Theme**: the strong hunt the strong  
 **Systems**: `NPCHealthMultiplier↑`, `LootDropMultiplier↑`, `PurgeLevel↑`, `MaxAggroRange↑`, `NPCMaxSpawnCapMultiplier↑`, `NPCRespawnMultiplier↓`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`, `ThrallDamageToNPCsMultiplier↓`  
-**Intent**: glory or death  
-**Trigger**: near full moon with weekend bias
+**Intent**: glory or death; raids feel alive, elites are dangerous, loot is juicy  
+**Trigger**: near full moon with weekend bias  
+**MOTD cue**: "Blood Moon: Elite monsters prowl! High risk, high reward."  
+**Operator tips**: announce timing; consider purge pacing; expect higher death rates
 </details>
 
 <details>
 <summary>🔥 Solar Flare - The Burning Sky</summary>
 **Theme**: heat punishes the unprepared  
 **Systems**: `PlayerActiveThirstMultiplier↑`, `PlayerIdleThirstMultiplier↓`, `StaminaRegenerationTime↑`, `PlayerStaminaCostSprintMultiplier↑`, `PlayerMovementSpeedScale↓`  
-**Intent**: the sun itself is the enemy  
-**Trigger**: seasonal midday windows in summer
+**Intent**: travel and combat become resource games; the sun is the enemy  
+**Trigger**: seasonal midday windows in summer  
+**MOTD cue**: "Solar Flare: brutal heat and thirst—seek shade and water."  
+**Operator tips**: remind players about water/ice; nudge caravan/supply play
 </details>
 
 <details>
 <summary>❄️ Winter Solstice - The Long Night</summary>
 **Theme**: cold and darkness close in  
 **Systems**: `NightTimeSpeedScale↓`, `DayTimeSpeedScale↑`, `StaminaCostMultiplier↑`, `PlayerActiveHungerMultiplier↑`, `PlayerActiveThirstMultiplier↑`, `StaminaRegenerationTime↑`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`  
-**Intent**: test discipline and preparation  
-**Trigger**: solstice date window
+**Intent**: test discipline and preparation; lights and teamwork matter  
+**Trigger**: solstice date window  
+**MOTD cue**: "Winter Solstice: longer nights and chill winds—bundle up."  
+**Operator tips**: consider themed rewards; advise torches, fur gear, campfires
 </details>
 
 <details>
 <summary>🌪️ Storm Season - The Howling Winds</summary>
 **Theme**: the sky strikes  
 **Systems**: `BuildingDamageMultiplier↑`, `PlayerSprintSpeedScale↓`, `StaminaOnConsumeRegenPause↑`, `StaminaOnExhaustionRegenPause↑`, `PlayerMovementSpeedScale↓`  
-**Intent**: turn the map into a siege  
-**Trigger**: weather system or seasonal schedule
+**Intent**: traversal and sieges are messy and slow; storms punish overextension  
+**Trigger**: weather system (stub) or seasonal schedule  
+**MOTD cue**: "Storm Season: howling winds batter builds; move carefully."  
+**Operator tips**: set clear window; warn builders; expect more rescues
 </details>
 
 <details>
 <summary>🔵 Blue Moon - The Forgotten Prophecy</summary>
 **Theme**: a rare surge in power  
 **Systems**: `XPTimeOnlineMultiplier↑`, `PlayerXPRateMultiplier↑`, `PlayerXPKillMultiplier↑`, `PlayerXPHarvestMultiplier↑`, `PlayerXPCraftMultiplier↑`  
-**Intent**: let new blood rise  
-**Trigger**: true blue moon with weekend window
+**Intent**: a few nights a year where progression pops; bring new blood up to speed  
+**Trigger**: true blue moon with weekend window  
+**MOTD cue**: "Blue Moon: rare augury—unique loot and power await."  
+**Operator tips**: advertise ahead; great for onboarding and catch‑up
 </details>
 
 ---
