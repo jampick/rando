@@ -739,6 +739,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         default=None,
         help="Discord webhook URL (if omitted, reads DISCORD_WEBHOOK_URL env)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Verbose debug logging to help diagnose issues (e.g., Discord posting)",
+    )
     return parser.parse_args(argv)
 
 
@@ -1033,7 +1038,11 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if not any_changes:
         if args.discord_post:
-            webhook = args.discord_webhook_url or os.environ.get("DISCORD_WEBHOOK_URL")
+            webhook_env = os.environ.get("DISCORD_WEBHOOK_URL")
+            webhook = args.discord_webhook_url or webhook_env
+            if args.debug:
+                src = "cli" if args.discord_webhook_url else ("env" if webhook_env else "none")
+                print(f"[DEBUG] Discord: post requested; webhook source={src}")
             if webhook:
                 try:
                     _post_discord_summary(
@@ -1048,7 +1057,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                     )
                     print("Posted summary to Discord.")
                 except Exception as _exc:
-                    print("WARNING: Failed to post Discord summary.")
+                    print(f"WARNING: Failed to post Discord summary: {_exc!r}")
+            else:
+                print("WARNING: Discord post requested but no webhook configured. Set DISCORD_WEBHOOK_URL or pass --discord-webhook-url.")
         print("No changes necessary (already up to date).")
         return 0
 
@@ -1058,7 +1069,11 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # Optionally post to Discord (allowed in dry-run for preview/testing)
     if args.discord_post:
-        webhook = args.discord_webhook_url or os.environ.get("DISCORD_WEBHOOK_URL")
+        webhook_env = os.environ.get("DISCORD_WEBHOOK_URL")
+        webhook = args.discord_webhook_url or webhook_env
+        if args.debug:
+            src = "cli" if args.discord_webhook_url else ("env" if webhook_env else "none")
+            print(f"[DEBUG] Discord: post requested; webhook source={src}")
         if webhook:
             try:
                 _post_discord_summary(
@@ -1073,7 +1088,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                 )
                 print("Posted summary to Discord.")
             except Exception as _exc:
-                print("WARNING: Failed to post Discord summary.")
+                print(f"WARNING: Failed to post Discord summary: {_exc!r}")
+        else:
+            print("WARNING: Discord post requested but no webhook configured. Set DISCORD_WEBHOOK_URL or pass --discord-webhook-url.")
 
     if args.dry_run:
         return 0
