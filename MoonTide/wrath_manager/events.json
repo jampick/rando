@@ -313,8 +313,8 @@
   ],
   "string_append_joiner": "<BR>",
   "motd": {
-    "header": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt",
-    "footer": "Fight. Build. Bleed. Survive the night.",
+    "header": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt<BR>",
+    "footer": "<BR>Fight. Build. Bleed. Survive the night.",
     "always_include": true
   },
   "backup": {
