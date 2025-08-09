@@ -911,7 +911,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             string_joiner=str((config or {}).get("string_append_joiner", " <BR> ")),
             merge_rules=merge_rules,
         )
-        # Optional MOTD header/footer
+        # Capture event-only MOTD BEFORE adding global header/footer so Discord gets only event text
+        if isinstance(additive_settings.get("ServerMessageOfTheDay"), str):
+            last_event_motd = str(additive_settings.get("ServerMessageOfTheDay"))
+
+        # Optional MOTD header/footer (applies to INI only)
         motd_cfg = (config or {}).get("motd", {})
         if isinstance(motd_cfg, dict):
             header = str(motd_cfg.get("header", ""))
@@ -939,9 +943,6 @@ def main(argv: Optional[List[str]] = None) -> int:
             summary["additive_event_settings"] = additive_settings
         # Track keys set via events
         set_keys_current_run.update(additive_settings.keys())
-        # Capture MOTD if present for Discord summary
-        if isinstance(additive_settings.get("ServerMessageOfTheDay"), str):
-            last_event_motd = str(additive_settings.get("ServerMessageOfTheDay"))
         changed, msgs = apply_settings_map(
             ini_path=ini_path,
             settings=additive_settings, 
