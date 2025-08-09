@@ -38,6 +38,8 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import urllib.request
+import urllib.error
 import math
 import os
 import re
@@ -482,6 +484,31 @@ def format_value(value: Union[int, float, str], precision: int) -> str:
     return f"{float(value):.{precision}f}"
 
 
+def _post_discord_summary(
+    webhook_url: str,
+    phase_name: str,
+    phase_bucket: str,
+    illumination: float,
+    events_applied: List[str],
+    motd: str,
+) -> None:
+    content = (
+        f"**MoonTide** — phase: `{phase_name}` bucket: `{phase_bucket}` illum: `{illumination:.3f}`\n"
+        f"Events: {', '.join(events_applied) if events_applied else 'none'}\n\n"
+        f"MOTD:\n{motd}"
+    )
+    payload = {"content": content}
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        webhook_url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=10) as _resp:
+        pass
+
+
 def apply_settings_map(
     ini_path: str,
     settings: Dict[str, Union[int, float, str, bool]],
@@ -651,6 +678,16 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action="store_true",
         help="Emit a JSON summary of computed values and applied settings to stdout",
     )
+    parser.add_argument(
+        "--discord-post",
+        action="store_true",
+        help="If set, post a summary to Discord via webhook",
+    )
+    parser.add_argument(
+        "--discord-webhook-url",
+        default=None,
+        help="Discord webhook URL (if omitted, reads DISCORD_WEBHOOK_URL env)",
+    )
     return parser.parse_args(argv)
 
 
@@ -718,6 +755,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # Prepare JSON summary (filled progressively if requested)
     summary: Dict[str, Union[str, int, float, Dict, List]] = {}
+    last_event_motd: str = ""
 
     # Track keys set during this run (for default reversion later)
     set_keys_current_run: set = set()
@@ -880,6 +918,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             summary["additive_event_settings"] = additive_settings
         # Track keys set via events
         set_keys_current_run.update(additive_settings.keys())
+        # Capture MOTD if present for Discord summary
+        if isinstance(additive_settings.get("ServerMessageOfTheDay"), str):
+            last_event_motd = str(additive_settings.get("ServerMessageOfTheDay"))
         changed, msgs = apply_settings_map(
             ini_path=ini_path,
             settings=additive_settings, 
@@ -940,6 +981,16 @@ def main(argv: Optional[List[str]] = None) -> int:
     print("Changes:")
     for msg in change_msgs:
         print(f" - {msg}")
+
+    # Optionally post to Discord (skip in dry-run)
+    if (not args.dry_run) and args.discord_post:
+        webhook = args.discord_webhook_url or os.environ.get("DISCORD_WEBHOOK_URL")
+        if webhook:
+            try:
+                _post_discord_summary(webhook, phase_name, phase_bucket, illumination_fraction, applied_event_names, last_event_motd)
+                print("Posted summary to Discord.")
+            except Exception as _exc:
+                print("WARNING: Failed to post Discord summary.")
 
     if args.dry_run:
         return 0

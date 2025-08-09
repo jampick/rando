@@ -25,13 +25,22 @@ See the event concept and detailed breakdown in `MoonTide/EVENTS_DESIGN.md`.
 
 #### Quick run
 ```bash
-python3 /absolute/path/MoonTide/wrath_manager.py \
+python3 /absolute/path/MoonTide/wrath_manager/wrath_manager.py \
   --ini-path /absolute/path/to/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini \
-  --event-file /absolute/path/MoonTide/events.json
+  --event-file /absolute/path/MoonTide/wrath_manager/events.json
 ```
 Dry run:
 ```bash
-python3 /absolute/path/MoonTide/wrath_manager.py --ini-path /path/to/ServerSettings.ini --event-file /absolute/path/MoonTide/events.json --dry-run
+python3 /absolute/path/MoonTide/wrath_manager/wrath_manager.py --ini-path /path/to/ServerSettings.ini --event-file /absolute/path/MoonTide/wrath_manager/events.json --dry-run
+```
+
+Discord posting (no secret in source):
+```bash
+export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."  # do NOT commit
+python3 /absolute/path/MoonTide/wrath_manager/wrath_manager.py \
+  --ini-path /path/to/ServerSettings.ini \
+  --event-file /absolute/path/MoonTide/wrath_manager/events.json \
+  --discord-post
 ```
 
 #### Windows wrapper
@@ -48,7 +57,7 @@ start_wrath_manager.bat -f "C:\path\ServerSettings.ini" -e "C:\path\events.json"
 Add to your unit or an override:
 ```
 [Service]
-ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/wrath_manager.py --ini-path /abs/path/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini --event-file /absolute/path/MoonTide/events.json --no-restart
+ExecStartPre=/usr/bin/python3 /absolute/path/MoonTide/wrath_manager/wrath_manager.py --ini-path /abs/path/ConanSandbox/Saved/Config/LinuxServer/ServerSettings.ini --event-file /absolute/path/MoonTide/wrath_manager/events.json --no-restart
 ```
 
 #### Config (`events.json`)
