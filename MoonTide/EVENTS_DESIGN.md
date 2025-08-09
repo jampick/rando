@@ -133,7 +133,7 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 
 | Event | Theme | Systems snapshot |
 |---|---|---|
-| 🩸 Blood Moon | Elite danger, high reward | `NPCHealth↑`, `LootDrop↑`, `PurgeLevel↑`, `Aggro↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDmgTaken↑`, `HealthbarDist↑`, `ThrallDmgToNPCs↓` |
+| 🩸 Blood Moon | Elite danger, high reward | `NPCHealth↑`, `PurgeLevel↑`, `Aggro↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDmgTaken↑`, `HealthbarDist↑`, `ThrallDmgToNPCs↓` |
 | 🔥 Solar Flare | Heat and fatigue | `ActiveThirst↑`, `IdleThirst↓`, `StaminaRegenTime↑`, `SprintCost↑`, `MoveSpeed↓` |
 | ❄️ Winter Solstice | Long, cold nights | `NightSpeed↓`, `DaySpeed↑`, `StaminaCost↑`, `ActiveHunger↑`, `ActiveThirst↑`, `StaminaRegenTime↑`, `PlayerDmgTaken↑`, `HealthbarDist↑` |
 | 🌪️ Storm Season | Environmental hazard | `BuildingDmg↑`, `SprintSpeed↓`, `ConsumeRegenPause↑`, `ExhaustRegenPause↑`, `MoveSpeed↓` |
@@ -144,7 +144,7 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 <details>
 <summary>🩸 Blood Moon - The Reckoning</summary>
 **Theme**: the strong hunt the strong  
-**Systems**: `NPCHealthMultiplier↑`, `LootDropMultiplier↑`, `PurgeLevel↑`, `MaxAggroRange↑`, `NPCMaxSpawnCapMultiplier↑`, `NPCRespawnMultiplier↓`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`, `ThrallDamageToNPCsMultiplier↓`  
+**Systems**: `NPCHealthMultiplier↑`, `PurgeLevel↑`, `MaxAggroRange↑`, `NPCMaxSpawnCapMultiplier↑`, `NPCRespawnMultiplier↓`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`, `ThrallDamageToNPCsMultiplier↓`  
 **Intent**: glory or death; raids feel alive, elites are dangerous, loot is juicy  
 **Trigger**: near full moon with weekend bias  
 **MOTD cue**: "Blood Moon: Elite monsters prowl! High risk, high reward."  
@@ -184,7 +184,7 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 <details>
 <summary>🔵 Blue Moon - The Forgotten Prophecy</summary>
 **Theme**: a rare surge in power  
-**Systems**: `XPTimeOnlineMultiplier↑`, `PlayerXPRateMultiplier↑`, `PlayerXPKillMultiplier↑`, `PlayerXPHarvestMultiplier↑`, `PlayerXPCraftMultiplier↑`  
+**Systems**: `PlayerXPTimeMultiplier↑`, `PlayerXPRateMultiplier↑`, `PlayerXPKillMultiplier↑`, `PlayerXPHarvestMultiplier↑`, `PlayerXPCraftMultiplier↑`  
 **Intent**: a few nights a year where progression pops; bring new blood up to speed  
 **Trigger**: true blue moon with weekend window  
 **MOTD cue**: "Blue Moon: rare augury—unique loot and power await."  
