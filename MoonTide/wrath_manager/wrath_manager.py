@@ -505,8 +505,35 @@ def _post_discord_summary(
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=10) as _resp:
-        pass
+    try:
+        with urllib.request.urlopen(req, timeout=10) as _resp:
+            return
+    except Exception as exc:
+        # Fallback: try curl (helps when local Python certs are misconfigured)
+        try:
+            import shutil as _shutil
+            if _shutil.which("curl") is None:
+                raise
+            payload_str = json.dumps(payload, ensure_ascii=False)
+            subprocess.run(
+                [
+                    "curl",
+                    "-sS",
+                    "-X",
+                    "POST",
+                    "-H",
+                    "Content-Type: application/json",
+                    "-d",
+                    payload_str,
+                    webhook_url,
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return
+        except Exception:
+            raise exc
 
 
 def apply_settings_map(
@@ -975,6 +1002,21 @@ def main(argv: Optional[List[str]] = None) -> int:
             pass
 
     if not any_changes:
+        if args.discord_post:
+            webhook = args.discord_webhook_url or os.environ.get("DISCORD_WEBHOOK_URL")
+            if webhook:
+                try:
+                    _post_discord_summary(
+                        webhook,
+                        phase_name,
+                        phase_bucket,
+                        illumination_fraction,
+                        applied_event_names,
+                        last_event_motd,
+                    )
+                    print("Posted summary to Discord.")
+                except Exception as _exc:
+                    print("WARNING: Failed to post Discord summary.")
         print("No changes necessary (already up to date).")
         return 0
 
@@ -982,8 +1024,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     for msg in change_msgs:
         print(f" - {msg}")
 
-    # Optionally post to Discord (skip in dry-run)
-    if (not args.dry_run) and args.discord_post:
+    # Optionally post to Discord (allowed in dry-run for preview/testing)
+    if args.discord_post:
         webhook = args.discord_webhook_url or os.environ.get("DISCORD_WEBHOOK_URL")
         if webhook:
             try:
