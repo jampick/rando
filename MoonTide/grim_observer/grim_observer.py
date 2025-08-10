@@ -357,7 +357,7 @@ class GrimObserver:
         return payloads
     
     def send_discord_webhook(self, payload: Dict) -> bool:
-        """Send a Discord webhook payload.
+        """Send a Discord webhook payload using CURL as primary method.
         
         Args:
             payload: The Discord webhook payload to send
@@ -376,75 +376,163 @@ class GrimObserver:
         self.logger.info(f"[DEBUG] Payload content: {payload}")
         
         try:
+            # Try CURL first (since it works manually)
+            if self._send_with_curl(payload):
+                return True
+            
+            # Fallback to Python libraries if CURL fails
+            self.logger.info("[DEBUG] CURL method failed, trying Python libraries...")
+            
             if REQUESTS_AVAILABLE:
-                # Use requests library if available
-                # Convert payload to JSON
-                data = json.dumps(payload)
-                self.logger.info(f"[DEBUG] JSON data length: {len(data)} bytes")
-                self.logger.info(f"[DEBUG] JSON data (first 200 chars): {data[:200]}")
-                self.logger.info(f"[DEBUG] JSON encoding: utf-8")
-                
-                # Send request using requests library
-                headers = {'Content-Type': 'application/json'}
-                self.logger.info(f"[DEBUG] Request method: POST")
-                self.logger.info(f"[DEBUG] Request headers: {headers}")
-                self.logger.info(f"[DEBUG] Request data length: {len(data)}")
-                
-                self.logger.info(f"[DEBUG] About to send HTTP request to Discord...")
-                response = requests.post(
-                    self.discord_webhook_url,
-                    json=payload,  # Use json parameter for automatic JSON encoding
-                    headers=headers
-                )
-                
-                self.logger.info(f"[DEBUG] HTTP response received")
-                self.logger.info(f"[DEBUG] Response status: {response.status_code}")
-                self.logger.info(f"[DEBUG] Response headers: {dict(response.headers)}")
-                
-                if response.status_code == 204:  # Discord returns 204 on success
-                    self.logger.info(f"Discord webhook sent successfully: {payload.get('content', 'No content')}")
-                    return True
-                else:
-                    self.logger.error(f"Discord webhook failed with status {response.status_code}")
-                    self.logger.error(f"[DEBUG] Response content: {response.text}")
-                    return False
+                return self._send_with_requests(payload)
             else:
-                # Fallback to urllib if requests is not available
-                # Convert payload to JSON
-                data = json.dumps(payload).encode('utf-8')
-                self.logger.info(f"[DEBUG] JSON data length: {len(data)} bytes")
-                self.logger.info(f"[DEBUG] JSON data (first 200 chars): {data[:200]}")
-                self.logger.info(f"[DEBUG] JSON encoding: utf-8")
-                
-                # Create request
-                req = urllib.request.Request(
-                    self.discord_webhook_url,
-                    data=data,
-                    headers={'Content-Type': 'application/json'}
-                )
-                
-                self.logger.info(f"[DEBUG] Request method: {req.get_method()}")
-                self.logger.info(f"[DEBUG] Request headers: {dict(req.headers)}")
-                self.logger.info(f"[DEBUG] Request data length: {len(req.data) if req.data else 0}")
-                
-                # Send request
-                self.logger.info(f"[DEBUG] About to send HTTP request to Discord...")
-                with urllib.request.urlopen(req) as response:
-                    self.logger.info(f"[DEBUG] HTTP response received")
-                    self.logger.info(f"[DEBUG] Response status: {response.status}")
-                    self.logger.info(f"[DEBUG] Response headers: {dict(response.headers)}")
-                    
-                    if response.status == 204:  # Discord returns 204 on success
-                        self.logger.info(f"Discord webhook sent successfully: {payload.get('content', 'No content')}")
-                        return True
-                    else:
-                        self.logger.error(f"Discord webhook failed with status {response.status}")
-                        return False
+                return self._send_with_urllib(payload)
                     
         except Exception as e:
             self.logger.error(f"Error sending Discord webhook: {e}")
             self.logger.error(f"[DEBUG] Exception type: {type(e).__name__}")
             self.logger.error(f"[DEBUG] Exception details: {str(e)}")
+            return False
+    
+    def _send_with_curl(self, payload: Dict) -> bool:
+        """Send Discord webhook using CURL command."""
+        try:
+            import subprocess
+            import tempfile
+            import os
+            
+            # Convert payload to JSON string
+            json_data = json.dumps(payload, ensure_ascii=False)
+            self.logger.info(f"[DEBUG] CURL method: JSON data length: {len(json_data)} bytes")
+            self.logger.info(f"[DEBUG] CURL method: JSON data (first 200 chars): {json_data[:200]}")
+            
+            # Create temporary file for JSON data
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as temp_file:
+                temp_file.write(json_data)
+                temp_file_path = temp_file.name
+            
+            try:
+                # Build CURL command
+                curl_cmd = [
+                    'curl', '-s', '-w', '%{http_code}',  # Silent mode, return HTTP status code
+                    '-X', 'POST',
+                    '-H', 'Content-Type: application/json',
+                    '-d', f'@{temp_file_path}',  # Read data from file
+                    self.discord_webhook_url
+                ]
+                
+                self.logger.info(f"[DEBUG] CURL command: {' '.join(curl_cmd)}")
+                
+                # Execute CURL command
+                result = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=30)
+                
+                # Clean up temp file
+                os.unlink(temp_file_path)
+                
+                # Parse response
+                if result.returncode == 0:
+                    # CURL succeeded, check HTTP status code
+                    try:
+                        http_status = int(result.stdout.strip())
+                        if http_status == 204:  # Discord returns 204 on success
+                            self.logger.info(f"CURL Discord webhook sent successfully: {payload.get('content', 'No content')}")
+                            return True
+                        else:
+                            self.logger.error(f"CURL Discord webhook failed with status {http_status}")
+                            self.logger.error(f"[DEBUG] CURL stderr: {result.stderr}")
+                            return False
+                    except ValueError:
+                        self.logger.error(f"CURL returned invalid status code: {result.stdout}")
+                        return False
+                else:
+                    self.logger.error(f"CURL command failed with return code {result.returncode}")
+                    self.logger.error(f"[DEBUG] CURL stderr: {result.stderr}")
+                    return False
+                    
+            except Exception as e:
+                # Clean up temp file on any error
+                try:
+                    os.unlink(temp_file_path)
+                except:
+                    pass
+                raise e
+                
+        except Exception as e:
+            self.logger.error(f"Error in CURL method: {e}")
+            return False
+    
+    def _send_with_requests(self, payload: Dict) -> bool:
+        """Send Discord webhook using requests library."""
+        try:
+            # Convert payload to JSON
+            data = json.dumps(payload)
+            self.logger.info(f"[DEBUG] Requests method: JSON data length: {len(data)} bytes")
+            self.logger.info(f"[DEBUG] Requests method: JSON data (first 200 chars): {data[:200]}")
+            
+            # Send request using requests library
+            headers = {'Content-Type': 'application/json'}
+            self.logger.info(f"[DEBUG] Requests method: Request method: POST")
+            self.logger.info(f"[DEBUG] Requests method: Request headers: {headers}")
+            self.logger.info(f"[DEBUG] Requests method: Request data length: {len(data)}")
+            
+            self.logger.info(f"[DEBUG] Requests method: About to send HTTP request to Discord...")
+            response = requests.post(
+                self.discord_webhook_url,
+                json=payload,  # Use json parameter for automatic JSON encoding
+                headers=headers
+            )
+            
+            self.logger.info(f"[DEBUG] Requests method: HTTP response received")
+            self.logger.info(f"[DEBUG] Requests method: Response status: {response.status_code}")
+            self.logger.info(f"[DEBUG] Requests method: Response headers: {dict(response.headers)}")
+            
+            if response.status_code == 204:  # Discord returns 204 on success
+                self.logger.info(f"Requests Discord webhook sent successfully: {payload.get('content', 'No content')}")
+                return True
+            else:
+                self.logger.error(f"Requests Discord webhook failed with status {response.status_code}")
+                self.logger.error(f"[DEBUG] Requests method: Response content: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error in requests method: {e}")
+            return False
+    
+    def _send_with_urllib(self, payload: Dict) -> bool:
+        """Send Discord webhook using urllib library."""
+        try:
+            # Convert payload to JSON
+            data = json.dumps(payload).encode('utf-8')
+            self.logger.info(f"[DEBUG] Urllib method: JSON data length: {len(data)} bytes")
+            self.logger.info(f"[DEBUG] Urllib method: JSON data (first 200 chars): {data[:200]}")
+            
+            # Create request
+            req = urllib.request.Request(
+                self.discord_webhook_url,
+                data=data,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            self.logger.info(f"[DEBUG] Urllib method: Request method: {req.get_method()}")
+            self.logger.info(f"[DEBUG] Urllib method: Request headers: {dict(req.headers)}")
+            self.logger.info(f"[DEBUG] Urllib method: Request data length: {len(req.data) if req.data else 0}")
+            
+            # Send request
+            self.logger.info(f"[DEBUG] Urllib method: About to send HTTP request to Discord...")
+            with urllib.request.urlopen(req) as response:
+                self.logger.info(f"[DEBUG] Urllib method: HTTP response received")
+                self.logger.info(f"[DEBUG] Urllib method: Response status: {response.status}")
+                self.logger.info(f"[DEBUG] Urllib method: Response headers: {dict(response.headers)}")
+                
+                if response.status == 204:  # Discord returns 204 on success
+                    self.logger.info(f"Urllib Discord webhook sent successfully: {payload.get('content', 'No content')}")
+                    return True
+                else:
+                    self.logger.error(f"Urllib Discord webhook failed with status {response.status}")
+                    return False
+                    
+        except Exception as e:
+            self.logger.error(f"Error in urllib method: {e}")
             return False
 
     def emit_discord_webhook_events(self, events: List[LogEvent] = None):
