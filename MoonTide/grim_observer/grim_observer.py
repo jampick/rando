@@ -625,14 +625,17 @@ class GrimObserver:
             duration_seconds = current_time - connection_time
             
             if duration_seconds < 60:
-                return f"{int(duration_seconds)}s"
+                return "< 1m"
             elif duration_seconds < 3600:
                 minutes = int(duration_seconds // 60)
                 return f"{minutes}m"
             else:
                 hours = int(duration_seconds // 3600)
                 minutes = int((duration_seconds % 3600) // 60)
-                return f"{hours}h {minutes}m"
+                if minutes == 0:
+                    return f"{hours}h"
+                else:
+                    return f"{hours}h {minutes}m"
         
         return None
     
