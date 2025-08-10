@@ -1,10 +1,14 @@
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
 
-REM Grim Observer - Conan Exiles Log Monitor
-REM Simple Windows batch wrapper
+REM ================================================
+REM  Grim Observer - Conan Exiles Log Monitor
+REM  Simple Windows batch wrapper
+REM  Version: 1.0.0
+REM  Date: 2025-08-09
+REM ================================================
 
-echo [DEBUG] Starting run_observer.bat
+echo [DEBUG] Starting run_observer.bat v1.0.0
 echo [DEBUG] Arguments: %*
 
 set "SCRIPT_DIR=%~dp0"

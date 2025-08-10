@@ -1,4 +1,6 @@
 {
+  "version": "1.0.0",
+  "version_date": "2025-08-09",
   "output_file": "grim_events_exiled.json",
   "check_interval": 1.0,
   "verbose": true,
@@ -7,7 +9,7 @@
   "event_retention_hours": 24,
   "player_count_update_interval": 30,
   "map_name": "exiled",
-  "map_description": "Exiled Lands - The original Conan Exiles map",
+  "map_description": "Exiled Lands - The original map with classic Conan Exiles content",
   "patterns": {
     "player_connected": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) \\((\\S+):(\\d+)\\) connected",
     "player_disconnected_battleye": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) disconnected",

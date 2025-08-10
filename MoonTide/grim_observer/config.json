@@ -1,4 +1,6 @@
 {
+  "version": "1.0.0",
+  "version_date": "2025-08-09",
   "log_file_path": "C:\\Conan\\ConanSandbox\\Saved\\Logs\\ConanSandbox.log",
   "output_file": "grim_events.json",
   "check_interval": 1.0,

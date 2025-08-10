@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
 """
-Conan Exiles Log Observer
-
+Grim Observer - Conan Exiles Log Monitor
 Monitors Conan Exiles server logs and emits events for Discord webhooks.
 
-Behavior
-- Tails log files for real-time monitoring
-- Parses log entries to extract player events
+Features:
+- Monitors log files for player connection/disconnection events
 - Generates Discord webhook payloads
-- Supports scan (one-time), monitor (continuous), and scan-monitor (scan then monitor) modes
+- Supports multiple output formats (JSON, CSV)
+- Configurable event patterns and intervals
+- Map-specific configuration support
 
-Usage examples
-  python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log
-  python3 grim_observer.py monitor /path/to/ConanSandbox/Logs/ConanSandbox.log
-  python3 grim_observer.py scan-monitor /path/to/ConanSandbox/Logs/ConanSandbox.log
-  python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log --discord
-  python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log --webhook-only
-  python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log --map exiled
-  python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log --map siptah
+Version: 1.0.0
 """
 
 from __future__ import annotations
@@ -33,6 +26,10 @@ from typing import Dict, List, Optional, Union
 from pathlib import Path
 from datetime import datetime
 import logging
+
+# Version information
+__version__ = "1.0.0"
+__version_date__ = "2025-08-09"
 
 # Try to import requests, fall back to urllib if not available
 try:
@@ -169,6 +166,8 @@ class GrimObserver:
         self.events: List[LogEvent] = []
         self.current_position = 0
         self.running = False
+        self.version = __version__
+        self.version_date = __version_date__
         
         # Setup logging
         self.setup_logging()
@@ -189,6 +188,12 @@ class GrimObserver:
             ]
         )
         self.logger = logging.getLogger(__name__)
+        
+        # Log version information
+        self.logger.info(f"Grim Observer v{self.version} ({self.version_date}) initialized")
+        self.logger.info(f"Log file: {self.log_file_path}")
+        if self.discord_webhook_url:
+            self.logger.info(f"Discord webhook configured: {self.discord_webhook_url[:50]}...")
     
     def get_current_position(self) -> int:
         """Get current position in the log file."""
@@ -700,6 +705,10 @@ def main():
     parser.add_argument('--map', help='Specify the map name (e.g., exiled, siptah) for secrets loading')
     
     args = parser.parse_args()
+    
+    # Display version information
+    print(f"[GrimObserver][INFO] Grim Observer v{__version__} ({__version_date__})", file=sys.stderr)
+    print(f"[GrimObserver][INFO] Python version: {sys.version.split()[0]}", file=sys.stderr)
     
     # DEBUG: Log all parsed arguments for troubleshooting
     print(f"[DEBUG] Command line arguments parsed:", file=sys.stderr)

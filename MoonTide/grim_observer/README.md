@@ -1,5 +1,8 @@
 # Grim Observer - Conan Exiles Log Monitor
 
+**Version:** 1.0.0  
+**Date:** 2025-08-09
+
 A Python-based log monitoring tool for Conan Exiles servers that tracks player connections, disconnections, and other events, with support for Discord webhook notifications.
 
 ## Features
