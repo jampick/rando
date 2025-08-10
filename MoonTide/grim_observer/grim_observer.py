@@ -157,11 +157,12 @@ class ConanLogParser:
 class GrimObserver:
     """Main monitoring class for ConanSandbox logs."""
     
-    def __init__(self, log_file_path: str, output_file: str = None, verbose: bool = False, discord_webhook_url: str = None, force_curl: bool = False):
+    def __init__(self, log_file_path: str, output_file: str = None, verbose: bool = False, discord_webhook_url: str = None, force_curl: bool = False, map_name: str = None):
         self.log_file_path = Path(log_file_path)
         self.output_file = Path(output_file) if output_file else None
         self.verbose = verbose
         self.discord_webhook_url = discord_webhook_url
+        self.map_name = map_name
         self.parser = ConanLogParser()
         self.events: List[LogEvent] = []
         self.current_position = 0
@@ -287,12 +288,16 @@ class GrimObserver:
         
         payloads = []
         
+        # Get map name for title (default to "Server" if not specified)
+        map_name = self.map_name or "Server"
+        map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
+        
         for event in events:
             if event.event_type == 'player_connected':
                 payload = {
                     "content": f"🟢 **{event.player_name}** joined the server",
                     "embeds": [{
-                        "title": "Player Connected",
+                        "title": f"{map_emoji} {map_name} - Player Connected",
                         "description": f"**{event.player_name}** has joined the server",
                         "color": 0x00ff00,  # Green
                         "fields": [
@@ -302,8 +307,8 @@ class GrimObserver:
                                 "inline": True
                             },
                             {
-                                "name": "IP Address",
-                                "value": event.ip_address or "Unknown",
+                                "name": "Event",
+                                "value": "Connected",
                                 "inline": True
                             },
                             {
@@ -312,7 +317,10 @@ class GrimObserver:
                                 "inline": True
                             }
                         ],
-                        "timestamp": event.parsed_at
+                        "timestamp": event.parsed_at,
+                        "footer": {
+                            "text": "Grim Observer - Conan Exiles"
+                        }
                     }]
                 }
                 payloads.append(payload)
@@ -321,13 +329,18 @@ class GrimObserver:
                 payload = {
                     "content": f"🔴 **{event.player_name}** left the server",
                     "embeds": [{
-                        "title": "Player Disconnected",
+                        "title": f"{map_emoji} {map_name} - Player Disconnected",
                         "description": f"**{event.player_name}** has left the server",
-                        "color": 0xff0000,  # Red
+                        "color": 0xff6b35,  # Orange/Red (closer to your example)
                         "fields": [
                             {
                                 "name": "Player",
                                 "value": event.player_name,
+                                "inline": True
+                            },
+                            {
+                                "name": "Event",
+                                "value": "Disconnected",
                                 "inline": True
                             },
                             {
@@ -336,7 +349,10 @@ class GrimObserver:
                                 "inline": True
                             }
                         ],
-                        "timestamp": event.parsed_at
+                        "timestamp": event.parsed_at,
+                        "footer": {
+                            "text": "Grim Observer - Conan Exiles"
+                        }
                     }]
                 }
                 payloads.append(payload)
@@ -813,7 +829,8 @@ def main():
             output_file=args.output,
             verbose=args.verbose,
             discord_webhook_url=discord_webhook_url, # Pass the loaded URL
-            force_curl=args.force_curl  # Pass the force-curl flag
+            force_curl=args.force_curl,  # Pass the force-curl flag
+            map_name=args.map  # Pass the map name for Discord titles
         )
         
         if args.service:
