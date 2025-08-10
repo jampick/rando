@@ -315,7 +315,8 @@ class GrimObserver:
         for event in events:
             if event.event_type == 'player_connected':
                 # Get current player count for enhanced info
-                current_players = self.get_player_count()
+                # For connections, we need to include this player in the count
+                current_players = self.get_player_count() + 1
                 
                 payload = {
                     "content": f"🟢 **{event.player_name}** joined {map_name}\n⏰ {event.timestamp} • 👥 Player #{current_players}",
