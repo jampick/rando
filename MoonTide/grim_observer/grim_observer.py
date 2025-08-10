@@ -268,10 +268,29 @@ class GrimObserver:
         
         # Empty server message formatting options
         self.use_rich_embeds = True  # Enable rich embeds by default
+        
+        # Multiple image options for randomization
+        self.empty_server_image_options = {
+            "thumbnail": [
+                "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/thumbnail.png",
+                "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/thumbnail_siptah.png",
+                "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/thumbnail_exiled.png"
+            ],
+            "main_image": [
+                "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/main_image.png",
+                "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/main_image_siptah.png",
+                "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/main_image_exiled.png"
+            ],
+            "footer_icon": [
+                "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/footer_icon.png"
+            ]
+        }
+        
+        # Current selected images (will be randomized)
         self.empty_server_images = {
-            "thumbnail": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/thumbnail.png",  # Small image (96x96px)
-            "main_image": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/main_image.png",  # Large image (400x300px)
-            "footer_icon": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/footer_icon.png"  # Footer icon
+            "thumbnail": self.empty_server_image_options["thumbnail"][0],
+            "main_image": self.empty_server_image_options["main_image"][0],
+            "footer_icon": self.empty_server_image_options["footer_icon"][0]
         }
         self.empty_server_colors = {
             "siptah": 0x228B22,    # Forest green
@@ -1003,6 +1022,9 @@ class GrimObserver:
         map_name = self.map_name or "Server"
         map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
         
+        # Randomize images for variety
+        self.randomize_empty_server_images()
+        
         # Select a random message type
         message_type = self._select_message_type()
         
@@ -1098,6 +1120,33 @@ class GrimObserver:
             self.empty_server_images["footer_icon"] = footer_icon
         
         self.logger.info("Empty server message images updated")
+    
+    def randomize_empty_server_images(self):
+        """Randomly select new images for empty server messages."""
+        import random
+        
+        # Randomly select thumbnail
+        if len(self.empty_server_image_options["thumbnail"]) > 1:
+            self.empty_server_images["thumbnail"] = random.choice(self.empty_server_image_options["thumbnail"])
+        
+        # Randomly select main image
+        if len(self.empty_server_image_options["main_image"]) > 1:
+            self.empty_server_images["main_image"] = random.choice(self.empty_server_image_options["main_image"])
+        
+        # Randomly select footer icon (only one option currently)
+        if len(self.empty_server_image_options["footer_icon"]) > 1:
+            self.empty_server_images["footer_icon"] = random.choice(self.empty_server_image_options["footer_icon"])
+        
+        self.logger.info(f"Randomized empty server images: {self.empty_server_images}")
+    
+    def disable_image_randomization(self):
+        """Disable image randomization and use default images."""
+        self.empty_server_images = {
+            "thumbnail": self.empty_server_image_options["thumbnail"][0],
+            "main_image": self.empty_server_image_options["main_image"][0],
+            "footer_icon": self.empty_server_image_options["footer_icon"][0]
+        }
+        self.logger.info("Image randomization disabled, using default images")
     
     def get_recent_events(self, minutes: int = 10) -> List[LogEvent]:
         """Get events from the last N minutes."""
@@ -1243,6 +1292,7 @@ def main():
     parser.add_argument('--thumbnail-url', help='Custom thumbnail image URL for empty server messages')
     parser.add_argument('--main-image-url', help='Custom main image URL for empty server messages')
     parser.add_argument('--footer-icon-url', help='Custom footer icon URL for empty server messages')
+    parser.add_argument('--no-random-images', action='store_true', help='Disable image randomization for empty server messages (use same images each time)')
     
     args = parser.parse_args()
     
@@ -1267,6 +1317,7 @@ def main():
     print(f"[DEBUG] - thumbnail-url: {args.thumbnail_url}", file=sys.stderr)
     print(f"[DEBUG] - main-image-url: {args.main_image_url}", file=sys.stderr)
     print(f"[DEBUG] - footer-icon-url: {args.footer_icon_url}", file=sys.stderr)
+    print(f"[DEBUG] - no-random-images: {args.no_random_images}", file=sys.stderr)
     
     # Load secrets based on map parameter
     secrets = load_secrets(args.map)
@@ -1309,6 +1360,13 @@ def main():
         if args.footer_icon_url:
             observer.set_empty_server_images(footer_icon=args.footer_icon_url)
             print(f"[GrimObserver][INFO] Custom footer icon set to: {args.footer_icon_url}")
+        
+        # Configure image randomization
+        if args.no_random_images:
+            observer.disable_image_randomization()
+            print("[GrimObserver][INFO] Image randomization disabled for empty server messages.")
+        else:
+            print("[GrimObserver][INFO] Image randomization enabled for empty server messages.")
 
         if args.service:
             # Windows service mode - basic implementation
