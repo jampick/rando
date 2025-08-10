@@ -219,7 +219,7 @@ def _generate_fallback_message(map_name="siptah", use_rich_embeds=True):
                 "text": random.choice(footer_variations),
                 "icon_url": empty_server_images["footer_icon"]
             },
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.datetime.UTC).isoformat()
         }
         
         payload = {

@@ -1076,7 +1076,7 @@ class GrimObserver:
                     "text": random.choice(self.empty_server_footer_variations),
                     "icon_url": self.empty_server_images["footer_icon"]
                 },
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(datetime.UTC).isoformat()
             }
             
             return {
