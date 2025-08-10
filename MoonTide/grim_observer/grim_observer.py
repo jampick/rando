@@ -355,39 +355,38 @@ class GrimObserver:
         self.logger.info(f"[DEBUG] Payload content: {payload}")
         
         try:
-            import urllib.request
-            import urllib.parse
+            import requests
             
             # Convert payload to JSON
-            data = json.dumps(payload).encode('utf-8')
+            data = json.dumps(payload)
             self.logger.info(f"[DEBUG] JSON data length: {len(data)} bytes")
             self.logger.info(f"[DEBUG] JSON data (first 200 chars): {data[:200]}")
             self.logger.info(f"[DEBUG] JSON encoding: utf-8")
             
-            # Create request
-            req = urllib.request.Request(
+            # Send request using requests library
+            headers = {'Content-Type': 'application/json'}
+            self.logger.info(f"[DEBUG] Request method: POST")
+            self.logger.info(f"[DEBUG] Request headers: {headers}")
+            self.logger.info(f"[DEBUG] Request data length: {len(data)}")
+            
+            self.logger.info(f"[DEBUG] About to send HTTP request to Discord...")
+            response = requests.post(
                 self.discord_webhook_url,
-                data=data,
-                headers={'Content-Type': 'application/json'}
+                json=payload,  # Use json parameter for automatic JSON encoding
+                headers=headers
             )
             
-            self.logger.info(f"[DEBUG] Request method: {req.get_method()}")
-            self.logger.info(f"[DEBUG] Request headers: {dict(req.headers)}")
-            self.logger.info(f"[DEBUG] Request data length: {len(req.data) if req.data else 0}")
+            self.logger.info(f"[DEBUG] HTTP response received")
+            self.logger.info(f"[DEBUG] Response status: {response.status_code}")
+            self.logger.info(f"[DEBUG] Response headers: {dict(response.headers)}")
             
-            # Send request
-            self.logger.info(f"[DEBUG] About to send HTTP request to Discord...")
-            with urllib.request.urlopen(req) as response:
-                self.logger.info(f"[DEBUG] HTTP response received")
-                self.logger.info(f"[DEBUG] Response status: {response.status}")
-                self.logger.info(f"[DEBUG] Response headers: {dict(response.headers)}")
-                
-                if response.status == 204:  # Discord returns 204 on success
-                    self.logger.info(f"Discord webhook sent successfully: {payload.get('content', 'No content')}")
-                    return True
-                else:
-                    self.logger.error(f"Discord webhook failed with status {response.status}")
-                    return False
+            if response.status_code == 204:  # Discord returns 204 on success
+                self.logger.info(f"Discord webhook sent successfully: {payload.get('content', 'No content')}")
+                return True
+            else:
+                self.logger.error(f"Discord webhook failed with status {response.status_code}")
+                self.logger.error(f"[DEBUG] Response content: {response.text}")
+                return False
                     
         except Exception as e:
             self.logger.error(f"Error sending Discord webhook: {e}")
