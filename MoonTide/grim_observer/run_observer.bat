@@ -16,7 +16,12 @@ echo [DEBUG] SCRIPT_DIR=%SCRIPT_DIR%
 echo [DEBUG] GRIM_SCRIPT=%GRIM_SCRIPT%
 
 REM Parse arguments
+echo [DEBUG] About to check argument 1: "%~1"
+echo [DEBUG] Argument 1 content: [%~1]
+echo [DEBUG] Argument 2 content: [%~2]
+
 if "%~1"=="" (
+    echo [DEBUG] ARGUMENT CHECK FAILED: %~1 is empty
     echo Usage: run_observer.bat [exiled^|siptah] [scan^|monitor^|scan-monitor]
     echo.
     echo Examples:
@@ -31,9 +36,15 @@ if "%~1"=="" (
     echo   monitor     - Monitor for new events only (no historical)
     echo   scan-monitor - Process entire log, then monitor new events (default)
     echo.
+    echo [DEBUG] Exiting with code 1: No arguments provided
     pause
     exit /b 1
 )
+
+echo [DEBUG] ARGUMENT CHECK PASSED: %~1 is NOT empty
+echo [DEBUG] Testing argument parsing...
+echo [DEBUG] %~1 equals siptah: %%~1==siptah%
+echo [DEBUG] %~2 equals monitor: %%~2==monitor%
 
 set "MAP=%~1"
 echo [DEBUG] MAP set to: %MAP%
@@ -50,8 +61,9 @@ REM Validate mode
 echo [DEBUG] Validating mode: %MODE%
 if not "%MODE%"=="scan" if not "%MODE%"=="monitor" if not "%MODE%"=="scan-monitor" (
     echo Error: Invalid mode '%MODE%'. Use scan, monitor, or scan-monitor
+    echo [DEBUG] Exiting with code 2: Invalid mode specified
     pause
-    exit /b 1
+    exit /b 2
 )
 echo [DEBUG] Mode validation passed
 
@@ -61,8 +73,9 @@ python --version >nul 2>&1
 if errorlevel 1 (
     echo Error: Python is not installed or not in PATH
     echo Please install Python 3.6+ and try again
+    echo [DEBUG] Exiting with code 3: Python not available
     pause
-    exit /b 1
+    exit /b 3
 )
 echo [DEBUG] Python check passed
 
@@ -87,8 +100,9 @@ if exist "%SECRETS_FILE%" (
     echo   copy secrets.exiled.bat.rename secrets.exiled.bat
     echo   copy secrets.siptah.bat.rename secrets.siptah.bat
     echo.
+    echo [DEBUG] Exiting with code 4: Secrets file not found
     pause
-    exit /b 1
+    exit /b 4
 )
 
 REM Check if required secrets are loaded
@@ -96,8 +110,9 @@ echo [DEBUG] Checking if DISCORD_WEBHOOK_URL is defined...
 if not defined DISCORD_WEBHOOK_URL (
     echo Error: DISCORD_WEBHOOK_URL not found in secrets
     echo [DEBUG] DISCORD_WEBHOOK_URL is not defined
+    echo [DEBUG] Exiting with code 5: DISCORD_WEBHOOK_URL not defined
     pause
-    exit /b 1
+    exit /b 5
 )
 echo [DEBUG] DISCORD_WEBHOOK_URL check passed
 
@@ -105,8 +120,9 @@ echo [DEBUG] Checking if LOG_FILE_PATH is defined...
 if not defined LOG_FILE_PATH (
     echo Error: LOG_FILE_PATH not found in secrets
     echo [DEBUG] LOG_FILE_PATH is not defined
+    echo [DEBUG] Exiting with code 6: LOG_FILE_PATH not defined
     pause
-    exit /b 1
+    exit /b 6
 )
 echo [DEBUG] LOG_FILE_PATH check passed
 
@@ -124,4 +140,6 @@ python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --verbose
 echo.
 echo [DEBUG] Python script finished
 echo Observer stopped.
+echo [DEBUG] Exiting with code 0: Success
 pause
+exit /b 0
