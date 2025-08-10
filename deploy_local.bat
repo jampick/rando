@@ -12,7 +12,8 @@ REM Configuration - UPDATE THESE VALUES FOR YOUR SERVER
 set GITHUB_REPO=https://github.com/jampick/rando.git
 set LOCAL_BRANCH=main
 set REMOTE_BRANCH=main
-set DEPLOY_PATH=C:\MoonTideTools
+set GIT_SYNC_PATH=C:\MoonTideTools\git_sync
+set DESTINATION_PATH=C:\MoonTideTools
 set BACKUP_PATH=C:\MoonTideTools\backup
 
 REM Colors for output (Windows 10+)
@@ -63,19 +64,24 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Check if deployment directory exists
-if not exist "%DEPLOY_PATH%" (
-    call :print_status "📁 Creating deployment directory..."
-    mkdir "%DEPLOY_PATH%"
+REM Create directories if they don't exist
+if not exist "%GIT_SYNC_PATH%" (
+    call :print_status "📁 Creating Git sync directory..."
+    mkdir "%GIT_SYNC_PATH%"
 )
 
-REM Create backup directory if it doesn't exist
+if not exist "%DESTINATION_PATH%" (
+    call :print_status "📁 Creating destination directory..."
+    mkdir "%DESTINATION_PATH%"
+)
+
 if not exist "%BACKUP_PATH%" (
     mkdir "%BACKUP_PATH%"
 )
 
-REM Check if we're in a git repository
-cd /d "%DEPLOY_PATH%"
+REM Step 1: Git Sync
+call :print_status "🔄 Step 1: Syncing with GitHub..."
+cd /d "%GIT_SYNC_PATH%"
 if exist ".git" (
     call :print_status "📁 Found existing repository, updating..."
     
@@ -83,7 +89,7 @@ if exist ".git" (
     call :print_status "💾 Creating backup..."
     set BACKUP_NAME=backup_%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
     set BACKUP_NAME=!BACKUP_NAME: =0!
-    xcopy "%DEPLOY_PATH%" "%BACKUP_PATH%\!BACKUP_NAME!\" /E /I /H /Y >nul 2>&1
+    xcopy "%DESTINATION_PATH%" "%BACKUP_PATH%\!BACKUP_NAME!\" /E /I /H /Y >nul 2>&1
     call :print_success "✅ Backup created: !BACKUP_NAME!"
     
     REM Fetch latest changes
@@ -133,13 +139,39 @@ if exist ".git" (
 
 call :print_success "✅ Repository updated successfully!"
 
+REM Step 2: Copy to Destination
+call :print_status "🔄 Step 2: Copying to destination..."
+cd /d "%GIT_SYNC_PATH%"
+
+REM Copy all files except .git folder to destination
+for /d %%i in (*) do (
+    if not "%%i"==".git" (
+        if exist "%DESTINATION_PATH%\%%i" (
+            rmdir /s /q "%DESTINATION_PATH%\%%i"
+        )
+        xcopy "%%i" "%DESTINATION_PATH%\%%i\" /E /I /H /Y >nul 2>&1
+    )
+)
+
+REM Copy individual files
+for %%i in (*) do (
+    if not "%%i"==".git" (
+        if not exist "%DESTINATION_PATH%\%%i" (
+            copy "%%i" "%DESTINATION_PATH%\" >nul 2>&1
+        )
+    )
+)
+
+call :print_success "✅ Files copied to destination successfully!"
+
 REM Show what was deployed
 :show_status
 call :print_header "📋 Deployment Summary:"
 echo.
 echo - Repository: %GITHUB_REPO%
 echo - Branch: %REMOTE_BRANCH%
-echo - Local Path: %DEPLOY_PATH%
+echo - Git Sync Path: %GIT_SYNC_PATH%
+echo - Destination Path: %DESTINATION_PATH%
 echo - Deployed at: %date% %time%
 echo.
 

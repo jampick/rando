@@ -44,6 +44,11 @@ chmod +x deploy_improved.sh
 
 ### **Option B: Local Deployment (Windows Server) - 2 Steps**
 
+This option runs directly on your Windows server and uses a **two-step deployment process**:
+
+1. **🔄 Git Sync**: Downloads latest code to a staging area (`GIT_SYNC_PATH`)
+2. **📋 Copy to Destination**: Copies files to the actual server location (`DESTINATION_PATH`)
+
 #### 1. **Setup Configuration**
 ```batch
 # Copy the config template
@@ -53,6 +58,18 @@ copy deploy_local.config deploy_local.config.local
 notepad deploy_local.config.local
 ```
 
+**Key Configuration Options:**
+```bash
+# Git sync location (staging area)
+GIT_SYNC_PATH=C:\MoonTideTools\git_sync
+
+# Final destination (where code runs)
+DESTINATION_PATH=C:\MoonTideTools
+
+# Backup location
+BACKUP_PATH=C:\MoonTideTools\backup
+```
+
 #### 2. **Deploy!**
 ```batch
 # Run the batch file (double-click or command line)
@@ -60,6 +77,18 @@ deploy_local.bat
 
 # OR use PowerShell (more features)
 deploy_local.ps1
+```
+
+**Advanced Usage:**
+```powershell
+# Git sync only (don't copy to destination)
+.\deploy_local.ps1 -SkipCopy
+
+# Deploy to custom locations
+.\deploy_local.ps1 -GitSyncPath "D:\Staging" -DestinationPath "C:\Production"
+
+# Deploy and restart services
+.\deploy_local.ps1 -RestartServices
 ```
 
 ## 📋 **What You Need**
@@ -153,6 +182,13 @@ git reset --hard <commit_hash>  # Go to specific commit
 - **Configuration**: Use `deploy_local.config` for easy customization
 
 ## 🎯 **Pro Tips**
+
+### **Two-Step Deployment Benefits**
+- **🔄 Staging Area**: Test code in `GIT_SYNC_PATH` before copying to production
+- **💾 Safe Updates**: Backup destination before copying new files
+- **🔍 Code Review**: Examine changes in staging area before deployment
+- **⚡ Fast Rollback**: Quick revert by copying from backup
+- **🛡️ Production Safety**: Keep production code separate from Git operations
 
 ### **General Tips**
 1. **Test first**: Try deployment to a test directory before production

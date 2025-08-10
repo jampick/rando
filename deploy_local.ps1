@@ -3,14 +3,16 @@
 
 param(
     [string]$Branch = "main",
-    [string]$DeployPath = "C:\MoonTideTools",
+    [string]$GitSyncPath = "C:\MoonTideTools\git_sync",
+    [string]$DestinationPath = "C:\MoonTideTools",
     [switch]$RestartServices,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$SkipCopy
 )
 
 # Configuration
 $GitHubRepo = "https://github.com/jampick/rando.git"
-$BackupPath = Join-Path $DeployPath "backup"
+$BackupPath = Join-Path $DestinationPath "backup"
 
 # Colors for output
 $Red = "Red"
@@ -27,60 +29,15 @@ function Write-Warning { param($Message) Write-Host $Message -ForegroundColor $Y
 function Write-Error { param($Message) Write-Host $Message -ForegroundColor $Red }
 function Write-Header { param($Message) Write-Host $Message -ForegroundColor $Magenta }
 
-# Main deployment function
-function Deploy-Project {
-    Write-Header "🚀 Rando Project Local Deployment Script"
-    Write-Host "========================================" -ForegroundColor $White
-    Write-Host ""
-
-    # Check prerequisites
-    Write-Status "🔍 Checking prerequisites..."
-    
-    # Check if Git is available
-    try {
-        $gitVersion = git --version 2>$null
-        if (-not $gitVersion) {
-            throw "Git not found"
-        }
-        Write-Success "✅ Git found: $gitVersion"
-    }
-    catch {
-        Write-Error "❌ Error: Git is not installed or not in PATH"
-        Write-Host "Please install Git for Windows from: https://git-scm.com/download/win" -ForegroundColor $White
-        Read-Host "Press Enter to exit"
-        exit 1
-    }
-
-    # Create directories if they don't exist
-    if (-not (Test-Path $DeployPath)) {
-        Write-Status "📁 Creating deployment directory..."
-        New-Item -ItemType Directory -Path $DeployPath -Force | Out-Null
-    }
-
-    if (-not (Test-Path $BackupPath)) {
-        New-Item -ItemType Directory -Path $BackupPath -Force | Out-Null
-    }
-
-    # Change to deployment directory
-    Set-Location $DeployPath
+# Function to sync Git repository
+function Sync-GitRepository {
+    # Change to Git sync directory
+    Set-Location $GitSyncPath
 
     # Check if repository exists
     if (Test-Path ".git") {
         Write-Status "📁 Found existing repository, updating..."
         
-        # Create backup before updating
-        Write-Status "💾 Creating backup..."
-        $backupName = "backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-        $backupFullPath = Join-Path $BackupPath $backupName
-        
-        try {
-            Copy-Item -Path $DeployPath -Destination $backupFullPath -Recurse -Force
-            Write-Success "✅ Backup created: $backupName"
-        }
-        catch {
-            Write-Warning "⚠️  Warning: Could not create backup: $($_.Exception.Message)"
-        }
-
         # Fetch latest changes
         Write-Status "📥 Fetching latest changes from GitHub..."
         try {
@@ -97,7 +54,6 @@ function Deploy-Project {
         $newCommits = git log HEAD..origin/$Branch --oneline 2>$null
         if (-not $newCommits -and -not $Force) {
             Write-Success "✅ Already up to date!"
-            Show-Status
             return
         }
 
@@ -138,6 +94,105 @@ function Deploy-Project {
             exit 1
         }
     }
+}
+
+# Function to copy files to destination
+function Copy-ToDestination {
+    # Create backup before copying
+    Write-Status "💾 Creating backup of destination..."
+    $backupName = "backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+    $backupFullPath = Join-Path $BackupPath $backupName
+    
+    try {
+        if (Test-Path $DestinationPath) {
+            Copy-Item -Path $DestinationPath -Destination $backupFullPath -Recurse -Force
+            Write-Success "✅ Backup created: $backupName"
+        }
+    }
+    catch {
+        Write-Warning "⚠️  Warning: Could not create backup: $($_.Exception.Message)"
+    }
+
+    # Copy files from Git sync to destination
+    Write-Status "📋 Copying files to destination..."
+    try {
+        # Get list of items to copy (excluding .git folder)
+        $itemsToCopy = Get-ChildItem -Path $GitSyncPath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+        
+        foreach ($item in $itemsToCopy) {
+            $destPath = Join-Path $DestinationPath $item.Name
+            if ($item.PSIsContainer) {
+                # Copy directory
+                if (Test-Path $destPath) {
+                    Remove-Item -Path $destPath -Recurse -Force
+                }
+                Copy-Item -Path $item.FullName -Destination $DestinationPath -Recurse -Force
+            } else {
+                # Copy file
+                Copy-Item -Path $item.FullName -Destination $DestinationPath -Force
+            }
+        }
+        Write-Success "✅ Files copied to destination successfully!"
+    }
+    catch {
+        Write-Error "❌ Failed to copy files to destination: $($_.Exception.Message)"
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+}
+
+# Main deployment function
+function Deploy-Project {
+    Write-Header "🚀 Rando Project Local Deployment Script"
+    Write-Host "========================================" -ForegroundColor $White
+    Write-Host ""
+
+    # Check prerequisites
+    Write-Status "🔍 Checking prerequisites..."
+    
+    # Check if Git is available
+    try {
+        $gitVersion = git --version 2>$null
+        if (-not $gitVersion) {
+            throw "Git not found"
+        }
+        Write-Success "✅ Git found: $gitVersion"
+    }
+    catch {
+        Write-Error "❌ Error: Git is not installed or not in PATH"
+        Write-Host "Please install Git for Windows from: https://git-scm.com/download/win" -ForegroundColor $White
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+
+    # Create directories if they don't exist
+    if (-not (Test-Path $GitSyncPath)) {
+        Write-Status "📁 Creating Git sync directory..."
+        New-Item -ItemType Directory -Path $GitSyncPath -Force | Out-Null
+    }
+
+    if (-not (Test-Path $DestinationPath)) {
+        Write-Status "📁 Creating destination directory..."
+        New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
+    }
+
+    if (-not (Test-Path $BackupPath)) {
+        New-Item -ItemType Directory -Path $BackupPath -Force | Out-Null
+    }
+
+    # Step 1: Git Sync
+    Write-Status "🔄 Step 1: Syncing with GitHub..."
+    Sync-GitRepository
+
+    # Step 2: Copy to Destination (unless skipped)
+    if (-not $SkipCopy) {
+        Write-Status "🔄 Step 2: Copying to destination..."
+        Copy-ToDestination
+    } else {
+        Write-Warning "⚠️  Skipping copy to destination (Git sync only)"
+    }
+
+
 
     # Show deployment summary
     Show-Status
@@ -154,14 +209,19 @@ function Show-Status {
     Write-Host ""
     Write-Host "- Repository: $GitHubRepo" -ForegroundColor $White
     Write-Host "- Branch: $Branch" -ForegroundColor $White
-    Write-Host "- Local Path: $DeployPath" -ForegroundColor $White
+    Write-Host "- Git Sync Path: $GitSyncPath" -ForegroundColor $White
+    Write-Host "- Destination Path: $DestinationPath" -ForegroundColor $White
     Write-Host "- Deployed at: $(Get-Date)" -ForegroundColor $White
     Write-Host ""
 
     # Show recent commits
     Write-Status "📝 Recent commits:"
     try {
+        # Change to Git sync directory to show commits
+        $originalLocation = Get-Location
+        Set-Location $GitSyncPath
         git log --oneline -5
+        Set-Location $originalLocation
     }
     catch {
         Write-Warning "⚠️  Could not show recent commits"
