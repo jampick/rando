@@ -5,15 +5,18 @@ param(
     [string]$Branch = "main",
     [string]$GitSyncPath = "C:\MoonTideTools\git_sync",
     [string]$DestinationPath = "C:\MoonTideTools",
+    [string]$LocalSource = "",
     [switch]$RestartServices,
     [switch]$Force,
     [switch]$SkipCopy,
-    [switch]$Preview
+    [switch]$Preview,
+    [switch]$MoonTideOnly
 )
 
 # Configuration
 $GitHubRepo = "https://github.com/jampick/rando.git"
 $BackupPath = Join-Path $DestinationPath "backup"
+$MoonTideSubfolder = "MoonTide"
 
 # Colors for output
 $Red = "Red"
@@ -115,8 +118,20 @@ function Preview-CopyCommands {
     Write-Status "📋 Copy commands that would run:"
     
     try {
-        # Get list of items to copy (excluding .git folder)
-        $itemsToCopy = Get-ChildItem -Path $GitSyncPath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+        # Get list of items to copy based on MoonTideOnly flag
+        if ($MoonTideOnly) {
+            $moonTidePath = Join-Path $GitSyncPath $MoonTideSubfolder
+            if (Test-Path $moonTidePath) {
+                $itemsToCopy = Get-ChildItem -Path $moonTidePath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+                Write-Status "🌙 MoonTide-only mode: Copying from $MoonTideSubfolder subfolder"
+            } else {
+                Write-Warning "⚠️  MoonTide subfolder not found at: $moonTidePath"
+                return
+            }
+        } else {
+            # Get list of items to copy (excluding .git folder)
+            $itemsToCopy = Get-ChildItem -Path $GitSyncPath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+        }
         
         if ($itemsToCopy.Count -eq 0) {
             Write-Warning "⚠️  No files found in Git sync location to copy"
@@ -142,7 +157,13 @@ function Preview-CopyCommands {
         Write-Host ""
         Write-Host "📊 Summary:" -ForegroundColor $White
         Write-Host "  - Files to copy: $($itemsToCopy.Count)" -ForegroundColor $White
-        Write-Host "  - Source: $GitSyncPath" -ForegroundColor $White
+        if ($MoonTideOnly) {
+            Write-Host "  - Source: $(Join-Path $GitSyncPath $MoonTideSubfolder)" -ForegroundColor $White
+            Write-Host "  - Mode: MoonTide-only" -ForegroundColor $White
+        } else {
+            Write-Host "  - Source: $GitSyncPath" -ForegroundColor $White
+            Write-Host "  - Mode: Full repository" -ForegroundColor $White
+        }
         Write-Host "  - Destination: $DestinationPath" -ForegroundColor $White
         Write-Host "  - Backup location: $BackupPath" -ForegroundColor $White
         
@@ -172,8 +193,21 @@ function Copy-ToDestination {
     # Copy files from Git sync to destination
     Write-Status "📋 Copying files to destination..."
     try {
-        # Get list of items to copy (excluding .git folder)
-        $itemsToCopy = Get-ChildItem -Path $GitSyncPath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+        # Get list of items to copy based on MoonTideOnly flag
+        if ($MoonTideOnly) {
+            $moonTidePath = Join-Path $GitSyncPath $MoonTideSubfolder
+            if (Test-Path $moonTidePath) {
+                $itemsToCopy = Get-ChildItem -Path $moonTidePath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+                Write-Status "🌙 MoonTide-only mode: Copying from $MoonTideSubfolder subfolder"
+            } else {
+                Write-Error "❌ MoonTide subfolder not found at: $moonTidePath"
+                Read-Host "Press Enter to exit"
+                exit 1
+            }
+        } else {
+            # Get list of items to copy (excluding .git folder)
+            $itemsToCopy = Get-ChildItem -Path $GitSyncPath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+        }
         
         foreach ($item in $itemsToCopy) {
             $destPath = Join-Path $DestinationPath $item.Name
@@ -236,9 +270,21 @@ function Deploy-Project {
         New-Item -ItemType Directory -Path $BackupPath -Force | Out-Null
     }
 
-    # Step 1: Git Sync
-    Write-Status "🔄 Step 1: Syncing with GitHub..."
-    Sync-GitRepository
+    # Step 1: Git Sync or Local Source
+    if ($LocalSource -and (Test-Path $LocalSource)) {
+        Write-Status "📁 Step 1: Using local source folder..."
+        Write-Status "Local source: $LocalSource"
+        
+        # Copy local source to Git sync path for processing
+        if (Test-Path $GitSyncPath) {
+            Remove-Item -Path $GitSyncPath -Recurse -Force
+        }
+        Copy-Item -Path $LocalSource -Destination $GitSyncPath -Recurse -Force
+        Write-Success "✅ Local source copied to sync location"
+    } else {
+        Write-Status "🔄 Step 1: Syncing with GitHub..."
+        Sync-GitRepository
+    }
 
     # Step 2: Copy to Destination (unless skipped)
     if (-not $SkipCopy) {
@@ -252,9 +298,7 @@ function Deploy-Project {
     } else {
         Write-Warning "⚠️  Skipping copy to destination (Git sync only)"
     }
-
-
-
+    
     # Show deployment summary
     Show-Status
 
@@ -272,6 +316,11 @@ function Show-Status {
     Write-Host "- Branch: $Branch" -ForegroundColor $White
     Write-Host "- Git Sync Path: $GitSyncPath" -ForegroundColor $White
     Write-Host "- Destination Path: $DestinationPath" -ForegroundColor $White
+    if ($MoonTideOnly) {
+        Write-Host "- Mode: MoonTide-only" -ForegroundColor $White
+    } else {
+        Write-Host "- Mode: Full repository" -ForegroundColor $White
+    }
     Write-Host "- Deployed at: $(Get-Date)" -ForegroundColor $White
     Write-Host ""
 
@@ -357,13 +406,19 @@ function Show-Help {
     Write-Host "  .\deploy_local.ps1 -Branch develop" -ForegroundColor $Yellow
     Write-Host ""
     Write-Host "Deploy to custom path:" -ForegroundColor $White
-    Write-Host "  .\deploy_local.ps1 -DeployPath D:\MyServer" -ForegroundColor $Yellow
+    Write-Host "  .\deploy_local.ps1 -DestinationPath D:\MyServer" -ForegroundColor $Yellow
     Write-Host ""
     Write-Host "Deploy and restart services:" -ForegroundColor $White
     Write-Host "  .\deploy_local.ps1 -RestartServices" -ForegroundColor $Yellow
     Write-Host ""
     Write-Host "Force update (even if no changes):" -ForegroundColor $White
     Write-Host "  .\deploy_local.ps1 -Force" -ForegroundColor $Yellow
+    Write-Host ""
+    Write-Host "Deploy only MoonTide folder:" -ForegroundColor $White
+    Write-Host "  .\deploy_local.ps1 -MoonTideOnly" -ForegroundColor $Yellow
+    Write-Host ""
+    Write-Host "Preview mode (show what would happen):" -ForegroundColor $White
+    Write-Host "  .\deploy_local.ps1 -Preview" -ForegroundColor $Yellow
     Write-Host ""
 }
 
