@@ -185,8 +185,21 @@ class GrimObserver:
             "🌙 **THE DARKNESS FALLS...** The server is empty. No souls to challenge CROM's might. The strong shall return, the weak shall remain... 🗡️",
             "⚰️ **SILENCE REIGNS...** The server stands empty. No warriors to prove their worth. CROM waits... the strong shall return! 💀",
             "🏜️ **THE WASTELAND CALLS...** The server is barren. No souls to face CROM's trials. The weak are gone, the strong shall rise... ⚡",
-            "🌑 **EMPTY REALMS...** The server lies dormant. No warriors to claim CROM's glory. The strong shall awaken, the weak shall perish... 🗡️"
+            "🌑 **EMPTY REALMS...** The server stands dormant. No warriors to claim CROM's glory. The strong shall awaken, the weak shall perish... 🗡️"
         ]
+        
+        # Empty server message formatting options
+        self.use_rich_embeds = True  # Enable rich embeds by default
+        self.empty_server_images = {
+            "thumbnail": "https://i.imgur.com/8JZqXqL.png",  # Small image (96x96px)
+            "main_image": "https://i.imgur.com/QX8JZqL.png",  # Large image (400x300px)
+            "footer_icon": "https://i.imgur.com/JZqX8qL.png"  # Footer icon
+        }
+        self.empty_server_colors = {
+            "siptah": 0x228B22,    # Forest green
+            "exiled": 0x8B4513,    # Saddle brown
+            "default": 0x8B0000    # Dark red
+        }
         
         # Setup logging
         self.logger = logging.getLogger(__name__)
@@ -836,15 +849,78 @@ class GrimObserver:
             message = message.replace("The server", f"{map_name}")
             message = message.replace("the server", f"{map_name}")
         
-        return {
-            "content": message,
-            "embeds": []
-        }
+        if self.use_rich_embeds:
+            # Create rich embed with visual elements
+            embed = {
+                "title": f"💀 {map_emoji} SERVER STATUS: EMPTY {map_emoji} 💀",
+                "description": message,
+                "color": self.empty_server_colors.get(map_name.lower(), self.empty_server_colors["default"]),
+                "thumbnail": {
+                    "url": self.empty_server_images["thumbnail"]
+                },
+                "image": {
+                    "url": self.empty_server_images["main_image"]
+                },
+                "fields": [
+                    {
+                        "name": "🌙 **Server State**",
+                        "value": "**EMPTY** - No warriors present",
+                        "inline": True
+                    },
+                    {
+                        "name": "⏰ **Next Check**",
+                        "value": f"<t:{int(time.time() + self.empty_server_interval)}:R>",
+                        "inline": True
+                    },
+                    {
+                        "name": "🗺️ **Map**",
+                        "value": f"**{map_name.upper()}**",
+                        "inline": True
+                    }
+                ],
+                "footer": {
+                    "text": "CROM watches... the strong shall return! ⚔️",
+                    "icon_url": self.empty_server_images["footer_icon"]
+                },
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+            return {
+                "content": "",  # Empty content, using embed instead
+                "embeds": [embed]
+            }
+        else:
+            # Fallback to simple text message
+            return {
+                "content": f"💀 **CROM SLEEPS...** The server lies silent. No warriors to test their mettle. The weak have fled, the strong await... ⚔️\n\n**{map_name}** is empty. No souls to challenge CROM's might. The strong shall return, the weak shall remain... 🗡️\n\n⏰ Next check: <t:{int(time.time() + self.empty_server_interval)}:R>",
+                "embeds": []
+            }
     
     def set_empty_server_interval(self, hours: int):
         """Configure the empty server message interval in hours."""
         self.empty_server_interval = hours * 3600
         self.logger.info(f"Empty server message interval set to {hours} hours")
+    
+    def toggle_rich_embeds(self, enabled: bool = None):
+        """Toggle rich embeds for empty server messages."""
+        if enabled is None:
+            self.use_rich_embeds = not self.use_rich_embeds
+        else:
+            self.use_rich_embeds = enabled
+        
+        status = "enabled" if self.use_rich_embeds else "disabled"
+        self.logger.info(f"Rich embeds {status} for empty server messages")
+    
+    def set_empty_server_images(self, thumbnail: str = None, main_image: str = None, footer_icon: str = None):
+        """Configure custom images for empty server messages."""
+        if thumbnail:
+            self.empty_server_images["thumbnail"] = thumbnail
+        if main_image:
+            self.empty_server_images["main_image"] = main_image
+        if footer_icon:
+            self.empty_server_images["footer_icon"] = footer_icon
+        
+        self.logger.info("Empty server message images updated")
     
     def get_recent_events(self, minutes: int = 10) -> List[LogEvent]:
         """Get events from the last N minutes."""
@@ -986,6 +1062,10 @@ def main():
     parser.add_argument('--force-curl', action='store_true', help='Force use of CURL for Discord webhooks (bypasses Python libraries)')
     parser.add_argument('--map', help='Specify the map name (e.g., exiled, siptah) for secrets loading')
     parser.add_argument('--empty-interval', type=int, default=4, help='Empty server message interval in hours (default: 4)')
+    parser.add_argument('--no-rich-embeds', action='store_true', help='Disable rich embeds for empty server messages (use simple text)')
+    parser.add_argument('--thumbnail-url', help='Custom thumbnail image URL for empty server messages')
+    parser.add_argument('--main-image-url', help='Custom main image URL for empty server messages')
+    parser.add_argument('--footer-icon-url', help='Custom footer icon URL for empty server messages')
     
     args = parser.parse_args()
     
@@ -1006,6 +1086,10 @@ def main():
     print(f"[DEBUG] - webhook_only: {args.webhook_only}", file=sys.stderr)
     print(f"[DEBUG] - map: {args.map}", file=sys.stderr)
     print(f"[DEBUG] - empty-interval: {args.empty_interval}", file=sys.stderr)
+    print(f"[DEBUG] - no-rich-embeds: {args.no_rich_embeds}", file=sys.stderr)
+    print(f"[DEBUG] - thumbnail-url: {args.thumbnail_url}", file=sys.stderr)
+    print(f"[DEBUG] - main-image-url: {args.main_image_url}", file=sys.stderr)
+    print(f"[DEBUG] - footer-icon-url: {args.footer_icon_url}", file=sys.stderr)
     
     # Load secrets based on map parameter
     secrets = load_secrets(args.map)
@@ -1031,6 +1115,24 @@ def main():
         # Set the empty server interval from command line argument
         observer.set_empty_server_interval(args.empty_interval)
         
+        # Configure rich embeds
+        if args.no_rich_embeds:
+            observer.toggle_rich_embeds(False)
+            print("[GrimObserver][INFO] Rich embeds disabled for empty server messages.")
+        else:
+            print("[GrimObserver][INFO] Rich embeds enabled for empty server messages.")
+
+        # Set custom images if provided
+        if args.thumbnail_url:
+            observer.set_empty_server_images(thumbnail=args.thumbnail_url)
+            print(f"[GrimObserver][INFO] Custom thumbnail image set to: {args.thumbnail_url}")
+        if args.main_image_url:
+            observer.set_empty_server_images(main_image=args.main_image_url)
+            print(f"[GrimObserver][INFO] Custom main image set to: {args.main_image_url}")
+        if args.footer_icon_url:
+            observer.set_empty_server_images(footer_icon=args.footer_icon_url)
+            print(f"[GrimObserver][INFO] Custom footer icon set to: {args.footer_icon_url}")
+
         if args.service:
             # Windows service mode - basic implementation
             print("[GrimObserver][INFO] Windows service mode activated")
