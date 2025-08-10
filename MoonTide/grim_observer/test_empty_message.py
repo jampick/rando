@@ -12,13 +12,124 @@ import random
 def generate_test_empty_message(map_name="siptah", use_rich_embeds=True):
     """Generate a test empty server message payload."""
     
-    # Empty server messages (same as grim_observer.py)
-    empty_server_messages = [
-        "💀 **CROM SLEEPS...** The server lies silent. No warriors to test their mettle. The weak have fled, the strong await... ⚔️",
-        "🌙 **THE DARKNESS FALLS...** The server is empty. No souls to challenge CROM's might. The strong shall return, the weak shall remain... 🗡️",
-        "⚰️ **SILENCE REIGNS...** The server stands empty. No warriors to prove their worth. CROM waits... the strong shall return! 💀",
-        "🏜️ **THE WASTELAND CALLS...** The server is barren. No souls to face CROM's trials. The weak are gone, the strong shall rise... ⚡",
-        "🌑 **EMPTY REALMS...** The server stands dormant. No warriors to claim CROM's glory. The strong shall awaken, the weak shall perish... 🗡️"
+    # Dynamic empty server message system (same as grim_observer.py)
+    empty_server_message_types = {
+        "crom_sleeps": {
+            "title_templates": [
+                "💀 {map_emoji} CROM SLEEPS... {map_emoji} 💀",
+                "🌙 {map_emoji} THE DARKNESS FALLS {map_emoji} 🌙",
+                "⚰️ {map_emoji} SILENCE REIGNS {map_emoji} ⚰️",
+                "🏜️ {map_emoji} THE WASTELAND CALLS {map_emoji} 🏜️",
+                "🌑 {map_emoji} EMPTY REALMS {map_emoji} 🌑"
+            ],
+            "description_templates": [
+                "**CROM SLEEPS...** {map_name} lies silent. No warriors to test their mettle. The weak have fled, the strong await... ⚔️",
+                "**THE DARKNESS FALLS...** {map_name} is empty. No souls to challenge CROM's might. The strong shall return, the weak shall remain... 🗡️",
+                "**SILENCE REIGNS...** {map_name} stands empty. No warriors to prove their worth. CROM waits... the strong shall return! 💀",
+                "**THE WASTELAND CALLS...** {map_name} is barren. No souls to face CROM's trials. The weak are gone, the strong shall rise... ⚡",
+                "**EMPTY REALMS...** {map_name} stands dormant. No warriors to claim CROM's glory. The strong shall awaken, the weak shall perish... 🗡️"
+            ]
+        },
+        "warrior_call": {
+            "title_templates": [
+                "⚔️ {map_emoji} CALLING ALL WARRIORS {map_emoji} ⚔️",
+                "🗡️ {map_emoji} THE BATTLEFIELD AWAITS {map_emoji} 🗡️",
+                "🛡️ {map_emoji} GLORY CALLS {map_emoji} 🛡️",
+                "⚡ {map_emoji} POWER VACUUM {map_emoji} ⚡",
+                "🔥 {map_emoji} THE FIRE DIES {map_emoji} 🔥"
+            ],
+            "description_templates": [
+                "**WARRIORS OF {map_name}...** The battlefield lies empty, waiting for your return. CROM demands blood and glory! Who will answer the call? ⚔️",
+                "**CHAMPIONS OF {map_name}...** The arena is silent, the crowds are gone. Where are the mighty? CROM seeks worthy opponents! 🗡️",
+                "**HEROES OF {map_name}...** The realm is quiet, the challenges await. Will you return to claim your destiny? CROM watches... ⚡",
+                "**LEGENDS OF {map_name}...** The stage is set, the audience is gone. Your stories remain untold. CROM awaits your return! 🔥",
+                "**WARRIORS OF {map_name}...** The battlefield is yours for the taking. No competition, no resistance. CROM offers you glory! 🛡️"
+            ]
+        },
+        "lore_story": {
+            "title_templates": [
+                "📚 {map_emoji} LEGENDS OF {map_name} {map_emoji} 📚",
+                "🏛️ {map_emoji} ANCIENT TALES {map_emoji} 🏛️",
+                "🗿 {map_emoji} STORIES UNTOLD {map_emoji} 🗿",
+                "📖 {map_emoji} CHRONICLES OF {map_name} {map_emoji} 📖",
+                "🏺 {map_emoji} MYTHS AND LEGENDS {map_emoji} 🏺"
+            ],
+            "description_templates": [
+                "**IN THE DAYS OF OLD...** {map_name} was filled with warriors whose names echoed through the ages. Now, only silence remains. Will you write the next chapter? 📚",
+                "**THE ANCIENTS SPEAK...** {map_name} remembers the battles, the victories, the defeats. The stones whisper of glory past. Will you add your tale? 🏛️",
+                "**LEGENDS TELL...** {map_name} was once a place of great deeds and mighty warriors. The echoes of their glory still linger. Will you continue their legacy? 🗿",
+                "**HISTORY RECORDS...** {map_name} has seen empires rise and fall, heroes come and go. The chronicles await your entry. Will you be remembered? 📖",
+                "**MYTHS WHISPER...** {map_name} holds secrets of power and glory. The ancient ones left their mark. Will you leave yours? 🏺"
+            ]
+        },
+        "challenge_issued": {
+            "title_templates": [
+                "🎯 {map_emoji} CHALLENGE ISSUED {map_emoji} 🎯",
+                "🏆 {map_emoji} THE THRONE AWAITS {map_emoji} 🏆",
+                "⚔️ {map_emoji} PROVE YOUR WORTH {map_emoji} ⚔️",
+                "🔥 {map_emoji} THE TEST BEGINS {map_emoji} 🔥",
+                "💎 {map_emoji} DIAMOND IN THE ROUGH {map_emoji} 💎"
+            ],
+            "description_templates": [
+                "**CROM CHALLENGES YOU...** {map_name} stands empty, a blank canvas for your conquest. Will you rise to the challenge and claim your destiny? 🎯",
+                "**THE THRONE IS EMPTY...** {map_name} has no ruler, no champion. CROM offers you the chance to prove your worth. Will you accept? 🏆",
+                "**YOUR TEST AWAITS...** {map_name} is your proving ground. No competition, no distractions. Just you and CROM's challenge. Ready? ⚔️",
+                "**THE FIRE TESTS ALL...** {map_name} will reveal your true nature. Will you emerge stronger, or will you be consumed? CROM watches... 🔥",
+                "**DIAMONDS ARE FORGED...** {map_name} will test your mettle. Pressure creates perfection. Will you shine, or will you crack? 💎"
+            ]
+        },
+        "humor_meme": {
+            "title_templates": [
+                "😴 {map_emoji} SERVER STATUS: NAPPING {map_emoji} 😴",
+                "🦗 {map_emoji} CHIRP CHIRP {map_emoji} 🦗",
+                "🌵 {map_emoji} TUMBLEWEED ALERT {map_emoji} 🌵",
+                "👻 {map_emoji} GHOST TOWN {map_emoji} 👻",
+                "🎭 {map_emoji} THE SHOW MUST GO ON {map_emoji} 🎭"
+            ],
+            "description_templates": [
+                "**ZZZZ...** {map_name} is taking a nap. The server is so quiet you can hear the tumbleweeds rolling by. Anyone want to wake it up? 😴",
+                "**CHIRP CHIRP...** The only sound in {map_name} is the crickets. It's so empty even the echo has an echo. Anyone home? 🦗",
+                "**TUMBLEWEED ROLLING...** {map_name} is so deserted, tumbleweeds are having parties. The server is basically a ghost town. 👻",
+                "**GHOST TOWN...** {map_name} is so empty, even the ghosts got bored and left. The server is basically a digital desert. 🌵",
+                "**CURTAIN CALL...** The audience has left {map_name}. The show is over, the lights are off. Anyone want to be the star? 🎭"
+            ]
+        }
+    }
+    
+    # Dynamic field and footer variations
+    field_variations = {
+        "server_state": [
+            "🌙 **Server State**",
+            "⚔️ **Battle Status**",
+            "🏰 **Realm Status**",
+            "🗡️ **Warrior Count**",
+            "🛡️ **Defense Status**"
+        ],
+        "next_check": [
+            "⏰ **Next Check**",
+            "🕐 **Next Update**",
+            "⏳ **Next Alert**",
+            "🕰️ **Next Report**",
+            "📅 **Next Status**"
+        ],
+        "map_info": [
+            "🗺️ **Map**",
+            "🌍 **Realm**",
+            "🏔️ **Land**",
+            "🏝️ **Territory**",
+            "🌋 **Domain**"
+        ]
+    }
+    
+    footer_variations = [
+        "CROM watches... the strong shall return! ⚔️",
+        "The weak perish, the strong survive! 🗡️",
+        "Glory awaits those who dare to return! 🛡️",
+        "CROM's challenge stands... will you answer? ⚡",
+        "The arena is empty, but the glory remains! 🏆",
+        "CROM sleeps, but the strong never rest! 💀",
+        "The battlefield calls... will you answer? 🔥",
+        "CROM's realm awaits its next champion! 💎"
     ]
     
     # Image URLs (placeholder - replace with your actual URLs)
@@ -35,22 +146,24 @@ def generate_test_empty_message(map_name="siptah", use_rich_embeds=True):
         "default": 0x8B0000    # Dark red
     }
     
-    # Random message
-    message = random.choice(empty_server_messages)
-    
-    # Replace generic "server" references with map name
-    if map_name.lower() != "server":
-        message = message.replace("The server", f"{map_name}")
-        message = message.replace("the server", f"{map_name}")
-    
     # Map emoji
     map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
+    
+    # Select a random message type
+    message_type = random.choice(list(empty_server_message_types.keys()))
+    
+    # Select a random title and description from the chosen type
+    title_templates = empty_server_message_types[message_type]["title_templates"]
+    description_templates = empty_server_message_types[message_type]["description_templates"]
+    
+    title = random.choice(title_templates).format(map_name=map_name, map_emoji=map_emoji)
+    description = random.choice(description_templates).format(map_name=map_name, map_emoji=map_emoji)
     
     if use_rich_embeds:
         # Create rich embed
         embed = {
-            "title": f"💀 {map_emoji} SERVER STATUS: EMPTY {map_emoji} 💀",
-            "description": message,
+            "title": title,
+            "description": description,
             "color": empty_server_colors.get(map_name.lower(), empty_server_colors["default"]),
             "thumbnail": {
                 "url": empty_server_images["thumbnail"]
@@ -60,23 +173,23 @@ def generate_test_empty_message(map_name="siptah", use_rich_embeds=True):
             },
             "fields": [
                 {
-                    "name": "🌙 **Server State**",
+                    "name": random.choice(field_variations["server_state"]),
                     "value": "**EMPTY** - No warriors present",
                     "inline": True
                 },
                 {
-                    "name": "⏰ **Next Check**",
+                    "name": random.choice(field_variations["next_check"]),
                     "value": f"<t:{int(time.time() + 14400)}:R>",  # 4 hours from now
                     "inline": True
                 },
                 {
-                    "name": "🗺️ **Map**",
+                    "name": random.choice(field_variations["map_info"]),
                     "value": f"**{map_name.upper()}**",
                     "inline": True
                 }
             ],
             "footer": {
-                "text": "CROM watches... the strong shall return! ⚔️",
+                "text": random.choice(footer_variations),
                 "icon_url": empty_server_images["footer_icon"]
             },
             "timestamp": datetime.datetime.utcnow().isoformat()
@@ -89,7 +202,7 @@ def generate_test_empty_message(map_name="siptah", use_rich_embeds=True):
     else:
         # Simple text message
         payload = {
-            "content": f"💀 **CROM SLEEPS...** The server lies silent. No warriors to test their mettle. The weak have fled, the strong await... ⚔️\n\n**{map_name}** is empty. No souls to challenge CROM's might. The strong shall return, the weak shall remain... 🗡️\n\n⏰ Next check: <t:{int(time.time() + 14400)}:R>",
+            "content": f"{description}\n\n⏰ Next check: <t:{int(time.time() + 14400)}:R>",
             "embeds": []
         }
     
