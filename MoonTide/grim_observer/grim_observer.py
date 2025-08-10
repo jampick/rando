@@ -200,6 +200,21 @@ class GrimObserver:
             self.events.append(event)
             self.logger.info(f"Event detected: {event}")
             
+            # Send Discord webhook for new events if webhook URL is available
+            if self.discord_webhook_url and event.event_type in ['player_connected', 'player_disconnected']:
+                if self.verbose:
+                    self.logger.info(f"Sending Discord webhook for {event.event_type} event")
+                
+                # Generate and send Discord webhook for this single event
+                payloads = self.generate_discord_webhook_payloads([event])
+                if payloads:
+                    success = self.send_discord_webhook(payloads[0])
+                    if self.verbose:
+                        if success:
+                            self.logger.info(f"Discord webhook sent successfully for {event.event_type}")
+                        else:
+                            self.logger.error(f"Failed to send Discord webhook for {event.event_type}")
+            
             # Save to output file if specified
             if self.output_file:
                 self.save_event(event)

@@ -20,38 +20,57 @@ echo [DEBUG] About to check argument 1: "%~1"
 echo [DEBUG] Argument 1 content: [%~1]
 echo [DEBUG] Argument 2 content: [%~2]
 
-if "%~1"=="" (
-    echo [DEBUG] ARGUMENT CHECK FAILED: %~1 is empty
-    echo Usage: run_observer.bat [exiled^|siptah] [scan^|monitor^|scan-monitor]
-    echo.
-    echo Examples:
-    echo   run_observer.bat exiled
-    echo   run_observer.bat siptah
-    echo   run_observer.bat exiled monitor
-    echo   run_observer.bat siptah scan
-    echo   run_observer.bat exiled scan-monitor
-    echo.
-    echo Modes:
-    echo   scan        - Process entire log file once, then exit
-    echo   monitor     - Monitor for new events only (no historical)
-    echo   scan-monitor - Process entire log, then monitor new events (default)
-    echo.
-    echo [DEBUG] Exiting with code 1: No arguments provided
-    pause
-    exit /b 1
+REM More robust argument checking
+set "ARG1=%~1"
+set "ARG2=%~2"
+echo [DEBUG] ARG1 variable set to: [%ARG1%]
+echo [DEBUG] ARG2 variable set to: [%ARG2%]
+
+REM Alternative argument checking method
+echo [DEBUG] Testing alternative argument check...
+if defined ARG1 (
+    echo [DEBUG] ARG1 is defined
+    if not "%ARG1%"=="" (
+        echo [DEBUG] ARG1 is not empty
+        goto :args_ok
+    ) else (
+        echo [DEBUG] ARG1 is empty string
+    )
+) else (
+    echo [DEBUG] ARG1 is not defined
 )
 
-echo [DEBUG] ARGUMENT CHECK PASSED: %~1 is NOT empty
-echo [DEBUG] Testing argument parsing...
-echo [DEBUG] %~1 equals siptah: %%~1==siptah%
-echo [DEBUG] %~2 equals monitor: %%~2==monitor%
+echo [DEBUG] ARGUMENT CHECK FAILED: ARG1 is empty or undefined
+echo Usage: run_observer.bat [exiled^|siptah] [scan^|monitor^|scan-monitor]
+echo.
+echo Examples:
+echo   run_observer.bat exiled
+echo   run_observer.bat siptah
+echo   run_observer.bat exiled monitor
+echo   run_observer.bat siptah scan
+echo   run_observer.bat exiled scan-monitor
+echo.
+echo Modes:
+echo   scan        - Process entire log file once, then exit
+echo   monitor     - Monitor for new events only (no historical)
+echo   scan-monitor - Process entire log, then monitor new events (default)
+echo.
+echo [DEBUG] Exiting with code 1: No arguments provided
+pause
+exit /b 1
 
-set "MAP=%~1"
+:args_ok
+echo [DEBUG] ARGUMENT CHECK PASSED: ARG1 is NOT empty
+echo [DEBUG] Testing argument parsing...
+echo [DEBUG] ARG1 equals siptah: %ARG1%==siptah
+echo [DEBUG] ARG2 equals monitor: %ARG2%==monitor
+
+set "MAP=%ARG1%"
 echo [DEBUG] MAP set to: %MAP%
 
 REM Parse mode argument (optional, defaults to scan-monitor)
-if not "%~2"=="" (
-    set "MODE=%~2"
+if not "%ARG2%"=="" (
+    set "MODE=%ARG2%"
     echo [DEBUG] MODE set to: %MODE%
 ) else (
     echo [DEBUG] No mode specified, using default: %MODE%
