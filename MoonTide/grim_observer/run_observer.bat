@@ -4,10 +4,16 @@ setlocal ENABLEDELAYEDEXPANSION
 REM Grim Observer - Conan Exiles Log Monitor
 REM Simple Windows batch wrapper
 
+echo [DEBUG] Starting run_observer.bat
+echo [DEBUG] Arguments: %*
+
 set "SCRIPT_DIR=%~dp0"
 set "GRIM_SCRIPT=%SCRIPT_DIR%grim_observer.py"
 set "MAP=exiled"
 set "MODE=scan-monitor"
+
+echo [DEBUG] SCRIPT_DIR=%SCRIPT_DIR%
+echo [DEBUG] GRIM_SCRIPT=%GRIM_SCRIPT%
 
 REM Parse arguments
 if "%~1"=="" (
@@ -30,20 +36,27 @@ if "%~1"=="" (
 )
 
 set "MAP=%~1"
+echo [DEBUG] MAP set to: %MAP%
 
 REM Parse mode argument (optional, defaults to scan-monitor)
 if not "%~2"=="" (
     set "MODE=%~2"
+    echo [DEBUG] MODE set to: %MODE%
+) else (
+    echo [DEBUG] No mode specified, using default: %MODE%
 )
 
 REM Validate mode
+echo [DEBUG] Validating mode: %MODE%
 if not "%MODE%"=="scan" if not "%MODE%"=="monitor" if not "%MODE%"=="scan-monitor" (
     echo Error: Invalid mode '%MODE%'. Use scan, monitor, or scan-monitor
     pause
     exit /b 1
 )
+echo [DEBUG] Mode validation passed
 
 REM Check if Python is available
+echo [DEBUG] Checking Python availability...
 python --version >nul 2>&1
 if errorlevel 1 (
     echo Error: Python is not installed or not in PATH
@@ -51,13 +64,18 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
+echo [DEBUG] Python check passed
 
 REM Load map-specific secrets
 set "SECRETS_FILE=%SCRIPT_DIR%secrets\secrets.%MAP%.bat"
+echo [DEBUG] Looking for secrets file: %SECRETS_FILE%
 if exist "%SECRETS_FILE%" (
     echo Loading secrets for %MAP% map...
+    echo [DEBUG] Secrets file exists, calling it...
     call "%SECRETS_FILE%"
-    echo Secrets loaded from %SECRETS_FILE%
+    echo [DEBUG] Secrets file loaded
+    echo [DEBUG] DISCORD_WEBHOOK_URL=%DISCORD_WEBHOOK_URL%
+    echo [DEBUG] LOG_FILE_PATH=%LOG_FILE_PATH%
 ) else (
     echo Error: Secrets file not found: %SECRETS_FILE%
     echo.
@@ -74,27 +92,36 @@ if exist "%SECRETS_FILE%" (
 )
 
 REM Check if required secrets are loaded
+echo [DEBUG] Checking if DISCORD_WEBHOOK_URL is defined...
 if not defined DISCORD_WEBHOOK_URL (
     echo Error: DISCORD_WEBHOOK_URL not found in secrets
+    echo [DEBUG] DISCORD_WEBHOOK_URL is not defined
     pause
     exit /b 1
 )
+echo [DEBUG] DISCORD_WEBHOOK_URL check passed
 
+echo [DEBUG] Checking if LOG_FILE_PATH is defined...
 if not defined LOG_FILE_PATH (
     echo Error: LOG_FILE_PATH not found in secrets
+    echo [DEBUG] LOG_FILE_PATH is not defined
     pause
     exit /b 1
 )
+echo [DEBUG] LOG_FILE_PATH check passed
 
 REM Run the observer with selected mode
 echo.
+echo [DEBUG] All checks passed, starting Grim Observer...
 echo Starting Grim Observer for %MAP% map in %MODE% mode...
 echo Log file: %LOG_FILE_PATH%
 echo Press Ctrl+C to stop
 echo.
 
+echo [DEBUG] Running command: python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --verbose
 python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --verbose
 
 echo.
+echo [DEBUG] Python script finished
 echo Observer stopped.
 pause
