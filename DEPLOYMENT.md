@@ -12,9 +12,11 @@ This guide shows you how to deploy your Rando project to your server quickly and
 | ❌ Slow and error-prone | ✅ Fast and reliable |
 | ❌ Hard to rollback | ✅ Easy rollback with git |
 
-## 🚀 **Quick Start (3 Steps)**
+## 🚀 **Quick Start - Choose Your Method**
 
-### 1. **Setup Configuration**
+### **Option A: Remote Deployment (SSH) - 3 Steps**
+
+#### 1. **Setup Configuration**
 ```bash
 # Copy the config template
 cp deploy.config deploy.config.local
@@ -23,7 +25,7 @@ cp deploy.config deploy.config.local
 nano deploy.config.local
 ```
 
-### 2. **Update Your Server Details**
+#### 2. **Update Your Server Details**
 ```bash
 # In deploy.config.local, change these values:
 SERVER_USER=your_actual_username
@@ -31,13 +33,33 @@ SERVER_HOST=your_server_ip_or_hostname
 SERVER_PATH=/path/to/your/server/directory
 ```
 
-### 3. **Deploy!**
+#### 3. **Deploy!**
 ```bash
 # Make the script executable (Linux/Mac)
 chmod +x deploy_improved.sh
 
 # Run deployment
 ./deploy_improved.sh
+```
+
+### **Option B: Local Deployment (Windows Server) - 2 Steps**
+
+#### 1. **Setup Configuration**
+```batch
+# Copy the config template
+copy deploy_local.config deploy_local.config.local
+
+# Edit with your server details
+notepad deploy_local.config.local
+```
+
+#### 2. **Deploy!**
+```batch
+# Run the batch file (double-click or command line)
+deploy_local.bat
+
+# OR use PowerShell (more features)
+deploy_local.ps1
 ```
 
 ## 📋 **What You Need**
@@ -120,17 +142,33 @@ git reset --hard <commit_hash>  # Go to specific commit
 
 ## 📱 **Platform Support**
 
+### **Remote Deployment (SSH)**
 - **Linux/Mac**: Use `deploy_improved.sh`
 - **Windows**: Use `deploy.bat` (basic version)
 - **Cross-platform**: Use `deploy.sh` (basic version)
 
+### **Local Deployment (Windows Server)**
+- **Windows Batch**: Use `deploy_local.bat` (simple, works everywhere)
+- **Windows PowerShell**: Use `deploy_local.ps1` (advanced features, better error handling)
+- **Configuration**: Use `deploy_local.config` for easy customization
+
 ## 🎯 **Pro Tips**
 
+### **General Tips**
 1. **Test first**: Try deployment to a test directory before production
-2. **Use SSH keys**: Much more secure and convenient than passwords
-3. **Monitor logs**: Check server logs after deployment
-4. **Backup first**: Always backup your server before major deployments
-5. **Use branches**: Deploy from feature branches for testing
+2. **Monitor logs**: Check server logs after deployment
+3. **Backup first**: Always backup your server before major deployments
+4. **Use branches**: Deploy from feature branches for testing
+
+### **Remote Deployment Tips**
+5. **Use SSH keys**: Much more secure and convenient than passwords
+6. **Test SSH connection**: Verify you can connect before running deployment
+
+### **Local Deployment Tips**
+7. **Run as Administrator**: PowerShell script may need admin rights for service management
+8. **Check Git installation**: Ensure Git for Windows is installed and in PATH
+9. **Customize service names**: Update service names in config to match your Windows services
+10. **Use PowerShell**: More features and better error handling than batch files
 
 ## 🆘 **Need Help?**
 

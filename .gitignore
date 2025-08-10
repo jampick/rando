@@ -63,6 +63,7 @@ secrets/
 *.bat.rename
 config.local.json
 deploy.config.local
+deploy_local.config.local
 
 # Backup files
 *.bak
