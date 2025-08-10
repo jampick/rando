@@ -157,7 +157,7 @@ class ConanLogParser:
 class GrimObserver:
     """Main monitoring class for ConanSandbox logs."""
     
-    def __init__(self, log_file_path: str, output_file: str = None, verbose: bool = False, discord_webhook_url: str = None):
+    def __init__(self, log_file_path: str, output_file: str = None, verbose: bool = False, discord_webhook_url: str = None, force_curl: bool = False):
         self.log_file_path = Path(log_file_path)
         self.output_file = Path(output_file) if output_file else None
         self.verbose = verbose
@@ -168,6 +168,7 @@ class GrimObserver:
         self.running = False
         self.version = __version__
         self.version_date = __version_date__
+        self.force_curl = force_curl
         
         # Setup logging
         self.setup_logging()
@@ -376,6 +377,11 @@ class GrimObserver:
         self.logger.info(f"[DEBUG] Payload content: {payload}")
         
         try:
+            if self.force_curl:
+                # Force CURL usage only
+                self.logger.info("[DEBUG] Force CURL mode: using CURL only")
+                return self._send_with_curl(payload)
+            
             # Try CURL first (since it works manually)
             if self._send_with_curl(payload):
                 return True
@@ -421,7 +427,10 @@ class GrimObserver:
                     self.discord_webhook_url
                 ]
                 
-                self.logger.info(f"[DEBUG] CURL command: {' '.join(curl_cmd)}")
+                # Show the exact CURL command that can be copied and pasted
+                curl_command_display = f"curl -X POST -H 'Content-Type: application/json' -d '{json_data}' {self.discord_webhook_url}"
+                self.logger.info(f"[DEBUG] CURL command (copy-paste): {curl_command_display}")
+                self.logger.info(f"[DEBUG] CURL command (with file): {' '.join(curl_cmd)}")
                 
                 # Execute CURL command
                 result = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=30)
@@ -790,6 +799,7 @@ def main():
     parser.add_argument('--discord', action='store_true', help='Output in Discord webhook format')
     parser.add_argument('--discord-output', help='Output file for Discord webhook payloads (JSON format)')
     parser.add_argument('--webhook-only', action='store_true', help='Show only Discord webhook content without formatting')
+    parser.add_argument('--force-curl', action='store_true', help='Force use of CURL for Discord webhooks (bypasses Python libraries)')
     parser.add_argument('--map', help='Specify the map name (e.g., exiled, siptah) for secrets loading')
     
     args = parser.parse_args()
@@ -827,7 +837,8 @@ def main():
             log_file_path=args.log_file,
             output_file=args.output,
             verbose=args.verbose,
-            discord_webhook_url=discord_webhook_url # Pass the loaded URL
+            discord_webhook_url=discord_webhook_url, # Pass the loaded URL
+            force_curl=args.force_curl  # Pass the force-curl flag
         )
         
         if args.service:
