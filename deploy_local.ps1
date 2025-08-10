@@ -231,83 +231,6 @@ function Copy-ToDestination {
     }
 }
 
-# Main deployment function
-function Deploy-Project {
-    Write-Header "🚀 Rando Project Local Deployment Script"
-    Write-Host "========================================" -ForegroundColor $White
-    Write-Host ""
-
-    # Check prerequisites
-    Write-Status "🔍 Checking prerequisites..."
-    
-    # Check if Git is available
-    try {
-        $gitVersion = git --version 2>$null
-        if (-not $gitVersion) {
-            throw "Git not found"
-        }
-        Write-Success "✅ Git found: $gitVersion"
-    }
-    catch {
-        Write-Error "❌ Error: Git is not installed or not in PATH"
-        Write-Host "Please install Git for Windows from: https://git-scm.com/download/win" -ForegroundColor $White
-        Read-Host "Press Enter to exit"
-        exit 1
-    }
-
-    # Create directories if they don't exist
-    if (-not (Test-Path $GitSyncPath)) {
-        Write-Status "📁 Creating Git sync directory..."
-        New-Item -ItemType Directory -Path $GitSyncPath -Force | Out-Null
-    }
-
-    if (-not (Test-Path $DestinationPath)) {
-        Write-Status "📁 Creating destination directory..."
-        New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
-    }
-
-    if (-not (Test-Path $BackupPath)) {
-        New-Item -ItemType Directory -Path $BackupPath -Force | Out-Null
-    }
-
-    # Step 1: Git Sync or Local Source
-    if ($LocalSource -and (Test-Path $LocalSource)) {
-        Write-Status "📁 Step 1: Using local source folder..."
-        Write-Status "Local source: $LocalSource"
-        
-        # Copy local source to Git sync path for processing
-        if (Test-Path $GitSyncPath) {
-            Remove-Item -Path $GitSyncPath -Recurse -Force
-        }
-        Copy-Item -Path $LocalSource -Destination $GitSyncPath -Recurse -Force
-        Write-Success "✅ Local source copied to sync location"
-    } else {
-        Write-Status "🔄 Step 1: Syncing with GitHub..."
-        Sync-GitRepository
-    }
-
-    # Step 2: Copy to Destination (unless skipped)
-    if (-not $SkipCopy) {
-        if ($Preview) {
-            Write-Status "🔍 Step 2: Preview mode - showing copy commands..."
-            Preview-CopyCommands
-        } else {
-            Write-Status "🔄 Step 2: Copying to destination..."
-            Copy-ToDestination
-        }
-    } else {
-        Write-Warning "⚠️  Skipping copy to destination (Git sync only)"
-    }
-    
-    # Show deployment summary
-    Show-Status
-
-    # Restart services if requested
-    if ($RestartServices) {
-        Restart-ConanServices
-    }
-}
-
 # Function to show deployment status
 function Show-Status {
     Write-Header "📋 Deployment Summary:"
@@ -420,6 +343,83 @@ function Show-Help {
     Write-Host "Preview mode (show what would happen):" -ForegroundColor $White
     Write-Host "  .\deploy_local.ps1 -Preview" -ForegroundColor $Yellow
     Write-Host ""
+}
+
+# Main deployment function
+function Deploy-Project {
+    Write-Header "🚀 Rando Project Local Deployment Script"
+    Write-Host "========================================" -ForegroundColor $White
+    Write-Host ""
+
+    # Check prerequisites
+    Write-Status "🔍 Checking prerequisites..."
+    
+    # Check if Git is available
+    try {
+        $gitVersion = git --version 2>$null
+        if (-not $gitVersion) {
+            throw "Git not found"
+        }
+        Write-Success "✅ Git found: $gitVersion"
+    }
+    catch {
+        Write-Error "❌ Error: Git is not installed or not in PATH"
+        Write-Host "Please install Git for Windows from: https://git-scm.com/download/win" -ForegroundColor $White
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+
+    # Create directories if they don't exist
+    if (-not (Test-Path $GitSyncPath)) {
+        Write-Status "📁 Creating Git sync directory..."
+        New-Item -ItemType Directory -Path $GitSyncPath -Force | Out-Null
+    }
+
+    if (-not (Test-Path $DestinationPath)) {
+        Write-Status "📁 Creating destination directory..."
+        New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
+    }
+
+    if (-not (Test-Path $BackupPath)) {
+        New-Item -ItemType Directory -Path $BackupPath -Force | Out-Null
+    }
+
+    # Step 1: Git Sync or Local Source
+    if ($LocalSource -and (Test-Path $LocalSource)) {
+        Write-Status "📁 Step 1: Using local source folder..."
+        Write-Status "Local source: $LocalSource"
+        
+        # Copy local source to Git sync path for processing
+        if (Test-Path $GitSyncPath) {
+            Remove-Item -Path $GitSyncPath -Recurse -Force
+        }
+        Copy-Item -Path $LocalSource -Destination $GitSyncPath -Recurse -Force
+        Write-Success "✅ Local source copied to sync location"
+    } else {
+        Write-Status "🔄 Step 1: Syncing with GitHub..."
+        Sync-GitRepository
+    }
+
+    # Step 2: Copy to Destination (unless skipped)
+    if (-not $SkipCopy) {
+        if ($Preview) {
+            Write-Status "🔍 Step 2: Preview mode - showing copy commands..."
+            Preview-CopyCommands
+        } else {
+            Write-Status "🔄 Step 2: Copying to destination..."
+            Copy-ToDestination
+        }
+    } else {
+        Write-Warning "⚠️  Skipping copy to destination (Git sync only)"
+    }
+    
+    # Show deployment summary
+    Show-Status
+
+    # Restart services if requested
+    if ($RestartServices) {
+        Restart-ConanServices
+    }
 }
 
 # Check for help parameter
