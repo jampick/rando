@@ -606,9 +606,17 @@ class GrimObserver:
     
     def get_player_count(self) -> int:
         """Calculate current player count based on events."""
-        connected = sum(1 for e in self.events if e.event_type == 'player_connected')
-        disconnected = sum(1 for e in self.events if e.event_type == 'player_disconnected')
-        return max(0, connected - disconnected)
+        # Track players who are currently online
+        online_players = set()
+        
+        for event in self.events:
+            if event.event_type == 'player_connected':
+                online_players.add(event.player_name)
+            elif event.event_type == 'player_disconnected':
+                # Remove from online players when they disconnect
+                online_players.discard(event.player_name)
+        
+        return len(online_players)
     
     def _get_session_duration(self, player_name: str) -> str:
         """Calculate session duration for a player who just disconnected."""
@@ -896,7 +904,22 @@ def main():
             observer.run(interval=args.interval)
             
         elif args.mode == 'monitor':
-            # Normal monitoring mode
+            # Normal monitoring mode - but first scan to get accurate player count
+            print("[GrimObserver][INFO] Starting monitor mode...")
+            print("[GrimObserver][INFO] Phase 1: Scanning log file for current player state...")
+            
+            # Scan the entire log first to get accurate player count
+            events = observer.scan_entire_log()
+            observer.events = events  # Store events for accurate player counting
+            
+            print(f"[GrimObserver][INFO] Found {len(events)} historical events")
+            current_players = observer.get_player_count()
+            print(f"[GrimObserver][INFO] Current player count: {current_players}")
+            
+            print(f"[GrimObserver][INFO] Phase 2: Starting continuous monitoring for new events...")
+            print("[GrimObserver][INFO] Press Ctrl+C to stop monitoring")
+            
+            # Now continue monitoring for new changes
             observer.run(interval=args.interval)
         
     except Exception as e:
