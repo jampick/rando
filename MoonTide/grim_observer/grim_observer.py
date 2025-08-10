@@ -224,34 +224,20 @@ class GrimObserver:
             
             # Send Discord webhook for new events if webhook URL is available
             if self.discord_webhook_url and event.event_type in ['player_connected', 'player_disconnected']:
-                self.logger.info(f"[DEBUG] Discord webhook condition met:")
-                self.logger.info(f"[DEBUG] - webhook_url exists: {bool(self.discord_webhook_url)}")
-                self.logger.info(f"[DEBUG] - event_type: {event.event_type}")
-                self.logger.info(f"[DEBUG] - event_type in allowed list: {event.event_type in ['player_connected', 'player_disconnected']}")
-                
-                if self.verbose:
-                    self.logger.info(f"Sending Discord webhook for {event.event_type} event")
-                
                 # Generate and send Discord webhook for this single event
-                self.logger.info(f"[DEBUG] About to generate Discord webhook payloads for event: {event}")
                 payloads = self.generate_discord_webhook_payloads([event])
-                self.logger.info(f"[DEBUG] Generated {len(payloads)} payload(s)")
                 
                 if payloads:
-                    self.logger.info(f"[DEBUG] First payload: {payloads[0]}")
                     success = self.send_discord_webhook(payloads[0])
-                    if self.verbose:
-                        if success:
-                            self.logger.info(f"Discord webhook sent successfully for {event.event_type}")
-                        else:
-                            self.logger.error(f"Failed to send Discord webhook for {event.event_type}")
+                    if success:
+                        self.logger.info(f"Discord webhook sent successfully for {event.event_type}")
+                    else:
+                        self.logger.error(f"Failed to send Discord webhook for {event.event_type}")
                 else:
-                    self.logger.warning(f"[DEBUG] No payloads generated for event: {event}")
+                    self.logger.warning(f"No payloads generated for event: {event.event_type}")
             else:
-                self.logger.info(f"[DEBUG] Discord webhook condition NOT met:")
-                self.logger.info(f"[DEBUG] - webhook_url exists: {bool(self.discord_webhook_url)}")
-                self.logger.info(f"[DEBUG] - event_type: {event.event_type if event else 'None'}")
-                self.logger.info(f"[DEBUG] - event_type in allowed list: {event.event_type in ['player_connected', 'player_disconnected'] if event else False}")
+                # Discord webhook conditions not met - no logging needed
+                pass
             
             # Save to output file if specified
             if self.output_file:
@@ -370,16 +356,12 @@ class GrimObserver:
             self.logger.warning("No Discord webhook URL configured")
             return False
         
-        # DEBUG: Log all the parameters being used
-        self.logger.info(f"[DEBUG] Discord webhook execution started")
-        self.logger.info(f"[DEBUG] Webhook URL: {self.discord_webhook_url}")
-        self.logger.info(f"[DEBUG] Payload type: {type(payload)}")
-        self.logger.info(f"[DEBUG] Payload content: {payload}")
+        # Log webhook execution
+        self.logger.info(f"Discord webhook execution started")
         
         try:
             if self.force_curl:
                 # Force CURL usage only
-                self.logger.info("[DEBUG] Force CURL mode: using CURL only")
                 return self._send_with_curl(payload)
             
             # Try CURL first (since it works manually)
@@ -387,7 +369,7 @@ class GrimObserver:
                 return True
             
             # Fallback to Python libraries if CURL fails
-            self.logger.info("[DEBUG] CURL method failed, trying Python libraries...")
+            self.logger.info("CURL method failed, trying Python libraries...")
             
             if REQUESTS_AVAILABLE:
                 return self._send_with_requests(payload)
@@ -409,8 +391,6 @@ class GrimObserver:
             
             # Convert payload to JSON string
             json_data = json.dumps(payload, ensure_ascii=False)
-            self.logger.info(f"[DEBUG] CURL method: JSON data length: {len(json_data)} bytes")
-            self.logger.info(f"[DEBUG] CURL method: JSON data (first 200 chars): {json_data[:200]}")
             
             # Create temporary file for JSON data
             with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as temp_file:
@@ -426,11 +406,6 @@ class GrimObserver:
                     '-d', f'@{temp_file_path}',  # Read data from file
                     self.discord_webhook_url
                 ]
-                
-                # Show the exact CURL command that can be copied and pasted
-                curl_command_display = f"curl -X POST -H 'Content-Type: application/json' -d '{json_data}' {self.discord_webhook_url}"
-                self.logger.info(f"[DEBUG] CURL command (copy-paste): {curl_command_display}")
-                self.logger.info(f"[DEBUG] CURL command (with file): {' '.join(curl_cmd)}")
                 
                 # Execute CURL command
                 result = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=30)
