@@ -1,0 +1,131 @@
+{
+  "timestamp": "2025-08-09T18:19:00.250054",
+  "test_name": "scan_monitor_validation",
+  "summary": {
+    "total_connections": 28,
+    "total_disconnections": 0,
+    "total_events": 28,
+    "player_name_types_tested": 17
+  },
+  "detected_events": {
+    "connections": [
+      "SimpleName",
+      "SimpleName",
+      "Player123",
+      "Player123",
+      "Player_Name",
+      "Player_Name",
+      "Player-Name",
+      "Player-Name",
+      "Player#1234",
+      "Player#1234",
+      "Player@Domain",
+      "Player@Domain",
+      "Player$Money",
+      "Player$Money",
+      "Player%Percent",
+      "Player%Percent",
+      "\u00c6sir",
+      "\u00c6sir",
+      "Bj\u00f8rn",
+      "Bj\u00f8rn",
+      "Jos\u00e9",
+      "Jos\u00e9",
+      "Fran\u00e7ois",
+      "Fran\u00e7ois",
+      "A",
+      "A",
+      "VeryLongPlayerNameThatExceedsNormalLength",
+      "VeryLongPlayerNameThatExceedsNormalLength"
+    ],
+    "disconnections": []
+  },
+  "player_name_types": [
+    {
+      "name": "SimpleName",
+      "description": "Simple ASCII name",
+      "tested": true
+    },
+    {
+      "name": "Player123",
+      "description": "Name with numbers",
+      "tested": true
+    },
+    {
+      "name": "Player_Name",
+      "description": "Name with underscore",
+      "tested": true
+    },
+    {
+      "name": "Player-Name",
+      "description": "Name with hyphen",
+      "tested": true
+    },
+    {
+      "name": "Player#1234",
+      "description": "Name with hash and numbers",
+      "tested": true
+    },
+    {
+      "name": "Player@Domain",
+      "description": "Name with at symbol",
+      "tested": true
+    },
+    {
+      "name": "Player$Money",
+      "description": "Name with dollar sign",
+      "tested": true
+    },
+    {
+      "name": "Player%Percent",
+      "description": "Name with percent",
+      "tested": true
+    },
+    {
+      "name": "\u00c6sir",
+      "description": "Name with \u00c6",
+      "tested": true
+    },
+    {
+      "name": "Bj\u00f8rn",
+      "description": "Name with \u00f8",
+      "tested": true
+    },
+    {
+      "name": "Jos\u00e9",
+      "description": "Name with \u00e9",
+      "tested": true
+    },
+    {
+      "name": "Fran\u00e7ois",
+      "description": "Name with \u00e7",
+      "tested": true
+    },
+    {
+      "name": "A",
+      "description": "Single character",
+      "tested": true
+    },
+    {
+      "name": "VeryLongPlayerNameThatExceedsNormalLength",
+      "description": "Very long name",
+      "tested": true
+    },
+    {
+      "name": "Player With Spaces",
+      "description": "Name with spaces",
+      "tested": true
+    },
+    {
+      "name": "Player\tTab",
+      "description": "Name with tab",
+      "tested": true
+    },
+    {
+      "name": "Player\nNewline",
+      "description": "Name with newline",
+      "tested": true
+    }
+  ],
+  "errors": []
+}
