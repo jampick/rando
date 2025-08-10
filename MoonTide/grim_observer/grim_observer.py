@@ -172,31 +172,51 @@ class GrimObserver:
         self.force_curl = force_curl
         
         # Setup logging
-        self.setup_logging()
-        
-        # Validate log file
-        if not self.log_file_path.exists():
-            raise FileNotFoundError(f"Log file not found: {self.log_file_path}")
-    
-    def setup_logging(self):
-        """Setup logging configuration."""
-        log_level = logging.DEBUG if self.verbose else logging.INFO
-        logging.basicConfig(
-            level=log_level,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.StreamHandler(sys.stdout),
-                logging.FileHandler('grim_observer.log') if self.output_file else logging.NullHandler()
-            ]
-        )
         self.logger = logging.getLogger(__name__)
+        
+        # Create map-specific log file if no output file specified
+        if not self.output_file:
+            map_suffix = f".{self.map_name}" if self.map_name else ".unknown"
+            self.output_file = Path(f"grim_events{map_suffix}.json")
+        
+        # Setup logging with map-specific log file
+        self._setup_logging()
         
         # Log version information
         self.logger.info(f"Grim Observer v{self.version} ({self.version_date}) initialized")
         self.logger.info(f"Log file: {self.log_file_path}")
+        self.logger.info(f"Output file: {self.output_file}")
         if self.discord_webhook_url:
             self.logger.info(f"Discord webhook configured: {self.discord_webhook_url[:50]}...")
+        if self.map_name:
+            self.logger.info(f"Map: {self.map_name}")
     
+    def _setup_logging(self):
+        """Setup logging with map-specific log file."""
+        # Create map-specific log file name
+        if self.map_name:
+            log_filename = f"grim_observer.{self.map_name}.log"
+        else:
+            log_filename = "grim_observer.unknown.log"
+        
+        # Configure logging
+        logging.basicConfig(
+            level=logging.INFO if self.verbose else logging.WARNING,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler(log_filename, encoding='utf-8'),
+                logging.StreamHandler(sys.stderr)
+            ]
+        )
+        
+        # Validate log file
+        if not self.log_file_path.exists():
+            raise FileNotFoundError(f"Log file not found: {self.log_file_path}")
+
+    def setup_logging(self):
+        """Legacy method - now calls _setup_logging."""
+        self._setup_logging()
+        
     def get_current_position(self) -> int:
         """Get current position in the log file."""
         try:
@@ -605,11 +625,14 @@ class GrimObserver:
         print(f"{'='*80}")
     
     def get_player_count(self) -> int:
-        """Calculate current player count based on events."""
-        # Track players who are currently online
+        """Calculate current player count based on events for the current map."""
+        # Track players who are currently online for this map only
         online_players = set()
         
         for event in self.events:
+            # Only count events from the current map instance
+            # Since we're running separate instances per map, all events should be from the same map
+            # But we can add a safety check if needed
             if event.event_type == 'player_connected':
                 online_players.add(event.player_name)
             elif event.event_type == 'player_disconnected':
@@ -621,6 +644,7 @@ class GrimObserver:
     def _get_session_duration(self, player_name: str) -> str:
         """Calculate session duration for a player who just disconnected."""
         # Find the most recent connection event for this player
+        # Note: Since we're running separate instances per map, all events are map-specific
         connection_time = None
         for event in reversed(self.events):
             if event.event_type == 'player_connected' and event.player_name == player_name:
