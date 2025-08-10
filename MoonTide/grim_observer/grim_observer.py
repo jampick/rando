@@ -26,6 +26,7 @@ from typing import Dict, List, Optional, Union
 from pathlib import Path
 from datetime import datetime
 import logging
+import random # Added for peak milestone messages
 
 # Version information
 __version__ = "1.0.0"
@@ -171,6 +172,11 @@ class GrimObserver:
         self.version_date = __version_date__
         self.force_curl = force_curl
         
+        # Peak player tracking
+        self.peak_players = 0
+        self.peak_thresholds = [5, 10, 15, 20, 25, 30, 40, 50]  # Milestone thresholds
+        self.reached_thresholds = set()  # Track which milestones we've already celebrated
+        
         # Setup logging
         self.logger = logging.getLogger(__name__)
         
@@ -256,6 +262,24 @@ class GrimObserver:
                         self.logger.error(f"Failed to send Discord webhook for {event.event_type}")
                 else:
                     self.logger.warning(f"No payloads generated for event: {event.event_type}")
+                
+                # Check for peak milestones after player connections
+                if event.event_type == 'player_connected' and self.discord_webhook_url:
+                    current_players = self.get_player_count()
+                    peak_message = self._check_peak_milestone(current_players)
+                    if peak_message:
+                        self.logger.info(f"Peak milestone reached: {current_players} players")
+                        success = self.send_discord_webhook(peak_message)
+                        if success:
+                            self.logger.info(f"Peak milestone message sent successfully")
+                        else:
+                            self.logger.error(f"Failed to send peak milestone message")
+                
+                # Check if server went empty after disconnections
+                elif event.event_type == 'player_disconnected' and self.discord_webhook_url:
+                    current_players = self.get_player_count()
+                    if current_players == 0:
+                        self._reset_peak_tracking()
             else:
                 # Discord webhook conditions not met - no logging needed
                 pass
@@ -671,6 +695,102 @@ class GrimObserver:
                     return f"{hours}h {minutes}m"
         
         return None
+    
+    def _check_peak_milestone(self, current_players: int) -> Optional[Dict]:
+        """Check if we've reached a new peak or milestone and generate celebration message."""
+        # Check for new peak
+        if current_players > self.peak_players:
+            self.peak_players = current_players
+            peak_message = self._generate_peak_message(current_players)
+            
+            # Check for milestone thresholds
+            milestone_message = None
+            for threshold in self.peak_thresholds:
+                if current_players >= threshold and threshold not in self.reached_thresholds:
+                    self.reached_thresholds.add(threshold)
+                    milestone_message = self._generate_milestone_message(threshold)
+                    break
+            
+            # Return peak message (prioritize peak over milestone)
+            return peak_message or milestone_message
+        
+        # Check for milestone thresholds (even if not a new peak)
+        for threshold in self.peak_thresholds:
+            if current_players >= threshold and threshold not in self.reached_thresholds:
+                self.reached_thresholds.add(threshold)
+                return self._generate_milestone_message(threshold)
+        
+        return None
+    
+    def _generate_peak_message(self, player_count: int) -> Dict:
+        """Generate a Discord message for a new peak player count."""
+        map_name = self.map_name or "Server"
+        map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
+        
+        peak_messages = [
+            f"🚀 **NEW PEAK ALERT!** We've hit **{player_count} players** on {map_name}! The server is BUZZING! 🔥",
+            f"🌟 **RECORD BREAKER!** {map_name} just hit **{player_count} players**! This is HISTORIC! 🎉",
+            f"⚡ **MEGA SERVER STATUS!** {map_name} reached **{player_count} players**! The people have spoken! 🗣️",
+            f"🎊 **LEGENDARY MOMENT!** {map_name} achieved **{player_count} players**! The server is ALIVE! 💪",
+            f"🔥 **POPULATION EXPLOSION!** {map_name} just hit **{player_count} players**! We're on FIRE! 🚀"
+        ]
+        
+        return {
+            "content": random.choice(peak_messages),
+            "embeds": []
+        }
+    
+    def _generate_milestone_message(self, threshold: int) -> Dict:
+        """Generate a Discord message for reaching a milestone threshold."""
+        map_name = self.map_name or "Server"
+        map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
+        
+        milestone_messages = {
+            5: [
+                f"🎉 **We're not alone anymore!** {map_name} just hit **{threshold} players**! The party is starting! 🎊",
+                f"👥 **Population milestone!** {map_name} reached **{threshold} players**! We're building a community! 🌟"
+            ],
+            10: [
+                f"🔥 **Double digits!** {map_name} just hit **{threshold} players**! This server is heating up! 🚀",
+                f"💫 **TEN PLAYERS!** {map_name} is officially a happening place! The energy is real! ⚡"
+            ],
+            15: [
+                f"🌟 **We're reaching for the stars!** {map_name} hit **{threshold} players**! Population explosion! 🚀",
+                f"🎊 **FIFTEEN STRONG!** {map_name} is becoming legendary! The server is thriving! 💪"
+            ],
+            20: [
+                f"🏆 **MEGA SERVER STATUS!** {map_name} just hit **{threshold} players**! The people have spoken! 🗣️",
+                f"🎯 **TWENTY PLAYERS!** {map_name} is officially MASSIVE! We're unstoppable! 🚀"
+            ],
+            25: [
+                f"💎 **QUARTER CENTURY!** {map_name} hit **{threshold} players**! This is getting serious! 🔥",
+                f"🌟 **TWENTY-FIVE STRONG!** {map_name} is a force to be reckoned with! 💪"
+            ],
+            30: [
+                f"🚀 **THIRTY PLAYERS!** {map_name} is absolutely CRUSHING it! The server is legendary! 🌟",
+                f"🔥 **THIRTY STRONG!** {map_name} is on fire! This is server history! 🎉"
+            ],
+            40: [
+                f"⚡ **FORTY PLAYERS!** {map_name} is absolutely INSANE! The server is unstoppable! 🚀",
+                f"🌟 **FORTY STRONG!** {map_name} is reaching new heights! This is incredible! 💎"
+            ],
+            50: [
+                f"🏆 **FIFTY PLAYERS!** {map_name} is LEGENDARY! The server is absolutely MASSIVE! 🚀",
+                f"💎 **FIFTY STRONG!** {map_name} has achieved server greatness! This is historic! 🌟"
+            ]
+        }
+        
+        messages = milestone_messages.get(threshold, [f"🎉 **Milestone reached!** {map_name} hit **{threshold} players**! 🎊"])
+        return {
+            "content": random.choice(messages),
+            "embeds": []
+        }
+    
+    def _reset_peak_tracking(self):
+        """Reset peak tracking when server goes empty (useful for daily resets)."""
+        self.peak_players = 0
+        self.reached_thresholds.clear()
+        self.logger.info("Peak tracking reset - server went empty")
     
     def get_recent_events(self, minutes: int = 10) -> List[LogEvent]:
         """Get events from the last N minutes."""
