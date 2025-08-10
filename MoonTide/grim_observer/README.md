@@ -1,40 +1,53 @@
-# Grim Observer - Conan Exiles Log Monitor
+# Grim Observer - Conan Exiles Server Monitor
 
 **Version:** 1.0.0  
 **Date:** 2025-08-09
 
-A Python-based log monitoring tool for Conan Exiles servers that tracks player connections, disconnections, and other events, with support for Discord webhook notifications.
+A Python-based real-time monitoring system for Conan Exiles servers that tracks player activity, server status, and automatically sends Discord notifications. Part of the **Rando Server Management Suite**.
 
-## Features
+## ⚠️ **CRITICAL: Default Images Need Updating**
 
-- **Real-time log monitoring** with configurable check intervals
-- **Player event detection** (connections, disconnections)
-- **Discord webhook integration** for real-time notifications
-- **Map-based configuration** (Exiled Lands, Isle of Siptah)
-- **Simple Windows wrapper** for easy execution
-- **Flexible operation modes** for different use cases
+🚨 **The system currently uses placeholder images that MUST be replaced for production use.**
 
-## Operation Modes
+### 🎯 **What Needs Updating**
+- **Discord embed images** are currently placeholder skulls and generic text
+- **GitHub raw URLs** are used as defaults (not suitable for production)
+- **No server branding** or custom theming
 
-### 1. **scan** - One-time Processing
-Processes the entire log file once and exits. Useful for:
-- Historical analysis
-- Batch processing of existing logs
-- Testing configuration
+### 🔧 **Quick Fix Options**
+1. **Use custom URLs in commands** (recommended):
+   ```bash
+   python3 grim_observer.py scan-monitor log.log --map exiled --discord \
+     --thumbnail-url "https://your-domain.com/your-thumb.png" \
+     --main-image-url "https://your-domain.com/your-main.png"
+   ```
 
-### 2. **monitor** - Continuous Monitoring
-Starts monitoring from the current log position only. Useful for:
-- Live server monitoring
-- When you only want new events
-- Avoiding processing of historical data
+2. **Update default URLs in code**:
+   Edit `grim_observer.py` and replace the placeholder URLs
 
-### 3. **scan-monitor** - Scan Then Monitor (Default)
-First processes the entire log file, then continues monitoring for new changes. Useful for:
-- Getting complete history + live updates
-- Server restarts where you want all events
-- Most production scenarios
+3. **Generate new placeholder images**:
+   ```bash
+   # Windows
+   generate_placeholders.bat
+   # Mac/Linux
+   ./generate_placeholders.sh
+   ```
 
-## Quick Start
+📖 **Full image setup guide**: [Placeholder Images README](placeholder_images/README.md)
+
+---
+
+## 🎯 Overview
+
+Grim Observer provides comprehensive server monitoring with:
+- **Real-time log parsing** and event detection
+- **Player tracking** (connections, disconnections, activity patterns)
+- **Discord integration** for automated notifications
+- **Map-specific configurations** (Exiled Lands, Isle of Siptah)
+- **Empty server detection** with configurable messaging intervals
+- **Comprehensive testing** with automated validation
+
+## 🚀 Quick Start
 
 ### Windows (Recommended)
 ```batch
@@ -45,31 +58,86 @@ run_observer.bat exiled
 run_observer.bat siptah
 ```
 
-The batch file automatically:
-- Loads map-specific secrets (Discord webhook, log file path)
-- Runs in scan-monitor mode (processes entire log + continues monitoring)
-- Sends Discord notifications for player events
-- Uses verbose logging for detailed output
-
 ### Direct Python Usage
 ```bash
-# Scan entire log and continue monitoring (default behavior)
-python grim_observer.py scan-monitor /path/to/ConanSandbox.log --map exiled
+# Scan entire log and continue monitoring (default)
+python3 grim_observer.py scan-monitor /path/to/ConanSandbox.log --map exiled --discord
 
 # Process entire log once and exit
-python grim_observer.py scan /path/to/ConanSandbox.log --map exiled
+python3 grim_observer.py scan /path/to/ConanSandbox.log --map exiled
 
 # Start monitoring from current position only
-python grim_observer.py monitor /path/to/ConanSandbox.log --map exiled
-
-# With Discord webhook output
-python grim_observer.py scan-monitor /path/to/ConanSandbox.log --map exiled --discord
-
-# Webhook content only (no extra formatting)
-python grim_observer.py scan-monitor /path/to/ConanSandbox.log --map exiled --webhook-only
+python3 grim_observer.py monitor /path/to/ConanSandbox.log --map exiled --discord
 ```
 
-## Configuration
+### Testing
+```bash
+# Run all tests with clear pass/fail results
+python3 run_tests.py
+
+# Windows test runner
+run_tests.bat
+```
+
+## 🌟 Core Features
+
+### Real-time Monitoring
+- **Live log parsing** with configurable check intervals (default: 1 second)
+- **Event detection** for player connections, disconnections, and server events
+- **Memory-efficient** event storage with configurable retention
+- **Automatic recovery** from log file rotation and server restarts
+
+### Player Tracking
+- **Connection events** with IP address and timestamp logging
+- **Disconnection detection** supporting multiple log formats
+- **Player count monitoring** with real-time updates
+- **Activity patterns** for server population analysis
+
+### Discord Integration
+- **Rich embeds** with server information and player details
+- **Configurable notifications** for different event types
+- **Empty server messaging** with customizable intervals (default: 4 hours)
+- **Map-specific theming** and branding
+
+### Map Support
+- **Exiled Lands**: The original Conan Exiles map
+- **Isle of Siptah**: The expansion map with unique mechanics
+- **Automatic configuration** loading based on map selection
+- **Customizable settings** per map
+
+## 🔧 Operation Modes
+
+### 1. **scan** - Historical Analysis
+Processes the entire log file once and exits.
+```bash
+python3 grim_observer.py scan /path/to/log.log --map exiled
+```
+**Use cases:**
+- Historical player activity analysis
+- Batch processing of existing logs
+- Configuration testing and validation
+
+### 2. **monitor** - Live Monitoring Only
+Starts monitoring from the current log position.
+```bash
+python3 grim_observer.py monitor /path/to/log.log --map exiled --discord
+```
+**Use cases:**
+- Live server monitoring
+- Avoiding historical data processing
+- Resource-constrained environments
+
+### 3. **scan-monitor** - Complete Coverage (Default)
+First processes the entire log file, then continues monitoring.
+```bash
+python3 grim_observer.py scan-monitor /path/to/log.log --map exiled --discord
+```
+**Use cases:**
+- Complete server history + live updates
+- Server restarts with full event tracking
+- Production monitoring scenarios
+
+## ⚙️ Configuration
 
 ### Map-Based Configuration
 The system automatically loads configuration based on the specified map:
@@ -78,41 +146,57 @@ The system automatically loads configuration based on the specified map:
 - **Isle of Siptah** (`siptah`): Uses `configs/siptah/config.json`
 
 ### Secrets Management
-Map-specific secrets are loaded automatically from Windows batch files:
-- **Exiled Lands**: `secrets/secrets.exiled.bat`
-- **Isle of Siptah**: `secrets/secrets.siptah.bat`
+Map-specific secrets are loaded automatically:
+- **Windows**: `secrets/secrets.{map}.bat` files
+- **Cross-platform**: Environment variables
+- **Required**: `DISCORD_WEBHOOK_URL`, `LOG_FILE_PATH`
+- **Optional**: `MAP_NAME`, `MAP_DESCRIPTION`
 
 ### Environment Variables
-Set these in your secrets files:
-- `DISCORD_WEBHOOK_URL`: Your Discord webhook URL
-- `LOG_FILE_PATH`: Default log file path for the map
-- `MAP_NAME`: Display name for the map
-- `MAP_DESCRIPTION`: Description of the map
+```bash
+export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
+export LOG_FILE_PATH="/path/to/ConanSandbox.log"
+export MAP_NAME="Exiled Lands"
+export MAP_DESCRIPTION="The original Conan Exiles map"
+```
 
-## File Structure
+## 📁 File Structure
 
 ```
 grim_observer/
-├── grim_observer.py          # Main Python script
-├── run_observer.bat          # Windows batch wrapper
-├── config.json               # Default configuration
-├── configs/                  # Map-specific configurations
+├── grim_observer.py              # Main monitoring engine
+├── run_observer.bat              # Windows batch wrapper
+├── run_tests.py                  # Test runner with clear outcomes
+├── run_tests.bat                 # Windows test wrapper
+├── config.json                   # Default configuration
+├── configs/                      # Map-specific configurations
 │   ├── exiled/
-│   │   └── config.json      # Exiled Lands config
-│   └── siptah/
-│       └── config.json      # Isle of Siptah config
-├── secrets/                  # Map-specific secrets
-│   ├── secrets.exiled.bat   # Windows secrets (Exiled)
-│   └── secrets.siptah.bat   # Windows secrets (Siptah)
-└── README.md                 # This file
+│   │   └── config.json          # Exiled Lands config
+│   ├── siptah/
+│   │   └── config.json          # Isle of Siptah config
+│   └── README.md                 # Configuration guide
+├── secrets/                      # Map-specific secrets
+│   ├── secrets.exiled.bat       # Windows secrets (Exiled)
+│   └── secrets.siptah.bat       # Windows secrets (Siptah)
+├── placeholder_images/           # Discord embed images
+│   ├── README.md                 # Image usage guide
+│   └── *.png                     # Generated placeholder images
+├── tests/                        # Test suite
+│   ├── README.md                 # Testing guide
+│   ├── test_parser.py            # Parser validation
+│   ├── test_scan_monitor.py     # Comprehensive monitoring tests
+│   └── test_empty_message.py    # Discord message tests
+└── README.md                     # This file
 ```
 
-## Discord Integration
+## 🎨 Discord Integration
 
-When a Discord webhook URL is configured, the system will automatically send notifications for:
+### Automatic Notifications
+When configured with a Discord webhook, the system sends:
 
-- **Player Connections**: 🟢 Player joined the server
-- **Player Disconnections**: 🔴 Player left the server
+- **🟢 Player Connections**: Player joined the server
+- **🔴 Player Disconnections**: Player left the server
+- **⚔️ Empty Server Messages**: Configurable interval notifications
 
 ### Webhook Format
 ```json
@@ -126,32 +210,71 @@ When a Discord webhook URL is configured, the system will automatically send not
       {"name": "Player", "value": "PlayerName", "inline": true},
       {"name": "IP Address", "value": "192.168.1.100", "inline": true},
       {"name": "Time", "value": "2024-01-15 14:30:25", "inline": true}
-    ]
+    ],
+    "thumbnail": {"url": "https://your-domain.com/thumb.png"},
+    "footer": {"text": "Grim Observer", "icon_url": "https://your-domain.com/icon.png"}
   }]
 }
 ```
 
-## Testing
+### Empty Server Messages
+- **Configurable interval** (default: 4 hours)
+- **Map-specific theming** and branding
+- **Rich embeds** with server status information
+- **Automatic timing** based on last player activity
 
-### Test with Sample Log
+## 🧪 Testing
+
+### Automated Test Suite
 ```bash
-# Test scan mode with sample log
-python grim_observer.py scan tests/conansandbox.sample.log --map exiled
+# Run all tests with clear pass/fail results
+python3 run_tests.py
 
-# Test scan-monitor mode with sample log
-python grim_observer.py scan-monitor tests/conansandbox.sample.log --map exiled
+# Windows test runner
+run_tests.bat
 ```
 
-### Test Discord Webhooks
-```bash
-# Test webhook generation without sending
-python grim_observer.py scan tests/conansandbox.sample.log --map exiled --webhook-only
+### Test Coverage
+- **Log Parser**: Event detection and parsing accuracy
+- **Scan Monitor**: End-to-end monitoring functionality
+- **Empty Messages**: Discord webhook generation
+- **Configuration**: Secrets and config file loading
 
-# Test webhook generation and save to file
-python grim_observer.py scan tests/conansandbox.sample.log --map exiled --discord --discord-output test_webhooks.json
+### Individual Tests
+```bash
+# Parser validation
+python3 tests/test_parser.py
+
+# Monitoring functionality
+python3 tests/test_scan_monitor_simple.py
+
+# Discord integration
+python3 tests/test_empty_message.py
 ```
 
-## Troubleshooting
+## 🔧 Advanced Configuration
+
+### Custom Event Patterns
+Modify regex patterns in `grim_observer.py` to detect additional event types:
+```python
+self.patterns = {
+    "player_connected": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) \\((\\S+):(\\d+)\\) connected",
+    "player_disconnected": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) disconnected",
+    "custom_event": "Your custom pattern here"
+}
+```
+
+### Performance Tuning
+```json
+{
+  "check_interval": 1.0,
+  "max_events_in_memory": 10000,
+  "event_retention_hours": 24,
+  "player_count_update_interval": 30
+}
+```
+
+## 🚨 Troubleshooting
 
 ### Common Issues
 
@@ -161,6 +284,7 @@ python grim_observer.py scan tests/conansandbox.sample.log --map exiled --discor
 
 2. **"Missing log file path"**
    - Ensure LOG_FILE_PATH is set in your secrets file
+   - Check file permissions and accessibility
 
 3. **"Secrets file not found"**
    - Create the appropriate secrets file for your map
@@ -168,23 +292,86 @@ python grim_observer.py scan tests/conansandbox.sample.log --map exiled --discor
 
 4. **Python not found**
    - Install Python 3.6+ and ensure it's in your PATH
+   - Use `python3` instead of `python` on some systems
 
-### Log Levels
+### Debug Mode
 Use `--verbose` for detailed logging:
 ```bash
-python grim_observer.py scan-monitor /path/to/log --map exiled --verbose
+python3 grim_observer.py scan-monitor /path/to/log --map exiled --verbose
 ```
 
-## Development
+### Log Levels
+- **INFO**: Standard operation information
+- **DEBUG**: Detailed debugging information (with `--verbose`)
+- **ERROR**: Error conditions and failures
+
+## 🔄 Development
 
 ### Adding New Maps
 1. Create `configs/{newmap}/config.json`
 2. Create `secrets/secrets.{newmap}.bat` (Windows)
-3. Update the batch file to support the new map
+3. Update batch files to support the new map
+4. Add map-specific placeholder images if desired
 
-### Custom Event Patterns
-Modify the regex patterns in `grim_observer.py` to detect additional event types.
+### Custom Event Types
+1. Add new regex patterns to the patterns dictionary
+2. Implement event processing logic
+3. Add Discord webhook formatting
+4. Update tests to validate new functionality
 
-## License
+### Extending Notifications
+1. Modify the webhook payload generation
+2. Add new notification types
+3. Implement custom Discord embed formatting
+4. Update configuration options
 
-This project is part of the MoonTide Conan Exiles server management suite.
+## 📊 Monitoring & Analytics
+
+### Event Tracking
+- **Player session duration** analysis
+- **Server population patterns** over time
+- **Peak activity hours** identification
+- **Player retention** metrics
+
+### Performance Metrics
+- **Event processing speed** monitoring
+- **Memory usage** optimization
+- **Log parsing efficiency** tracking
+- **Discord API response times**
+
+## 🔒 Security & Privacy
+
+- **No sensitive data** stored in code or logs
+- **IP address logging** for security monitoring
+- **Configurable data retention** policies
+- **Secure webhook handling** with validation
+
+## 🤝 Integration
+
+### With MoonTide Wrath Manager
+- **Coordinated server management** with automated tuning
+- **Event synchronization** between systems
+- **Unified configuration** management
+- **Shared Discord integration** for comprehensive notifications
+
+### With External Systems
+- **Webhook endpoints** for custom integrations
+- **JSON output** for data processing
+- **Log file monitoring** for external analysis
+- **API endpoints** for status queries
+
+## 📄 License
+
+This project is part of the Rando Conan Exiles server management suite.
+
+## 🆘 Support
+
+For issues and questions:
+1. Check the troubleshooting section above
+2. Review test outputs for validation
+3. Check the main project README for integration guidance
+4. Ensure all dependencies are properly installed
+
+---
+
+**"The Grim Observer watches, and CROM judges."**
