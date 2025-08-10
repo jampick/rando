@@ -520,20 +520,27 @@ def _post_discord_summary(
     event_settings: Dict[str, Union[int, float, str, bool]] = {},
     moon_settings: Dict[str, Union[int, float, str, bool]] = {},
 ) -> None:
-    # Start with the event-specific MOTD (if any), followed by a blank line.
+    # Build a clean, card-like Discord message similar to grim_observer's style
+    
+    # Start with the event-specific MOTD (if any)
     content = ""
     motd_clean = str(motd or "").strip()
     if motd_clean:
         content = motd_clean + "\n\n"
-
-    # Build a single consolidated settings list titled "Event Settings" (excluding MOTD key).
-    def _fmt_num(v: Union[int, float, str, bool]) -> str:
-        if isinstance(v, bool):
-            return "true" if v else "false"
-        if isinstance(v, (int, float)) and not isinstance(v, bool):
-            return f"{float(v):.1f}"
-        return str(v)
-
+    
+    # Add phase information with emojis
+    phase_emoji = _get_phase_emoji(phase_bucket)
+    phase_display_name = _get_phase_display_name(phase_bucket)
+    
+    content += f"{phase_emoji} **{phase_display_name}**\n"
+    content += f"🌙 Illumination: {illumination:.1%}\n"
+    
+    # Add applied events if any
+    if events_applied:
+        event_emoji = "⚔️" if len(events_applied) > 1 else "🎯"
+        content += f"{event_emoji} **Events Active:** {', '.join(events_applied)}\n"
+    
+    # Build consolidated settings in a clean format
     merged: Dict[str, Union[int, float, str, bool]] = {}
     if isinstance(event_settings, dict):
         for k, v in event_settings.items():
@@ -544,25 +551,28 @@ def _post_discord_summary(
         for k, v in moon_settings.items():
             if k not in merged:
                 merged[k] = v
-
-    if not merged:
+    
+    if merged:
+        content += "\n**Event Settings:**\n"
+        # Group settings by category for better readability
+        categories = _categorize_settings(merged)
+        
+        for category, settings in categories.items():
+            if settings:
+                content += f"\n{category}:\n"
+                for key, value in sorted(settings.items()):
+                    formatted_value = _format_setting_value(value)
+                    content += f"• {key}: {formatted_value}\n"
+    
+    if not content.strip():
         return
-
-    setting_lines = [f"{k}={_fmt_num(v)}" for k, v in sorted(merged.items())]
-    content += "Event Settings:\n" + "\n".join(setting_lines)
-    if not content:
-        return
-    payload = {"content": content}
-    data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        webhook_url,
-        data=data,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
+    
+    # Create the payload with clean formatting
+    payload = {"content": content.strip()}
+    
+    # Send using the same reliable method as grim_observer
     try:
-        with urllib.request.urlopen(req, timeout=10) as _resp:
-            return
+        _send_discord_webhook(webhook_url, payload)
     except Exception as exc:
         # Fallback: try curl (helps when local Python certs are misconfigured)
         try:
@@ -589,6 +599,94 @@ def _post_discord_summary(
             return
         except Exception:
             raise exc
+
+
+def _get_phase_emoji(phase_bucket: str) -> str:
+    """Get the appropriate emoji for the moon phase."""
+    phase_emojis = {
+        "new": "🌑",
+        "waxing_crescent": "🌒", 
+        "first_quarter": "🌓",
+        "waxing_gibbous": "🌔",
+        "full": "🌕",
+        "waning_gibbous": "🌖",
+        "last_quarter": "🌗",
+        "waning_crescent": "🌘"
+    }
+    return phase_emojis.get(phase_bucket, "🌙")
+
+
+def _get_phase_display_name(phase_bucket: str) -> str:
+    """Get the human-readable name for the moon phase."""
+    phase_names = {
+        "new": "New Moon - The Calm",
+        "waxing_crescent": "Waxing Crescent - The Stirring",
+        "first_quarter": "First Quarter - The Ascent", 
+        "waxing_gibbous": "Waxing Gibbous - The Surge",
+        "full": "Full Moon - The Hunt",
+        "waning_gibbous": "Waning Gibbous - The Fade",
+        "last_quarter": "Last Quarter - The Ebb",
+        "waning_crescent": "Waning Crescent - The Dusk"
+    }
+    return phase_names.get(phase_bucket, "Unknown Phase")
+
+
+def _categorize_settings(settings: Dict[str, Union[int, float, str, bool]]) -> Dict[str, Dict[str, Union[int, float, str, bool]]]:
+    """Categorize settings into logical groups for better readability."""
+    categories = {
+        "Combat": {},
+        "Resources": {},
+        "Player": {},
+        "World": {},
+        "Other": {}
+    }
+    
+    for key, value in settings.items():
+        if any(combat_key in key.lower() for combat_key in ["damage", "health", "aggro", "purge", "thrall"]):
+            categories["Combat"][key] = value
+        elif any(resource_key in key.lower() for resource_key in ["harvest", "spawn", "respawn"]):
+            categories["Resources"][key] = value
+        elif any(player_key in key.lower() for player_key in ["player", "stamina", "regeneration"]):
+            categories["Player"][key] = value
+        elif any(world_key in key.lower() for world_key in ["storm", "elder", "visibility", "range"]):
+            categories["World"][key] = value
+        else:
+            categories["Other"][key] = value
+    
+    # Remove empty categories
+    return {k: v for k, v in categories.items() if v}
+
+
+def _format_setting_value(value: Union[int, float, str, bool]) -> str:
+    """Format a setting value for clean display."""
+    if isinstance(value, bool):
+        return "✅" if value else "❌"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        # Add visual indicators for multipliers
+        if "Multiplier" in str(value):
+            if value > 1.0:
+                return f"{float(value):.1f}x 📈"
+            elif value < 1.0:
+                return f"{float(value):.1f}x 📉"
+            else:
+                return f"{float(value):.1f}x ➖"
+        else:
+            return f"{float(value):.1f}"
+    return str(value)
+
+
+def _send_discord_webhook(webhook_url: str, payload: Dict) -> None:
+    """Send Discord webhook using urllib (same as grim_observer's fallback method)."""
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        webhook_url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    
+    with urllib.request.urlopen(req, timeout=10) as _resp:
+        return
 
 
 def apply_settings_map(
