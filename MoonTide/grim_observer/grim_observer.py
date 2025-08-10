@@ -269,9 +269,9 @@ class GrimObserver:
         # Empty server message formatting options
         self.use_rich_embeds = True  # Enable rich embeds by default
         self.empty_server_images = {
-            "thumbnail": "https://i.imgur.com/8JZqXqL.png",  # Small image (96x96px)
-            "main_image": "https://i.imgur.com/QX8JZqL.png",  # Large image (400x300px)
-            "footer_icon": "https://i.imgur.com/JZqX8qL.png"  # Footer icon
+            "thumbnail": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/thumbnail.png",  # Small image (96x96px)
+            "main_image": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/main_image.png",  # Large image (400x300px)
+            "footer_icon": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/footer_icon.png"  # Footer icon
         }
         self.empty_server_colors = {
             "siptah": 0x228B22,    # Forest green
