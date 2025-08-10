@@ -8,11 +8,12 @@ Behavior
 - Tails log files for real-time monitoring
 - Parses log entries to extract player events
 - Generates Discord webhook payloads
-- Supports both scan (one-time) and monitor (continuous) modes
+- Supports scan (one-time), monitor (continuous), and scan-monitor (scan then monitor) modes
 
 Usage examples
   python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log
   python3 grim_observer.py monitor /path/to/ConanSandbox/Logs/ConanSandbox.log
+  python3 grim_observer.py scan-monitor /path/to/ConanSandbox/Logs/ConanSandbox.log
   python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log --discord
   python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log --webhook-only
   python3 grim_observer.py scan /path/to/ConanSandbox/Logs/ConanSandbox.log --map exiled
@@ -578,7 +579,7 @@ def load_secrets(map_name: Optional[str] = None) -> Dict[str, str]:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description='Monitor Conan Exiles server logs for player events')
-    parser.add_argument('mode', choices=['scan', 'monitor'], help='Operation mode')
+    parser.add_argument('mode', choices=['scan', 'monitor', 'scan-monitor'], help='Operation mode')
     parser.add_argument('log_file', help='Path to the log file to monitor')
     parser.add_argument('--output', help='Output file for events (JSON format)')
     parser.add_argument('--interval', type=float, default=1.0, help='Check interval in seconds')
@@ -640,6 +641,45 @@ def main():
                 for event in events:
                     observer.save_event(event)
                 print(f"Saved {len(events)} events to {args.output}")
+        
+        elif args.mode == 'scan-monitor':
+            # Scan-monitor mode: scan entire log first, then continue monitoring
+            print("[GrimObserver][INFO] Starting scan-monitor mode...")
+            print("[GrimObserver][INFO] Phase 1: Scanning entire log file...")
+            
+            # First scan the entire log file
+            events = observer.scan_entire_log()
+            observer.events = events  # Store events for other operations
+            
+            if args.webhook_only:
+                # Webhook-only mode: show only the webhook content
+                observer.emit_webhook_content_only(events)
+            elif args.discord:
+                # Discord webhook mode
+                observer.emit_discord_webhook_events(events)
+                
+                # Save Discord webhook payloads if specified
+                if args.discord_output:
+                    observer.save_discord_webhook_payloads(events, args.discord_output)
+                else:
+                    observer.save_discord_webhook_payloads(events)
+            else:
+                # Normal scan mode
+                observer.emit_all_events(events)
+            
+            # Save to output file if specified
+            if args.output:
+                print(f"\nSaving all events to: {args.output}")
+                for event in events:
+                    observer.save_event(event)
+                print(f"Saved {len(events)} events to {args.output}")
+            
+            print(f"\n[GrimObserver][INFO] Phase 2: Starting continuous monitoring for new events...")
+            print("[GrimObserver][INFO] Press Ctrl+C to stop monitoring")
+            
+            # Now continue monitoring for new changes
+            observer.run(interval=args.interval)
+            
         elif args.mode == 'monitor':
             # Normal monitoring mode
             observer.run(interval=args.interval)

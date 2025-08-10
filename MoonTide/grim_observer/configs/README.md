@@ -1,86 +1,117 @@
-# Grim Observer Map-Based Configuration
+# Grim Observer - Map-Based Configuration System
 
-This directory contains map-specific configurations for Grim Observer, allowing different settings for different Conan Exiles maps.
+This directory contains map-specific configuration files for the Grim Observer system. Each map can have its own configuration settings, secrets, and event patterns.
 
 ## Directory Structure
 
 ```
 configs/
-├── exiled/           # Exiled Lands map configuration
-│   └── config.json   # Map-specific settings
-├── siptah/           # Isle of Siptah map configuration
-│   └── config.json   # Map-specific settings
-└── README.md         # This file
+├── README.md                 # This file
+├── exiled/                   # Exiled Lands map configuration
+│   └── config.json          # Exiled Lands specific settings
+└── siptah/                   # Isle of Siptah map configuration
+    └── config.json          # Isle of Siptah specific settings
 ```
 
 ## Usage
 
-When running Grim Observer with the `--map` flag, it will automatically:
+The system automatically loads map-specific configurations based on the map parameter:
 
-1. **Load map-specific secrets** from `secrets/secrets.{map}.bat`
-2. **Use map-specific config** from `configs/{map}/config.json`
-3. **Derive log file path** from the secrets file (unless overridden with `--log-file`)
-4. **Set map-specific environment variables** for Discord webhooks and other settings
+- **Exiled Lands**: `--map exiled` → loads `configs/exiled/config.json`
+- **Isle of Siptah**: `--map siptah` → loads `configs/siptah/config.json`
 
-## Examples
+## Windows Batch Wrapper
 
-### Exiled Lands Map (using default log file from secrets)
-```cmd
-run_observer.bat --map exiled
-```
+The `run_observer.bat` file automatically handles map selection:
 
-### Isle of Siptah Map (using default log file from secrets)
-```cmd
-run_observer.bat --map siptah
-```
+```batch
+# Monitor Exiled Lands
+run_observer.bat exiled
 
-### Override log file path
-```cmd
-run_observer.bat --map exiled --log-file "C:\Custom\Path\To\Log.log"
-```
-
-### Custom config file
-```cmd
-run_observer.bat --map siptah --config "C:\path\to\custom_config.json"
+# Monitor Isle of Siptah  
+run_observer.bat siptah
 ```
 
 ## Configuration Files
 
-Each map has its own `config.json` with:
-- Map-specific output file names
-- Map identification and description
-- Same pattern matching and notification settings
-- Customizable intervals and retention policies
+Each map's `config.json` can contain:
 
-**Note:** Log file paths are no longer stored in config files - they are derived from the secrets files.
+- **Output file names** (e.g., `grim_events_exiled.json`)
+- **Map-specific settings** (check intervals, log levels)
+- **Event patterns** (custom regex for different maps)
+- **Notification settings** (Discord webhook configuration)
 
 ## Secrets Integration
 
-The secrets files (`secrets.exiled.bat`, `secrets.siptah.bat`) set environment variables like:
-- `DISCORD_WEBHOOK_URL` - Discord webhook for the specific map
-- `MAP_NAME` - Internal map identifier
-- `MAP_DESCRIPTION` - Human-readable map description
-- `LOG_FILE_PATH` - Default log file path for the map
+Map-specific secrets are loaded from:
+- **Exiled Lands**: `secrets/secrets.exiled.bat`
+- **Isle of Siptah**: `secrets/secrets.siptah.bat`
+
+These files set environment variables like:
+- `DISCORD_WEBHOOK_URL`
+- `LOG_FILE_PATH`
+- `MAP_NAME`
+- `MAP_DESCRIPTION`
 
 ## Fallback Behavior
 
-If no map-specific config is found, Grim Observer falls back to:
-1. Default `config.json` in the root directory
-2. Default secrets (if any)
-3. Command-line overrides
+If a map-specific config is not found, the system falls back to:
+1. `configs/{map}/config.json` (map-specific)
+2. `config.json` (default configuration)
 
 ## Adding New Maps
 
 To add support for a new map:
 
-1. Create `configs/{newmap}/config.json`
-2. Create `secrets/secrets.{newmap}.bat` with `LOG_FILE_PATH` variable
-3. Update the batch files to recognize the new map value
-4. Test with `run_observer.bat --map {newmap}`
+1. **Create config directory**:
+   ```
+   configs/newmap/
+   └── config.json
+   ```
 
-## Log File Path Resolution
+2. **Create secrets file**:
+   ```
+   secrets/secrets.newmap.bat
+   ```
 
-The log file path is resolved in this order:
-1. Command-line `--log-file` parameter (highest priority)
-2. `LOG_FILE_PATH` from the selected map's secrets file
-3. Error if neither is available
+3. **Update batch file** (if needed):
+   - Add the new map to the usage examples in `run_observer.bat`
+
+## Example Configuration
+
+```json
+{
+  "output_file": "grim_events_exiled.json",
+  "check_interval": 1.0,
+  "verbose": true,
+  "log_level": "INFO",
+  "max_events_in_memory": 10000,
+  "event_retention_hours": 24,
+  "player_count_update_interval": 30,
+  "map_name": "exiled",
+  "map_description": "Exiled Lands - The original Conan Exiles map",
+  "patterns": {
+    "player_connected": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) \\((\\S+):(\\d+)\\) connected",
+    "player_disconnected_battleye": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) disconnected",
+    "player_disconnected_lognet": "LogNet: Player disconnected: (\\S+) (filtered: excludes names with #numbers)"
+  },
+  "output_formats": ["json", "csv"],
+  "notifications": {
+    "discord_webhook": "",
+    "email": {
+      "smtp_server": "",
+      "smtp_port": 587,
+      "username": "",
+      "password": "",
+      "recipients": []
+    }
+  }
+}
+```
+
+## Notes
+
+- Configuration files use standard JSON format
+- All paths are relative to the grim_observer directory
+- Environment variables from secrets files take precedence over config values
+- The system automatically validates configuration files on startup

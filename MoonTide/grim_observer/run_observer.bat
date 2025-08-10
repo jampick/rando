@@ -2,58 +2,25 @@
 setlocal ENABLEDELAYEDEXPANSION
 
 REM Grim Observer - Conan Exiles Log Monitor
-REM Windows batch file to run the observer with map support
+REM Simple Windows batch wrapper
 
 set "SCRIPT_DIR=%~dp0"
 set "GRIM_SCRIPT=%SCRIPT_DIR%grim_observer.py"
-set "LOG_FILE="
 set "MAP=exiled"
-set "CLI_LOG=0"
-set "CONFIG_FILE=%SCRIPT_DIR%config.json"
 
-REM ---- Parse args ----
-:parse_args
-if "%~1"=="" goto done_parse
-if /I "%~1"=="--map" (
-  set "MAP=%~2"
-  shift
-  shift
-  goto parse_args
+REM Parse map argument
+if "%~1"=="" (
+    echo Usage: run_observer.bat [exiled^|siptah]
+    echo.
+    echo Examples:
+    echo   run_observer.bat exiled
+    echo   run_observer.bat siptah
+    echo.
+    pause
+    exit /b 1
 )
-if /I "%~1"=="-map" (
-  set "MAP=%~2"
-  shift
-  shift
-  goto parse_args
-)
-if /I "%~1"=="--log-file" (
-  set "LOG_FILE=%~2"
-  set "CLI_LOG=1"
-  shift
-  shift
-  goto parse_args
-)
-if /I "%~1"=="-f" (
-  set "LOG_FILE=%~2"
-  set "CLI_LOG=1"
-  shift
-  shift
-  goto parse_args
-)
-if /I "%~1"=="--config" (
-  set "CONFIG_FILE=%~2"
-  shift
-  shift
-  goto parse_args
-)
-rem pass-through any other args
-shift
-goto parse_args
 
-:done_parse
-
-echo Starting Grim Observer...
-echo.
+set "MAP=%~1"
 
 REM Check if Python is available
 python --version >nul 2>&1
@@ -64,85 +31,40 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM ---- Load secrets by map ----
+REM Load map-specific secrets
 set "SECRETS_FILE=%SCRIPT_DIR%secrets\secrets.%MAP%.bat"
 if exist "%SECRETS_FILE%" (
-  echo [GrimObserver][INFO] Loading secrets for %MAP% map...
-  call "%SECRETS_FILE%"
-  echo [GrimObserver][INFO] Loaded secrets from %SECRETS_FILE%
-  
-  REM Display loaded environment variables
-  if defined DISCORD_WEBHOOK_URL (
-    echo [GrimObserver][INFO] Discord webhook configured for %MAP% map
-  )
-  if defined MAP_NAME (
-    echo [GrimObserver][INFO] Map name: %MAP_NAME%
-  )
-  if defined MAP_DESCRIPTION (
-    echo [GrimObserver][INFO] Map description: %MAP_DESCRIPTION%
-  )
-  
-  REM Set default log file from secrets if not provided via CLI
-  if not defined LOG_FILE (
-    if defined LOG_FILE_PATH (
-      set "LOG_FILE=%LOG_FILE_PATH%"
-      echo [GrimObserver][INFO] Using default log file from secrets: %LOG_FILE%
-    )
-  )
+    echo Loading secrets for %MAP% map...
+    call "%SECRETS_FILE%"
+    echo Secrets loaded from %SECRETS_FILE%
 ) else (
-  echo [GrimObserver][WARN] Secrets file not found: %SECRETS_FILE%
-  echo [GrimObserver][WARN] Using default configuration
-)
-
-REM Check if log file path is available (either from CLI or secrets)
-if not defined LOG_FILE (
-    echo [GrimObserver][ERROR] Missing log file path
-    echo.
-    echo Usage: run_observer.bat [--map exiled^|siptah] [--log-file "path\to\ConanSandbox.log"] [--config "path\to\config.json"]
-    echo.
-    echo Examples:
-    echo   run_observer.bat --map exiled
-    echo   run_observer.bat --map siptah
-    echo   run_observer.bat --map exiled --log-file "C:\Conan\ConanSandbox\Saved\Logs\ConanSandbox.log"
-    echo   run_observer.bat --map siptah --log-file "C:\Conan\ConanSandbox\Saved\Logs\ConanSandbox.log" --config "C:\path\to\custom_config.json"
-    echo.
-    echo Note: If --log-file is not specified, the default path from secrets will be used.
-    echo.
+    echo Error: Secrets file not found: %SECRETS_FILE%
+    echo Please create the secrets file for the %MAP% map
     pause
     exit /b 1
 )
 
-REM ---- Check for map-specific configs ----
-set "MAP_CONFIG_DIR=%SCRIPT_DIR%configs\%MAP%"
-if exist "%MAP_CONFIG_DIR%" (
-  echo [GrimObserver][INFO] Found map-specific configs directory: %MAP_CONFIG_DIR%
-  
-  REM Check for map-specific config.json
-  if exist "%MAP_CONFIG_DIR%\config.json" (
-    if "%CONFIG_FILE%"=="%SCRIPT_DIR%config.json" (
-      set "CONFIG_FILE=%MAP_CONFIG_DIR%\config.json"
-      echo [GrimObserver][INFO] Using map-specific config: %CONFIG_FILE%
-    )
-  )
-  
-  REM Check for map-specific events or other configs
-  if exist "%MAP_CONFIG_DIR%\events.json" (
-    echo [GrimObserver][INFO] Found map-specific events: %MAP_CONFIG_DIR%\events.json
-  )
-) else (
-  echo [GrimObserver][INFO] No map-specific configs found, using defaults
+REM Check if required secrets are loaded
+if not defined DISCORD_WEBHOOK_URL (
+    echo Error: DISCORD_WEBHOOK_URL not found in secrets
+    pause
+    exit /b 1
 )
 
-REM Run the observer
+if not defined LOG_FILE_PATH (
+    echo Error: LOG_FILE_PATH not found in secrets
+    pause
+    exit /b 1
+)
+
+REM Run the observer with scan-monitor mode
 echo.
-echo [GrimObserver] Running log observer
-echo    LOG:    %LOG_FILE%
-echo    MAP:    %MAP%
-echo    CONFIG: %CONFIG_FILE%
-echo    Press Ctrl+C to stop monitoring
+echo Starting Grim Observer for %MAP% map...
+echo Log file: %LOG_FILE_PATH%
+echo Press Ctrl+C to stop
 echo.
 
-python grim_observer.py --log-file "%LOG_FILE%" --map %MAP% --config "%CONFIG_FILE%" --verbose
+python "%GRIM_SCRIPT%" scan-monitor "%LOG_FILE_PATH%" --map %MAP% --discord --verbose
 
 echo.
 echo Observer stopped.
