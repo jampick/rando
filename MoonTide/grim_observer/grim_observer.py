@@ -723,16 +723,16 @@ class GrimObserver:
         return None
     
     def _generate_peak_message(self, player_count: int) -> Dict:
-        """Generate a Discord message for a new peak player count."""
+        """Generate a Discord message for a new peak player count in CROM's voice."""
         map_name = self.map_name or "Server"
         map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
         
         peak_messages = [
-            f"🚀 **NEW PEAK ALERT!** We've hit **{player_count} players** on {map_name}! The server is BUZZING! 🔥",
-            f"🌟 **RECORD BREAKER!** {map_name} just hit **{player_count} players**! This is HISTORIC! 🎉",
-            f"⚡ **MEGA SERVER STATUS!** {map_name} reached **{player_count} players**! The people have spoken! 🗣️",
-            f"🎊 **LEGENDARY MOMENT!** {map_name} achieved **{player_count} players**! The server is ALIVE! 💪",
-            f"🔥 **POPULATION EXPLOSION!** {map_name} just hit **{player_count} players**! We're on FIRE! 🚀"
+            f"⚔️ **CROM'S TRIUMPH!** {map_name} has reached **{player_count} warriors**! A new peak of strength! The weak tremble! 🗡️",
+            f"🔥 **BY CROM'S MIGHT!** {map_name} now commands **{player_count} souls**! The strong multiply, the weak perish! 💀",
+            f"🌟 **CROM PROCLAIMS!** {map_name} has achieved **{player_count} warriors**! The server is LEGENDARY! The strong rule! 🏆",
+            f"🚀 **CROM'S GLORY!** {map_name} reaches **{player_count} souls**! The weak are nothing, the strong are EVERYTHING! ⚡",
+            f"💎 **CROM DECREES!** {map_name} has **{player_count} warriors**! The server is IMMORTAL! The strong survive! 🌟"
         ]
         
         return {
@@ -741,46 +741,46 @@ class GrimObserver:
         }
     
     def _generate_milestone_message(self, threshold: int) -> Dict:
-        """Generate a Discord message for reaching a milestone threshold."""
+        """Generate a Discord message for reaching a milestone threshold in CROM's voice."""
         map_name = self.map_name or "Server"
         map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
         
         milestone_messages = {
             5: [
-                f"🎉 **We're not alone anymore!** {map_name} just hit **{threshold} players**! The party is starting! 🎊",
-                f"👥 **Population milestone!** {map_name} reached **{threshold} players**! We're building a community! 🌟"
+                f"⚔️ **BY CROM!** The weaklings gather! {map_name} now holds **{threshold} souls**! Let them prove their worth! 💀",
+                f"🗡️ **CROM SPEAKS!** {map_name} has drawn **{threshold} warriors** from the wastelands! The strong shall survive! ⚡"
             ],
             10: [
-                f"🔥 **Double digits!** {map_name} just hit **{threshold} players**! This server is heating up! 🚀",
-                f"💫 **TEN PLAYERS!** {map_name} is officially a happening place! The energy is real! ⚡"
+                f"🔥 **CROM'S FURY!** {map_name} swells with **{threshold} warriors**! The weak shall perish, the strong shall rule! 🏆",
+                f"⚔️ **BY THE SWORD OF CROM!** {map_name} now hosts **{threshold} souls**! Let the blood flow! The strong survive! 💪"
             ],
             15: [
-                f"🌟 **We're reaching for the stars!** {map_name} hit **{threshold} players**! Population explosion! 🚀",
-                f"🎊 **FIFTEEN STRONG!** {map_name} is becoming legendary! The server is thriving! 💪"
+                f"🌟 **CROM'S GLORY!** {map_name} has become a fortress of **{threshold} warriors**! The weak tremble, the strong rejoice! 🚀",
+                f"🗡️ **CROM COMMANDS!** {map_name} holds **{threshold} souls**! The strong multiply, the weak fade! The server thrives! 🌟"
             ],
             20: [
-                f"🏆 **MEGA SERVER STATUS!** {map_name} just hit **{threshold} players**! The people have spoken! 🗣️",
-                f"🎯 **TWENTY PLAYERS!** {map_name} is officially MASSIVE! We're unstoppable! 🚀"
+                f"🏆 **CROM'S MIGHT!** {map_name} is a citadel of **{threshold} warriors**! The weak are crushed, the strong are LEGENDARY! 🗡️",
+                f"⚔️ **BY CROM'S HAND!** {map_name} has **{threshold} souls**! The weak are nothing, the strong are EVERYTHING! 🚀"
             ],
             25: [
-                f"💎 **QUARTER CENTURY!** {map_name} hit **{threshold} players**! This is getting serious! 🔥",
-                f"🌟 **TWENTY-FIVE STRONG!** {map_name} is a force to be reckoned with! 💪"
+                f"💎 **CROM'S POWER!** {map_name} commands **{threshold} warriors**! The weak are dust, the strong are IMMORTAL! 🔥",
+                f"🗡️ **CROM DECREES!** {map_name} has **{threshold} souls**! The weak are forgotten, the strong are REMEMBERED! ⚡"
             ],
             30: [
-                f"🚀 **THIRTY PLAYERS!** {map_name} is absolutely CRUSHING it! The server is legendary! 🌟",
-                f"🔥 **THIRTY STRONG!** {map_name} is on fire! This is server history! 🎉"
+                f"🚀 **CROM'S DOMINION!** {map_name} rules over **{threshold} warriors**! The weak are nothing, the strong are LEGENDS! 🌟",
+                f"⚔️ **BY CROM'S WILL!** {map_name} has **{threshold} souls**! The weak are gone, the strong are ETERNAL! 💎"
             ],
             40: [
-                f"⚡ **FORTY PLAYERS!** {map_name} is absolutely INSANE! The server is unstoppable! 🚀",
-                f"🌟 **FORTY STRONG!** {map_name} is reaching new heights! This is incredible! 💎"
+                f"⚡ **CROM'S SUPREMACY!** {map_name} commands **{threshold} warriors**! The weak are dead, the strong are GODS! 🏆",
+                f"🗡️ **CROM PROCLAIMS!** {map_name} has **{threshold} souls**! The weak are nothing, the strong are EVERYTHING! 🚀"
             ],
             50: [
-                f"🏆 **FIFTY PLAYERS!** {map_name} is LEGENDARY! The server is absolutely MASSIVE! 🚀",
-                f"💎 **FIFTY STRONG!** {map_name} has achieved server greatness! This is historic! 🌟"
+                f"🏆 **CROM'S ABSOLUTE RULE!** {map_name} is a realm of **{threshold} warriors**! The weak are extinct, the strong are LEGENDARY! 💎",
+                f"⚔️ **BY CROM'S MIGHT!** {map_name} has **{threshold} souls**! The weak are forgotten, the strong are IMMORTAL! 🌟"
             ]
         }
         
-        messages = milestone_messages.get(threshold, [f"🎉 **Milestone reached!** {map_name} hit **{threshold} players**! 🎊"])
+        messages = milestone_messages.get(threshold, [f"⚔️ **CROM SPEAKS!** {map_name} has reached **{threshold} warriors**! The strong multiply! 🗡️"])
         return {
             "content": random.choice(messages),
             "embeds": []
