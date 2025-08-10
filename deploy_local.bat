@@ -4,9 +4,21 @@ setlocal enabledelayedexpansion
 REM Local Deployment Script for Rando Project (Windows Server)
 REM This script runs on your Windows server to pull changes from GitHub
 
+REM Check if preview mode is requested
+set PREVIEW_MODE=false
+if "%1"=="-preview" set PREVIEW_MODE=true
+if "%1"=="--preview" set PREVIEW_MODE=true
+if "%1"=="-p" set PREVIEW_MODE=true
+
 echo 🚀 Rando Project Local Deployment Script
 echo ========================================
 echo.
+
+REM Show preview mode status
+if "%PREVIEW_MODE%"=="true" (
+    call :print_header "🔍 PREVIEW MODE ENABLED - No files will be modified"
+    echo.
+)
 
 REM Configuration - UPDATE THESE VALUES FOR YOUR SERVER
 set GITHUB_REPO=https://github.com/jampick/rando.git
@@ -140,29 +152,85 @@ if exist ".git" (
 call :print_success "✅ Repository updated successfully!"
 
 REM Step 2: Copy to Destination
-call :print_status "🔄 Step 2: Copying to destination..."
-cd /d "%GIT_SYNC_PATH%"
+if "%PREVIEW_MODE%"=="true" (
+    call :print_status "🔍 Step 2: Preview mode - showing copy commands..."
+    call :preview_copy_commands
+) else (
+    call :print_status "🔄 Step 2: Copying to destination..."
+    cd /d "%GIT_SYNC_PATH%"
 
-REM Copy all files except .git folder to destination
+    REM Copy all files except .git folder to destination
+    for /d %%i in (*) do (
+        if not "%%i"==".git" (
+            if exist "%DESTINATION_PATH%\%%i" (
+                rmdir /s /q "%DESTINATION_PATH%\%%i"
+            )
+            xcopy "%%i" "%DESTINATION_PATH%\%%i\" /E /I /H /Y >nul 2>&1
+        )
+    )
+
+    REM Copy individual files
+    for %%i in (*) do (
+        if not "%%i"==".git" (
+            if not exist "%DESTINATION_PATH%\%%i" (
+                copy "%%i" "%DESTINATION_PATH%\" >nul 2>&1
+            )
+        )
+    )
+
+    call :print_success "✅ Files copied to destination successfully!"
+)
+
+REM Preview copy commands function
+:preview_copy_commands
+cd /d "%GIT_SYNC_PATH%"
+call :print_header "🔍 PREVIEW MODE - Copy Commands That Would Run:"
+echo.
+
+REM Show what would be backed up
+if exist "%DESTINATION_PATH%" (
+    call :print_status "💾 Backup that would be created:"
+    set BACKUP_NAME=backup_%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
+    set BACKUP_NAME=!BACKUP_NAME: =0!
+    echo   xcopy "%DESTINATION_PATH%" "%BACKUP_PATH%\!BACKUP_NAME!\" /E /I /H /Y
+    echo.
+)
+
+REM Show copy commands
+call :print_status "📋 Copy commands that would run:"
+set FILE_COUNT=0
+
+REM Show directory operations
 for /d %%i in (*) do (
     if not "%%i"==".git" (
+        set /a FILE_COUNT+=1
         if exist "%DESTINATION_PATH%\%%i" (
-            rmdir /s /q "%DESTINATION_PATH%\%%i"
+            echo   rmdir /s /q "%DESTINATION_PATH%\%%i"
         )
-        xcopy "%%i" "%DESTINATION_PATH%\%%i\" /E /I /H /Y >nul 2>&1
+        echo   xcopy "%%i" "%DESTINATION_PATH%\%%i\" /E /I /H /Y
     )
 )
 
-REM Copy individual files
+REM Show file operations
 for %%i in (*) do (
     if not "%%i"==".git" (
         if not exist "%DESTINATION_PATH%\%%i" (
-            copy "%%i" "%DESTINATION_PATH%\" >nul 2>&1
+            set /a FILE_COUNT+=1
+            echo   copy "%%i" "%DESTINATION_PATH%\"
         )
     )
 )
 
-call :print_success "✅ Files copied to destination successfully!"
+echo.
+call :print_success "✅ Preview complete! Run without -preview to execute these commands."
+echo.
+echo 📊 Summary:
+echo   - Files to copy: !FILE_COUNT!
+echo   - Source: %GIT_SYNC_PATH%
+echo   - Destination: %DESTINATION_PATH%
+echo   - Backup location: %BACKUP_PATH%
+echo.
+goto :eof
 
 REM Show what was deployed
 :show_status

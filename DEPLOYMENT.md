@@ -89,6 +89,9 @@ deploy_local.ps1
 
 # Deploy and restart services
 .\deploy_local.ps1 -RestartServices
+
+# Preview mode - show what would happen without executing
+.\deploy_local.ps1 -Preview
 ```
 
 ## 📋 **What You Need**
@@ -189,6 +192,32 @@ git reset --hard <commit_hash>  # Go to specific commit
 - **🔍 Code Review**: Examine changes in staging area before deployment
 - **⚡ Fast Rollback**: Quick revert by copying from backup
 - **🛡️ Production Safety**: Keep production code separate from Git operations
+- **👁️ Preview Mode**: See exactly what commands will run before execution
+
+### **Preview Mode - Safety First!**
+The `-Preview` flag lets you see exactly what will happen without making any changes:
+
+**PowerShell:**
+```powershell
+.\deploy_local.ps1 -Preview
+```
+
+**Batch File:**
+```batch
+deploy_local.bat -preview
+```
+
+**What You'll See:**
+- 🔍 **Backup commands** that would create backups
+- 📋 **Copy commands** that would move files
+- 🗑️ **Delete commands** that would remove old directories
+- 📊 **Summary** of total files and paths involved
+
+**Perfect for:**
+- ✅ **Verification**: Double-check paths and file counts
+- ✅ **Documentation**: See exact commands for manual execution
+- ✅ **Training**: Understand what the script does
+- ✅ **Debugging**: Identify configuration issues before deployment
 
 ### **General Tips**
 1. **Test first**: Try deployment to a test directory before production

@@ -7,7 +7,8 @@ param(
     [string]$DestinationPath = "C:\MoonTideTools",
     [switch]$RestartServices,
     [switch]$Force,
-    [switch]$SkipCopy
+    [switch]$SkipCopy,
+    [switch]$Preview
 )
 
 # Configuration
@@ -93,6 +94,61 @@ function Sync-GitRepository {
             Read-Host "Press Enter to exit"
             exit 1
         }
+    }
+}
+
+# Function to preview copy commands
+function Preview-CopyCommands {
+    Write-Header "🔍 PREVIEW MODE - Copy Commands That Would Run:"
+    Write-Host ""
+    
+    # Show what would be backed up
+    if (Test-Path $DestinationPath) {
+        Write-Status "💾 Backup that would be created:"
+        $backupName = "backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+        $backupFullPath = Join-Path $BackupPath $backupName
+        Write-Host "  Copy-Item -Path '$DestinationPath' -Destination '$backupFullPath' -Recurse -Force" -ForegroundColor $Yellow
+        Write-Host ""
+    }
+    
+    # Show copy commands
+    Write-Status "📋 Copy commands that would run:"
+    
+    try {
+        # Get list of items to copy (excluding .git folder)
+        $itemsToCopy = Get-ChildItem -Path $GitSyncPath -Exclude ".git" | Where-Object { $_.Name -ne ".git" }
+        
+        if ($itemsToCopy.Count -eq 0) {
+            Write-Warning "⚠️  No files found in Git sync location to copy"
+            return
+        }
+        
+        foreach ($item in $itemsToCopy) {
+            $destPath = Join-Path $DestinationPath $item.Name
+            if ($item.PSIsContainer) {
+                # Directory copy
+                if (Test-Path $destPath) {
+                    Write-Host "  Remove-Item -Path '$destPath' -Recurse -Force" -ForegroundColor $Red
+                }
+                Write-Host "  Copy-Item -Path '$($item.FullName)' -Destination '$DestinationPath' -Recurse -Force" -ForegroundColor $Green
+            } else {
+                # File copy
+                Write-Host "  Copy-Item -Path '$($item.FullName)' -Destination '$DestinationPath' -Force" -ForegroundColor $Green
+            }
+        }
+        
+        Write-Host ""
+        Write-Success "✅ Preview complete! Run without -Preview to execute these commands."
+        Write-Host ""
+        Write-Host "📊 Summary:" -ForegroundColor $White
+        Write-Host "  - Files to copy: $($itemsToCopy.Count)" -ForegroundColor $White
+        Write-Host "  - Source: $GitSyncPath" -ForegroundColor $White
+        Write-Host "  - Destination: $DestinationPath" -ForegroundColor $White
+        Write-Host "  - Backup location: $BackupPath" -ForegroundColor $White
+        
+    }
+    catch {
+        Write-Error "❌ Error during preview: $($_.Exception.Message)"
     }
 }
 
@@ -186,8 +242,13 @@ function Deploy-Project {
 
     # Step 2: Copy to Destination (unless skipped)
     if (-not $SkipCopy) {
-        Write-Status "🔄 Step 2: Copying to destination..."
-        Copy-ToDestination
+        if ($Preview) {
+            Write-Status "🔍 Step 2: Preview mode - showing copy commands..."
+            Preview-CopyCommands
+        } else {
+            Write-Status "🔄 Step 2: Copying to destination..."
+            Copy-ToDestination
+        }
     } else {
         Write-Warning "⚠️  Skipping copy to destination (Git sync only)"
     }
