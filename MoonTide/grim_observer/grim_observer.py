@@ -177,6 +177,17 @@ class GrimObserver:
         self.peak_thresholds = [5, 10, 15, 20, 25, 30, 40, 50]  # Milestone thresholds
         self.reached_thresholds = set()  # Track which milestones we've already celebrated
         
+        # Empty server recurring messaging
+        self.empty_server_interval = 4 * 3600  # Default: 4 hours in seconds
+        self.last_empty_message_time = 0  # Track when we last sent an empty server message
+        self.empty_server_messages = [
+            "💀 **CROM SLEEPS...** The server lies silent. No warriors to test their mettle. The weak have fled, the strong await... ⚔️",
+            "🌙 **THE DARKNESS FALLS...** The server is empty. No souls to challenge CROM's might. The strong shall return, the weak shall remain... 🗡️",
+            "⚰️ **SILENCE REIGNS...** The server stands empty. No warriors to prove their worth. CROM waits... the strong shall return! 💀",
+            "🏜️ **THE WASTELAND CALLS...** The server is barren. No souls to face CROM's trials. The weak are gone, the strong shall rise... ⚡",
+            "🌑 **EMPTY REALMS...** The server lies dormant. No warriors to claim CROM's glory. The strong shall awaken, the weak shall perish... 🗡️"
+        ]
+        
         # Setup logging
         self.logger = logging.getLogger(__name__)
         
@@ -280,6 +291,14 @@ class GrimObserver:
                     current_players = self.get_player_count()
                     if current_players == 0:
                         self._reset_peak_tracking()
+                        empty_message = self._check_empty_server_message(current_players)
+                        if empty_message:
+                            self.logger.info(f"Empty server message sent: {current_players} players")
+                            success = self.send_discord_webhook(empty_message)
+                            if success:
+                                self.logger.info(f"Empty server message sent successfully")
+                            else:
+                                self.logger.error(f"Failed to send empty server message")
             else:
                 # Discord webhook conditions not met - no logging needed
                 pass
@@ -792,6 +811,41 @@ class GrimObserver:
         self.reached_thresholds.clear()
         self.logger.info("Peak tracking reset - server went empty")
     
+    def _check_empty_server_message(self, current_players: int) -> Optional[Dict]:
+        """Check if we should send a recurring empty server message."""
+        if current_players == 0:
+            current_time = time.time()
+            
+            # Check if enough time has passed since last empty server message
+            if current_time - self.last_empty_message_time >= self.empty_server_interval:
+                self.last_empty_message_time = current_time
+                return self._generate_empty_server_message()
+        
+        return None
+    
+    def _generate_empty_server_message(self) -> Dict:
+        """Generate a Discord message for when the server is empty."""
+        map_name = self.map_name or "Server"
+        map_emoji = "🌴" if map_name.lower() == "siptah" else "🏔️" if map_name.lower() == "exiled" else "🎮"
+        
+        # Randomly select an empty server message
+        message = random.choice(self.empty_server_messages)
+        
+        # Replace generic "server" references with map name if available
+        if map_name.lower() != "server":
+            message = message.replace("The server", f"{map_name}")
+            message = message.replace("the server", f"{map_name}")
+        
+        return {
+            "content": message,
+            "embeds": []
+        }
+    
+    def set_empty_server_interval(self, hours: int):
+        """Configure the empty server message interval in hours."""
+        self.empty_server_interval = hours * 3600
+        self.logger.info(f"Empty server message interval set to {hours} hours")
+    
     def get_recent_events(self, minutes: int = 10) -> List[LogEvent]:
         """Get events from the last N minutes."""
         cutoff_time = datetime.now().timestamp() - (minutes * 60)
@@ -931,6 +985,7 @@ def main():
     parser.add_argument('--webhook-only', action='store_true', help='Show only Discord webhook content without formatting')
     parser.add_argument('--force-curl', action='store_true', help='Force use of CURL for Discord webhooks (bypasses Python libraries)')
     parser.add_argument('--map', help='Specify the map name (e.g., exiled, siptah) for secrets loading')
+    parser.add_argument('--empty-interval', type=int, default=4, help='Empty server message interval in hours (default: 4)')
     
     args = parser.parse_args()
     
@@ -950,6 +1005,7 @@ def main():
     print(f"[DEBUG] - discord_output: {args.discord_output}", file=sys.stderr)
     print(f"[DEBUG] - webhook_only: {args.webhook_only}", file=sys.stderr)
     print(f"[DEBUG] - map: {args.map}", file=sys.stderr)
+    print(f"[DEBUG] - empty-interval: {args.empty_interval}", file=sys.stderr)
     
     # Load secrets based on map parameter
     secrets = load_secrets(args.map)
@@ -971,6 +1027,9 @@ def main():
             force_curl=args.force_curl,  # Pass the force-curl flag
             map_name=args.map  # Pass the map name for Discord titles
         )
+        
+        # Set the empty server interval from command line argument
+        observer.set_empty_server_interval(args.empty_interval)
         
         if args.service:
             # Windows service mode - basic implementation
