@@ -294,66 +294,23 @@ class GrimObserver:
         
         for event in events:
             if event.event_type == 'player_connected':
+                # Get current player count for enhanced info
+                current_players = self.get_player_count()
+                
                 payload = {
-                    "content": f"🟢 **{event.player_name}** joined the server",
-                    "embeds": [{
-                        "title": f"{map_emoji} {map_name} - Player Connected",
-                        "description": f"**{event.player_name}** has joined the server",
-                        "color": 0x00ff00,  # Green
-                        "fields": [
-                            {
-                                "name": "Player",
-                                "value": event.player_name,
-                                "inline": True
-                            },
-                            {
-                                "name": "Event",
-                                "value": "Connected",
-                                "inline": True
-                            },
-                            {
-                                "name": "Time",
-                                "value": event.timestamp,
-                                "inline": True
-                            }
-                        ],
-                        "timestamp": event.parsed_at,
-                        "footer": {
-                            "text": "Grim Observer - Conan Exiles"
-                        }
-                    }]
+                    "content": f"🟢 **{event.player_name}** joined {map_name}\n⏰ {event.timestamp} • 👥 Player #{current_players}",
+                    "embeds": []  # No embeds for cleaner look
                 }
                 payloads.append(payload)
                 
             elif event.event_type == 'player_disconnected':
+                # Calculate session duration if we have connection time
+                session_duration = self._get_session_duration(event.player_name)
+                duration_text = f"⏱️ Session: {session_duration}" if session_duration else ""
+                
                 payload = {
-                    "content": f"🔴 **{event.player_name}** left the server",
-                    "embeds": [{
-                        "title": f"{map_emoji} {map_name} - Player Disconnected",
-                        "description": f"**{event.player_name}** has left the server",
-                        "color": 0xff6b35,  # Orange/Red (closer to your example)
-                        "fields": [
-                            {
-                                "name": "Player",
-                                "value": event.player_name,
-                                "inline": True
-                            },
-                            {
-                                "name": "Event",
-                                "value": "Disconnected",
-                                "inline": True
-                            },
-                            {
-                                "name": "Time",
-                                "value": event.timestamp,
-                                "inline": True
-                            }
-                        ],
-                        "timestamp": event.parsed_at,
-                        "footer": {
-                            "text": "Grim Observer - Conan Exiles"
-                        }
-                    }]
+                    "content": f"🔴 **{event.player_name}** left {map_name}\n⏰ {event.timestamp} • {duration_text}",
+                    "embeds": []  # No embeds for cleaner look
                 }
                 payloads.append(payload)
         
@@ -652,6 +609,32 @@ class GrimObserver:
         connected = sum(1 for e in self.events if e.event_type == 'player_connected')
         disconnected = sum(1 for e in self.events if e.event_type == 'player_disconnected')
         return max(0, connected - disconnected)
+    
+    def _get_session_duration(self, player_name: str) -> str:
+        """Calculate session duration for a player who just disconnected."""
+        # Find the most recent connection event for this player
+        connection_time = None
+        for event in reversed(self.events):
+            if event.event_type == 'player_connected' and event.player_name == player_name:
+                connection_time = self.parse_timestamp(event.timestamp)
+                break
+        
+        if connection_time:
+            # Calculate duration from connection to now (approximate)
+            current_time = time.time()
+            duration_seconds = current_time - connection_time
+            
+            if duration_seconds < 60:
+                return f"{int(duration_seconds)}s"
+            elif duration_seconds < 3600:
+                minutes = int(duration_seconds // 60)
+                return f"{minutes}m"
+            else:
+                hours = int(duration_seconds // 3600)
+                minutes = int((duration_seconds % 3600) // 60)
+                return f"{hours}h {minutes}m"
+        
+        return None
     
     def get_recent_events(self, minutes: int = 10) -> List[LogEvent]:
         """Get events from the last N minutes."""
