@@ -202,18 +202,34 @@ class GrimObserver:
             
             # Send Discord webhook for new events if webhook URL is available
             if self.discord_webhook_url and event.event_type in ['player_connected', 'player_disconnected']:
+                self.logger.info(f"[DEBUG] Discord webhook condition met:")
+                self.logger.info(f"[DEBUG] - webhook_url exists: {bool(self.discord_webhook_url)}")
+                self.logger.info(f"[DEBUG] - event_type: {event.event_type}")
+                self.logger.info(f"[DEBUG] - event_type in allowed list: {event.event_type in ['player_connected', 'player_disconnected']}")
+                
                 if self.verbose:
                     self.logger.info(f"Sending Discord webhook for {event.event_type} event")
                 
                 # Generate and send Discord webhook for this single event
+                self.logger.info(f"[DEBUG] About to generate Discord webhook payloads for event: {event}")
                 payloads = self.generate_discord_webhook_payloads([event])
+                self.logger.info(f"[DEBUG] Generated {len(payloads)} payload(s)")
+                
                 if payloads:
+                    self.logger.info(f"[DEBUG] First payload: {payloads[0]}")
                     success = self.send_discord_webhook(payloads[0])
                     if self.verbose:
                         if success:
                             self.logger.info(f"Discord webhook sent successfully for {event.event_type}")
                         else:
                             self.logger.error(f"Failed to send Discord webhook for {event.event_type}")
+                else:
+                    self.logger.warning(f"[DEBUG] No payloads generated for event: {event}")
+            else:
+                self.logger.info(f"[DEBUG] Discord webhook condition NOT met:")
+                self.logger.info(f"[DEBUG] - webhook_url exists: {bool(self.discord_webhook_url)}")
+                self.logger.info(f"[DEBUG] - event_type: {event.event_type if event else 'None'}")
+                self.logger.info(f"[DEBUG] - event_type in allowed list: {event.event_type in ['player_connected', 'player_disconnected'] if event else False}")
             
             # Save to output file if specified
             if self.output_file:
@@ -332,12 +348,21 @@ class GrimObserver:
             self.logger.warning("No Discord webhook URL configured")
             return False
         
+        # DEBUG: Log all the parameters being used
+        self.logger.info(f"[DEBUG] Discord webhook execution started")
+        self.logger.info(f"[DEBUG] Webhook URL: {self.discord_webhook_url}")
+        self.logger.info(f"[DEBUG] Payload type: {type(payload)}")
+        self.logger.info(f"[DEBUG] Payload content: {payload}")
+        
         try:
             import urllib.request
             import urllib.parse
             
             # Convert payload to JSON
             data = json.dumps(payload).encode('utf-8')
+            self.logger.info(f"[DEBUG] JSON data length: {len(data)} bytes")
+            self.logger.info(f"[DEBUG] JSON data (first 200 chars): {data[:200]}")
+            self.logger.info(f"[DEBUG] JSON encoding: utf-8")
             
             # Create request
             req = urllib.request.Request(
@@ -346,8 +371,17 @@ class GrimObserver:
                 headers={'Content-Type': 'application/json'}
             )
             
+            self.logger.info(f"[DEBUG] Request method: {req.get_method()}")
+            self.logger.info(f"[DEBUG] Request headers: {dict(req.headers)}")
+            self.logger.info(f"[DEBUG] Request data length: {len(req.data) if req.data else 0}")
+            
             # Send request
+            self.logger.info(f"[DEBUG] About to send HTTP request to Discord...")
             with urllib.request.urlopen(req) as response:
+                self.logger.info(f"[DEBUG] HTTP response received")
+                self.logger.info(f"[DEBUG] Response status: {response.status}")
+                self.logger.info(f"[DEBUG] Response headers: {dict(response.headers)}")
+                
                 if response.status == 204:  # Discord returns 204 on success
                     self.logger.info(f"Discord webhook sent successfully: {payload.get('content', 'No content')}")
                     return True
@@ -357,6 +391,8 @@ class GrimObserver:
                     
         except Exception as e:
             self.logger.error(f"Error sending Discord webhook: {e}")
+            self.logger.error(f"[DEBUG] Exception type: {type(e).__name__}")
+            self.logger.error(f"[DEBUG] Exception details: {str(e)}")
             return False
 
     def emit_discord_webhook_events(self, events: List[LogEvent] = None):
@@ -572,10 +608,20 @@ def load_secrets(map_name: Optional[str] = None) -> Dict[str, str]:
     """
     secrets = {}
     
+    # DEBUG: Log all environment variables for troubleshooting
+    print(f"[DEBUG] Environment variables check:", file=sys.stderr)
+    print(f"[DEBUG] - DISCORD_WEBHOOK_URL: {os.environ.get('DISCORD_WEBHOOK_URL', 'NOT_SET')}", file=sys.stderr)
+    print(f"[DEBUG] - MAP_NAME: {os.environ.get('MAP_NAME', 'NOT_SET')}", file=sys.stderr)
+    print(f"[DEBUG] - LOG_FILE_PATH: {os.environ.get('LOG_FILE_PATH', 'NOT_SET')}", file=sys.stderr)
+    print(f"[DEBUG] - Current working directory: {os.getcwd()}", file=sys.stderr)
+    print(f"[DEBUG] - Python executable: {sys.executable}", file=sys.stderr)
+    print(f"[DEBUG] - Python version: {sys.version}", file=sys.stderr)
+    
     # Load Discord webhook URL from environment (set by batch wrapper)
     discord_webhook_url = os.environ.get('DISCORD_WEBHOOK_URL')
     if discord_webhook_url:
         secrets['discord_webhook_url'] = discord_webhook_url
+        print(f"[DEBUG] Discord webhook URL loaded: {discord_webhook_url[:50]}...", file=sys.stderr)
         if map_name:
             print(f"[GrimObserver][INFO] Loaded Discord webhook URL for {map_name} map from environment", file=sys.stderr)
         else:
@@ -589,6 +635,7 @@ def load_secrets(map_name: Optional[str] = None) -> Dict[str, str]:
         secrets['map_name'] = map_name_env
         print(f"[GrimObserver][INFO] Map name: {map_name_env}", file=sys.stderr)
     
+    print(f"[DEBUG] Final secrets loaded: {secrets}", file=sys.stderr)
     return secrets
 
 def main():
@@ -607,9 +654,24 @@ def main():
     
     args = parser.parse_args()
     
+    # DEBUG: Log all parsed arguments for troubleshooting
+    print(f"[DEBUG] Command line arguments parsed:", file=sys.stderr)
+    print(f"[DEBUG] - mode: {args.mode}", file=sys.stderr)
+    print(f"[DEBUG] - log_file: {args.log_file}", file=sys.stderr)
+    print(f"[DEBUG] - output: {args.output}", file=sys.stderr)
+    print(f"[DEBUG] - interval: {args.interval}", file=sys.stderr)
+    print(f"[DEBUG] - verbose: {args.verbose}", file=sys.stderr)
+    print(f"[DEBUG] - service: {args.service}", file=sys.stderr)
+    print(f"[DEBUG] - discord: {args.discord}", file=sys.stderr)
+    print(f"[DEBUG] - discord_output: {args.discord_output}", file=sys.stderr)
+    print(f"[DEBUG] - webhook_only: {args.webhook_only}", file=sys.stderr)
+    print(f"[DEBUG] - map: {args.map}", file=sys.stderr)
+    
     # Load secrets based on map parameter
     secrets = load_secrets(args.map)
     discord_webhook_url = secrets.get('discord_webhook_url')
+    
+    print(f"[DEBUG] Discord webhook URL from secrets: {discord_webhook_url[:50] if discord_webhook_url else 'None'}...", file=sys.stderr)
     
     if args.discord or args.webhook_only or args.discord_output:
         if not discord_webhook_url:
