@@ -157,8 +157,8 @@ echo Log file: %LOG_FILE_PATH%
 echo Press Ctrl+C to stop
 echo.
 
-echo [DEBUG] Running command: python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --verbose --force-curl
-python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --verbose --force-curl
+echo [DEBUG] Running command: python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl
+python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl
 
 echo.
 echo [DEBUG] Python script finished
