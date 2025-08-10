@@ -224,6 +224,7 @@ class GrimObserver:
         self.reached_milestones = set()
         self.last_empty_server_message = None
         self.empty_server_message_interval = 4 * 60 * 60  # 4 hours in seconds
+        self.last_message_type = None  # Track last message type for variety
         self.running = False
         self.use_rich_embeds = True  # Enable rich embeds by default
         
@@ -335,6 +336,90 @@ class GrimObserver:
             "weekday": ["💼", "📅", "⏰"]
         }
         
+        # Empty server message types and variations
+        self.empty_server_message_types = {
+            "crom_sleeps": {
+                "title_templates": [
+                    "💀 {map_emoji} CROM SLEEPS... {map_emoji} 💀",
+                    "🌙 {map_emoji} THE DARKNESS FALLS {map_emoji} 🌙",
+                    "⚰️ {map_emoji} SILENCE REIGNS {map_emoji} ⚰️",
+                    "🏜️ {map_emoji} THE WASTELAND CALLS {map_emoji} 🏜️",
+                    "🌑 {map_emoji} EMPTY REALMS {map_emoji} 🌑"
+                ],
+                "description_templates": [
+                    "**CROM SLEEPS...** {map_name} lies silent. No warriors to test their mettle. The weak have fled, the strong await... ⚔️",
+                    "**THE DARKNESS FALLS...** {map_name} is empty. No souls to challenge CROM's might. The strong shall return, the weak shall remain... 🗡️",
+                    "**SILENCE REIGNS...** {map_name} stands empty. No warriors to prove their worth. CROM waits... the strong shall return! 💀",
+                    "**THE WASTELAND CALLS...** {map_name} is barren. No souls to face CROM's trials. The weak are gone, the strong shall rise... ⚡",
+                    "**EMPTY REALMS...** {map_name} stands dormant. No warriors to claim CROM's glory. The strong shall awaken, the weak shall perish... 🗡️"
+                ]
+            },
+            "warrior_call": {
+                "title_templates": [
+                    "⚔️ {map_emoji} CALLING ALL WARRIORS {map_emoji} ⚔️",
+                    "🗡️ {map_emoji} THE BATTLEFIELD AWAITS {map_emoji} 🗡️",
+                    "🛡️ {map_emoji} GLORY CALLS {map_emoji} 🛡️",
+                    "⚡ {map_emoji} POWER VACUUM {map_emoji} ⚡",
+                    "🔥 {map_emoji} THE FIRE DIES {map_emoji} 🔥"
+                ],
+                "description_templates": [
+                    "**WARRIORS OF {map_name}...** The battlefield lies empty, waiting for your return. CROM demands blood and glory! Who will answer the call? ⚔️",
+                    "**CHAMPIONS OF {map_name}...** The arena is silent, the crowds are gone. Where are the mighty? CROM seeks worthy opponents! 🗡️",
+                    "**HEROES OF {map_name}...** The realm is quiet, the challenges await. Will you return to claim your destiny? CROM watches... ⚡",
+                    "**LEGENDS OF {map_name}...** The stage is set, the audience is gone. Your stories remain untold. CROM awaits your return! 🔥",
+                    "**WARRIORS OF {map_name}...** The battlefield is yours for the taking. No competition, no resistance. CROM offers you glory! 🛡️"
+                ]
+            },
+            "lore_story": {
+                "title_templates": [
+                    "📚 {map_emoji} LEGENDS OF {map_name} {map_emoji} 📚",
+                    "🏛️ {map_emoji} ANCIENT TALES {map_emoji} 🏛️",
+                    "🗿 {map_emoji} STORIES UNTOLD {map_emoji} 🗿",
+                    "📖 {map_emoji} CHRONICLES OF {map_name} {map_emoji} 📖",
+                    "🏺 {map_emoji} MYTHS AND LEGENDS {map_emoji} 🏺"
+                ],
+                "description_templates": [
+                    "**IN THE DAYS OF OLD...** {map_name} was filled with warriors whose names echoed through the ages. Now, only silence remains. Will you write the next chapter? 📚",
+                    "**THE ANCIENTS SPEAK...** {map_name} remembers the battles, the victories, the defeats. The stones whisper of glory past. Will you add your tale? 🏛️",
+                    "**LEGENDS TELL...** {map_name} was once a place of great deeds and mighty warriors. The echoes of their glory still linger. Will you continue their legacy? 🗿",
+                    "**HISTORY RECORDS...** {map_name} has seen empires rise and fall, heroes come and go. The chronicles await your entry. Will you be remembered? 📖",
+                    "**MYTHS WHISPER...** {map_name} holds secrets of power and glory. The ancient ones left their mark. Will you leave yours? 🏺"
+                ]
+            },
+            "challenge_issued": {
+                "title_templates": [
+                    "🎯 {map_emoji} CHALLENGE ISSUED {map_emoji} 🎯",
+                    "🏆 {map_emoji} THE THRONE AWAITS {map_emoji} 🏆",
+                    "⚔️ {map_emoji} PROVE YOUR WORTH {map_emoji} ⚔️",
+                    "🔥 {map_emoji} THE TEST BEGINS {map_emoji} 🔥",
+                    "💎 {map_emoji} DIAMOND IN THE ROUGH {map_emoji} 💎"
+                ],
+                "description_templates": [
+                    "**CROM CHALLENGES YOU...** {map_name} stands empty, a blank canvas for your conquest. Will you rise to the challenge and claim your destiny? 🎯",
+                    "**THE THRONE IS EMPTY...** {map_name} has no ruler, no champion. CROM offers you the chance to prove your worth. Will you accept? 🏆",
+                    "**YOUR TEST AWAITS...** {map_name} is your proving ground. No competition, no distractions. Just you and CROM's challenge. Ready? ⚔️",
+                    "**THE FIRE TESTS ALL...** {map_name} will reveal your true nature. Will you emerge stronger, or will you be consumed? CROM watches... 🔥",
+                    "**DIAMONDS ARE FORGED...** {map_name} will test your mettle. Pressure creates perfection. Will you shine, or will you crack? 💎"
+                ]
+            },
+            "humor_meme": {
+                "title_templates": [
+                    "😴 {map_emoji} SERVER STATUS: NAPPING {map_emoji} 😴",
+                    "🦗 {map_emoji} CHIRP CHIRP {map_emoji} 🦗",
+                    "🌵 {map_emoji} TUMBLEWEED ALERT {map_emoji} 🌵",
+                    "👻 {map_emoji} GHOST TOWN {map_emoji} 👻",
+                    "🎭 {map_emoji} THE SHOW MUST GO ON {map_emoji} 🎭"
+                ],
+                "description_templates": [
+                    "**ZZZZ...** {map_name} is taking a nap. The server is so quiet you can hear the tumbleweeds rolling by. Anyone want to wake it up? 😴",
+                    "**CHIRP CHIRP...** The only sound in {map_name} is the crickets. It's so empty even the echo has an echo. Anyone home? 🦗",
+                    "**TUMBLEWEED ROLLING...** {map_name} is so deserted, tumbleweeds are having parties. The server is basically a ghost town. 👻",
+                    "**GHOST TOWN...** {map_name} is so empty, even the ghosts got bored and left. The server is basically a digital desert. 🌵",
+                    "**CURTAIN CALL...** The audience has left {map_name}. The show is over, the lights are off. Anyone want to be the star? 🎭"
+                ]
+            }
+        }
+        
         # Setup logging
         self.logger = logging.getLogger(__name__)
         
@@ -378,7 +463,8 @@ class GrimObserver:
         )
         
         # Validate log file
-        if not self.log_file_path.exists():
+        log_path = Path(self.log_file_path)
+        if not log_path.exists():
             raise FileNotFoundError(f"Log file not found: {self.log_file_path}")
 
     def setup_logging(self):
@@ -388,7 +474,8 @@ class GrimObserver:
     def get_current_position(self) -> int:
         """Get current position in the log file."""
         try:
-            return self.log_file_path.stat().st_size
+            log_path = Path(self.log_file_path)
+            return log_path.stat().st_size
         except OSError:
             return 0
     
@@ -1063,7 +1150,7 @@ class GrimObserver:
                     },
                     {
                         "name": random.choice(self.empty_server_field_variations["next_check"]),
-                        "value": f"<t:{int(time.time() + self.empty_server_interval)}:R>",
+                        "value": f"<t:{int(time.time() + self.empty_server_message_interval)}:R>",
                         "inline": True
                     },
                     {
@@ -1076,7 +1163,7 @@ class GrimObserver:
                     "text": random.choice(self.empty_server_footer_variations),
                     "icon_url": self.empty_server_images["footer_icon"]
                 },
-                "timestamp": datetime.now(datetime.UTC).isoformat()
+                "timestamp": datetime.now().isoformat()
             }
             
             return {
@@ -1086,7 +1173,7 @@ class GrimObserver:
         else:
             # Fallback to simple text message
             return {
-                "content": f"{description}\n\n⏰ Next check: <t:{int(time.time() + self.empty_server_interval)}:R>",
+                "content": f"{description}\n\n⏰ Next check: <t:{int(time.time() + self.empty_server_message_interval)}:R>",
                 "embeds": []
             }
     
