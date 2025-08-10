@@ -1,0 +1,13 @@
+@echo off
+rem ================================================
+rem  Grim Observer - Isle of Siptah Secrets
+rem  Set environment variables for Isle of Siptah map
+rem ================================================
+
+set "DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"
+set "MAP_NAME=siptah"
+set "MAP_DESCRIPTION=Isle of Siptah map secrets"
+set "LOG_FILE_PATH=C:\Conan\ConanSandbox\Saved\Logs\ConanSandbox.log"
+
+rem Add any other map-specific environment variables here
+rem set "OTHER_VAR=value"

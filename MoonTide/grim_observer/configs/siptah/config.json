@@ -1,0 +1,27 @@
+{
+  "output_file": "grim_events_siptah.json",
+  "check_interval": 1.0,
+  "verbose": true,
+  "log_level": "INFO",
+  "max_events_in_memory": 10000,
+  "event_retention_hours": 24,
+  "player_count_update_interval": 30,
+  "map_name": "siptah",
+  "map_description": "Isle of Siptah - The expansion map with new content and mechanics",
+  "patterns": {
+    "player_connected": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) \\((\\S+):(\\d+)\\) connected",
+    "player_disconnected_battleye": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) disconnected",
+    "player_disconnected_lognet": "LogNet: Player disconnected: (\\S+) (filtered: excludes names with #numbers)"
+  },
+  "output_formats": ["json", "csv"],
+  "notifications": {
+    "discord_webhook": "",
+    "email": {
+      "smtp_server": "",
+      "smtp_port": 587,
+      "username": "",
+      "password": "",
+      "recipients": []
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "log_file_path": "C:\\Conan\\ConanSandbox\\Saved\\Logs\\ConanSandbox.log",
+  "output_file": "grim_events.json",
+  "check_interval": 1.0,
+  "verbose": true,
+  "log_level": "INFO",
+  "max_events_in_memory": 10000,
+  "event_retention_hours": 24,
+  "player_count_update_interval": 30,
+  "patterns": {
+    "player_connected": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) \\((\\S+):(\\d+)\\) connected",
+    "player_disconnected_battleye": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) disconnected",
+    "player_disconnected_lognet": "LogNet: Player disconnected: (\\S+) (filtered: excludes names with #numbers)"
+  },
+  "output_formats": ["json", "csv"],
+  "notifications": {
+    "discord_webhook": "",
+    "email": {
+      "smtp_server": "",
+      "smtp_port": 587,
+      "username": "",
+      "password": "",
+      "recipients": []
+    }
+  }
+}

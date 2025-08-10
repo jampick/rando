@@ -1,0 +1,8 @@
+# Grim Observer Dependencies
+# Core Python modules (included with Python 3.6+)
+# No external packages required for basic functionality
+
+# Optional dependencies for enhanced features:
+# pywin32>=223  # For Windows service functionality
+# psutil>=5.8.0  # For system monitoring
+# colorama>=0.4.4  # For colored terminal output (Windows compatibility)

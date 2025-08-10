@@ -1,0 +1,53 @@
+[
+  {
+    "content": "\ud83d\udfe2 **Zula** joined the server",
+    "embeds": [
+      {
+        "title": "Player Connected",
+        "description": "**Zula** has joined the server",
+        "color": 65280,
+        "fields": [
+          {
+            "name": "Player",
+            "value": "Zula",
+            "inline": true
+          },
+          {
+            "name": "IP Address",
+            "value": "199.36.253.123",
+            "inline": true
+          },
+          {
+            "name": "Time",
+            "value": "2025.08.09-22.09.34:373",
+            "inline": true
+          }
+        ],
+        "timestamp": "2025-08-09T17:29:50.415482"
+      }
+    ]
+  },
+  {
+    "content": "\ud83d\udd34 **Zula** left the server",
+    "embeds": [
+      {
+        "title": "Player Disconnected",
+        "description": "**Zula** has left the server",
+        "color": 16711680,
+        "fields": [
+          {
+            "name": "Player",
+            "value": "Zula",
+            "inline": true
+          },
+          {
+            "name": "Time",
+            "value": "2025.08.09-22.19.25:936",
+            "inline": true
+          }
+        ],
+        "timestamp": "2025-08-09T17:29:50.415654"
+      }
+    ]
+  }
+]
