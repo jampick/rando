@@ -60,7 +60,15 @@ if exist "%SECRETS_FILE%" (
     echo Secrets loaded from %SECRETS_FILE%
 ) else (
     echo Error: Secrets file not found: %SECRETS_FILE%
-    echo Please create the secrets file for the %MAP% map
+    echo.
+    echo To fix this:
+    echo 1. Copy secrets.%MAP%.bat.rename to secrets.%MAP%.bat
+    echo 2. Edit secrets.%MAP%.bat with your actual Discord webhook and log file path
+    echo.
+    echo Example:
+    echo   copy secrets.exiled.bat.rename secrets.exiled.bat
+    echo   copy secrets.siptah.bat.rename secrets.siptah.bat
+    echo.
     pause
     exit /b 1
 )
