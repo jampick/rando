@@ -8,9 +8,36 @@ import json
 import time
 import datetime
 import random
+import sys
+import os
+
+# Add the current directory to Python path to import grim_observer
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def generate_test_empty_message(map_name="siptah", use_rich_embeds=True):
-    """Generate a test empty server message payload."""
+    """Generate a test empty server message payload using actual GrimObserver class."""
+    
+    try:
+        from grim_observer import GrimObserver
+        
+        # Create a temporary observer instance to use its methods
+        observer = GrimObserver(
+            log_file_path="/tmp/test.log",  # Dummy path
+            map_name=map_name
+        )
+        
+        # Generate the message using the actual GrimObserver method
+        payload = observer._generate_empty_server_message()
+        
+        return payload
+        
+    except ImportError as e:
+        print(f"⚠️  Warning: Could not import GrimObserver: {e}")
+        print("   Falling back to test-only implementation...")
+        return _generate_fallback_message(map_name, use_rich_embeds)
+
+def _generate_fallback_message(map_name="siptah", use_rich_embeds=True):
+    """Fallback message generation if GrimObserver import fails."""
     
     # Dynamic empty server message system (same as grim_observer.py)
     empty_server_message_types = {
@@ -132,11 +159,11 @@ def generate_test_empty_message(map_name="siptah", use_rich_embeds=True):
         "CROM's realm awaits its next champion! 💎"
     ]
     
-    # Image URLs (placeholder - replace with your actual URLs)
+    # Image URLs (using GitHub raw URLs for placeholder images)
     empty_server_images = {
-        "thumbnail": "https://i.imgur.com/8JZqXqL.png",  # Replace with your thumbnail URL
-        "main_image": "https://i.imgur.com/QX8JZqL.png",  # Replace with your main image URL
-        "footer_icon": "https://i.imgur.com/JZqX8qL.png"  # Replace with your footer icon URL
+        "thumbnail": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/thumbnail.png",
+        "main_image": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/main_image.png",
+        "footer_icon": "https://raw.githubusercontent.com/jampick/rando/main/MoonTide/grim_observer/placeholder_images/footer_icon.png"
     }
     
     # Colors for different maps
