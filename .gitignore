@@ -62,6 +62,7 @@ Thumbs.db
 secrets/
 *.bat.rename
 config.local.json
+deploy.config.local
 
 # Backup files
 *.bak
