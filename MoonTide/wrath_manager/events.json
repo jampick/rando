@@ -1,5 +1,5 @@
 {
-  "precision": 1,
+  "precision": 2,
   "insert_missing_keys": true,
   "moon_phase": {
     "enabled": true,

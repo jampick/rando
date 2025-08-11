@@ -389,6 +389,52 @@ def _detect_encoding_and_newline(path: str) -> Tuple[str, str]:
     return ("utf-8", newline)
 
 
+def remove_duplicate_settings(lines: List[str], section_name: str) -> List[str]:
+    """
+    Remove duplicate settings from a section, keeping only the last occurrence of each key.
+    
+    Args:
+        lines: List of INI file lines
+        section_name: Name of the section to process
+        
+    Returns:
+        New list of lines with duplicates removed
+    """
+    sections = find_section_ranges(lines)
+    if section_name not in sections:
+        return lines
+    
+    start, end = sections[section_name]
+    key_pattern = re.compile(r"^\s*([^#;\s][^=\s]*)\s*=\s*(.*)\s*$", re.IGNORECASE)
+    
+    # Track seen keys and their last occurrence
+    seen_keys: Dict[str, int] = {}  # key -> line_index
+    lines_to_remove: List[int] = []
+    
+    # First pass: identify duplicates and mark earlier ones for removal
+    for i in range(start + 1, end):
+        line = lines[i].strip()
+        # Skip empty lines and comments
+        if not line or line.startswith(';') or line.startswith('#'):
+            continue
+        
+        match = key_pattern.match(line)
+        if match:
+            key = match.group(1).strip()
+            if key in seen_keys:
+                # Mark the earlier occurrence for removal
+                lines_to_remove.append(seen_keys[key])
+            # Update to the latest occurrence
+            seen_keys[key] = i
+    
+    # Second pass: remove the marked lines (in reverse order to maintain indices)
+    lines_to_remove.sort(reverse=True)
+    for line_index in lines_to_remove:
+        lines.pop(line_index)
+    
+    return lines
+
+
 def read_text_lines_with_meta(path: str) -> Tuple[List[str], str, str]:
     enc, newline = _detect_encoding_and_newline(path)
     try:
@@ -398,7 +444,13 @@ def read_text_lines_with_meta(path: str) -> Tuple[List[str], str, str]:
         with open(path, "r", encoding="utf-8", errors="replace", newline="") as f:
             text = f.read()
         enc = "utf-8"
-    return text.splitlines(), enc, newline
+    
+    lines = text.splitlines()
+    
+    # Remove duplicate settings from the ServerSettings section
+    lines = remove_duplicate_settings(lines, SERVER_SETTINGS_SECTION)
+    
+    return lines, enc, newline
 
 
 def write_text_lines_with_meta(path: str, lines: List[str], encoding: str, newline: str) -> None:
@@ -416,11 +468,13 @@ def find_section_ranges(lines: List[str]) -> Dict[str, Tuple[int, int]]:
         match = section_header_pattern.match(line)
         if match:
             if current_name is not None:
+                # End the previous section at the line before this section header
                 sections[current_name] = (current_start, idx)
             current_name = match.group("name").strip()
             current_start = idx
 
     if current_name is not None:
+        # End the last section at the end of the file
         sections[current_name] = (current_start, len(lines))
 
     return sections
@@ -429,22 +483,33 @@ def find_section_ranges(lines: List[str]) -> Dict[str, Tuple[int, int]]:
 def upsert_key_in_section(
     lines: List[str], section_name: str, key: str, value_str: str
 ) -> Tuple[List[str], bool]:
-    key_pattern = re.compile(rf"^\s*{re.escape(key)}\s*=\s*.*$")
+    # More robust key pattern that handles various whitespace and formatting
+    key_pattern = re.compile(rf"^\s*{re.escape(key)}\s*=\s*.*$", re.IGNORECASE)
     updated = False
 
     sections = find_section_ranges(lines)
+    
     if section_name in sections:
         start, end = sections[section_name]
+        # Look for existing key in the section
         for i in range(start + 1, end):
-            if key_pattern.match(lines[i]):
+            line = lines[i].strip()
+            # Skip empty lines and comments
+            if not line or line.startswith(';') or line.startswith('#'):
+                continue
+            # Check if this line contains our key
+            if key_pattern.match(line):
+                # Found existing key, update it
                 lines[i] = f"{key}={value_str}"
                 updated = True
                 break
         if not updated:
+            # Key not found, insert at the end of the section
             insertion_index = end
             lines.insert(insertion_index, f"{key}={value_str}")
             updated = True
     else:
+        # Section doesn't exist, create it
         if lines and lines[-1].strip() != "":
             lines.append("")
         lines.append(f"[{section_name}]")
@@ -459,9 +524,14 @@ def key_exists_in_section(lines: List[str], section_name: str, key: str) -> bool
     if section_name not in sections:
         return False
     start, end = sections[section_name]
-    key_pattern = re.compile(rf"^\s*{re.escape(key)}\s*=\s*.*$")
+    # More robust key pattern that handles various whitespace and formatting
+    key_pattern = re.compile(rf"^\s*{re.escape(key)}\s*=\s*.*$", re.IGNORECASE)
     for i in range(start + 1, end):
-        if key_pattern.match(lines[i]):
+        line = lines[i].strip()
+        # Skip empty lines and comments
+        if not line or line.startswith(';') or line.startswith('#'):
+            continue
+        if key_pattern.match(line):
             return True
     return False
 
