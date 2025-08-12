@@ -1070,7 +1070,11 @@ class GrimObserver:
             current_time = time.time()
             
             # Check if enough time has passed since last empty server message
-            if current_time - self.last_empty_server_message >= self.empty_server_message_interval:
+            # Handle case where last_empty_server_message is None (first run or after restart)
+            if self.last_empty_server_message is None:
+                self.last_empty_server_message = current_time
+                return self._generate_empty_server_message()
+            elif current_time - self.last_empty_server_message >= self.empty_server_message_interval:
                 self.last_empty_server_message = current_time
                 return self._generate_empty_server_message()
         
@@ -1383,52 +1387,6 @@ class GrimObserver:
                 self.logger.info(f"  No timestamp found in line")
         self.logger.info("=== END TIMESTAMP DEBUG ===")
     
-    def _get_session_duration(self, player_name: str) -> str:
-        """Calculate session duration for a player who just disconnected."""
-        # Find the most recent connection event for this player
-        # Note: Since we're running separate instances per map, all events are map-specific
-        connection_time = None
-        connection_event = None
-        
-        for event in reversed(self.events):
-            if event.event_type == 'player_connected' and event.player_name == player_name:
-                connection_event = event
-                connection_time = self.parse_timestamp(event.timestamp)
-                break
-        
-        if connection_time and connection_time > 0:
-            # Calculate duration from connection to now (approximate)
-            current_time = time.time()
-            duration_seconds = current_time - connection_time
-            
-            # Debug logging
-            self.logger.debug(f"Session duration calculation for {player_name}:")
-            self.logger.debug(f"  Connection timestamp: {connection_event.timestamp if connection_event else 'None'}")
-            self.logger.debug(f"  Parsed connection time: {connection_time}")
-            self.logger.debug(f"  Current time: {current_time}")
-            self.logger.debug(f"  Duration seconds: {duration_seconds}")
-            
-            if duration_seconds < 0:
-                # Negative duration means timestamp parsing issue
-                self.logger.warning(f"Negative duration calculated for {player_name}: {duration_seconds}s")
-                return "Unknown"
-            elif duration_seconds < 60:
-                return "< 1m"
-            elif duration_seconds < 3600:
-                minutes = int(duration_seconds // 60)
-                return f"{minutes}m"
-            else:
-                hours = int(duration_seconds // 3600)
-                minutes = int((duration_seconds % 3600) // 60)
-                if minutes == 0:
-                    return f"{hours}h"
-                else:
-                    return f"{hours}h {minutes}m"
-        else:
-            self.logger.warning(f"Could not find valid connection time for {player_name}")
-            return "Unknown"
-
-
 def load_secrets(map_name: Optional[str] = None) -> Dict[str, str]:
     """Load secrets from environment variables set by the batch wrapper.
     
