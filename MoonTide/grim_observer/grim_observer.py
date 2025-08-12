@@ -950,25 +950,50 @@ class GrimObserver:
             self.logger.debug(f"  Current time: {current_time}")
             self.logger.debug(f"  Duration seconds: {duration_seconds}")
             
+            # Handle edge cases for duration calculation
             if duration_seconds < 0:
-                # Negative duration means timestamp parsing issue
+                # Negative duration means timestamp parsing issue or timezone problem
                 self.logger.warning(f"Negative duration calculated for {player_name}: {duration_seconds}s")
+                
+                # Try to estimate duration based on event order if possible
+                if len(self.events) >= 2:
+                    # Look for the disconnect event timestamp
+                    disconnect_time = None
+                    for event in reversed(self.events):
+                        if event.event_type == 'player_disconnected' and event.player_name == player_name:
+                            disconnect_time = self.parse_timestamp(event.timestamp)
+                            break
+                    
+                    if disconnect_time and disconnect_time > 0:
+                        # Calculate duration between connect and disconnect events
+                        event_duration = disconnect_time - connection_time
+                        if event_duration > 0:
+                            self.logger.info(f"Using event-based duration for {player_name}: {event_duration}s")
+                            return self._format_duration(event_duration)
+                
                 return "Unknown"
             elif duration_seconds < 60:
                 return "< 1m"
-            elif duration_seconds < 3600:
-                minutes = int(duration_seconds // 60)
-                return f"{minutes}m"
             else:
-                hours = int(duration_seconds // 3600)
-                minutes = int((duration_seconds % 3600) // 60)
-                if minutes == 0:
-                    return f"{hours}h"
-                else:
-                    return f"{hours}h {minutes}m"
+                return self._format_duration(duration_seconds)
         else:
             self.logger.warning(f"Could not find valid connection time for {player_name}")
             return "Unknown"
+    
+    def _format_duration(self, duration_seconds: float) -> str:
+        """Format duration in seconds to human-readable string."""
+        if duration_seconds < 60:
+            return "< 1m"
+        elif duration_seconds < 3600:
+            minutes = int(duration_seconds // 60)
+            return f"{minutes}m"
+        else:
+            hours = int(duration_seconds // 3600)
+            minutes = int((duration_seconds % 3600) // 60)
+            if minutes == 0:
+                return f"{hours}h"
+            else:
+                return f"{hours}h {minutes}m"
     
     def _check_peak_milestone(self, current_players: int) -> Optional[Dict]:
         """Check if we've reached a new peak or milestone and generate celebration message."""
@@ -1265,7 +1290,7 @@ class GrimObserver:
             # Try multiple timestamp formats
             formats_to_try = [
                 '%Y.%m.%d-%H.%M.%S:%f',  # [2025.08.09-22.09.34:324]
-                '%Y.%m.%d-%H.%M.%S',     # [2025.08.09-22.09:34]
+                '%Y.%m.%d-%H.%M.%S',     # [2025.08.09-22.09.34]
                 '%Y-%m-%d %H:%M:%S',     # 2025-08-09 22:09:34
                 '%Y/%m/%d %H:%M:%S',     # 2025/08/09 22:09:34
                 '%m/%d/%Y %H:%M:%S',     # 08/09/2025 22:09:34
@@ -1274,11 +1299,30 @@ class GrimObserver:
             for fmt in formats_to_try:
                 try:
                     dt = datetime.strptime(dt_str, fmt)
-                    # Assume the timestamp is in local server time (not UTC)
-                    # Convert to Unix timestamp
-                    unix_timestamp = dt.timestamp()
-                    self.logger.debug(f"Successfully parsed timestamp '{timestamp}' with format '{fmt}' -> {unix_timestamp}")
-                    return unix_timestamp
+                    
+                    # Handle timezone issues: server timestamps might be in different timezone
+                    # Use UTC time for consistent comparison
+                    current_utc = datetime.utcnow()
+                    server_time = dt
+                    
+                    # If server time is more than 24 hours in the future relative to current time,
+                    # assume it's a timezone issue and adjust
+                    time_diff = (server_time - current_utc).total_seconds()
+                    if time_diff > 86400:  # More than 24 hours ahead
+                        # Server time is likely in a different timezone, treat as relative
+                        # Use current time as baseline and calculate relative duration
+                        self.logger.debug(f"Server timestamp '{timestamp}' appears to be in different timezone, adjusting calculation")
+                        return current_utc.timestamp() - time_diff
+                    elif time_diff < -86400:  # More than 24 hours behind
+                        # Server time is likely in the past, treat as relative
+                        self.logger.debug(f"Server timestamp '{timestamp}' appears to be in the past, adjusting calculation")
+                        return current_utc.timestamp() + abs(time_diff)
+                    else:
+                        # Server time is within reasonable range, use as-is
+                        unix_timestamp = dt.timestamp()
+                        self.logger.debug(f"Server timestamp '{timestamp}' parsed successfully with format '{fmt}' -> {unix_timestamp}")
+                        return unix_timestamp
+                        
                 except ValueError:
                     continue
             
