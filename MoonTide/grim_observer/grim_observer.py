@@ -160,7 +160,7 @@ class GrimObserver:
     Main class for monitoring Conan Exiles server logs and sending Discord notifications.
     """
     
-    def __init__(self, log_file_path: str, output_file: str = None, verbose: bool = False, discord_webhook_url: str = None, force_curl: bool = False, map_name: str = None):
+    def __init__(self, log_file_path: str, output_file: str = None, verbose: bool = False, discord_webhook_url: str = None, force_curl: bool = False, map_name: str = None, empty_server_message_interval: int = 4 * 60 * 60, use_rich_embeds: bool = True):
         """
         Initialize Grim Observer with log file path and optional Discord webhook.
         
@@ -171,6 +171,8 @@ class GrimObserver:
             discord_webhook_url: Discord webhook URL for notifications
             force_curl: Force use of curl for webhook sending
             map_name: Map name for map-specific configurations
+            empty_server_message_interval: Interval in seconds for empty server messages (default: 4 hours)
+            use_rich_embeds: Enable rich embeds for empty server messages (default: True)
         """
         # ============================================================================
         # 🖼️ CUSTOM IMAGE CONFIGURATION
@@ -223,10 +225,10 @@ class GrimObserver:
         self.milestone_thresholds = [5, 10, 25, 50, 100]
         self.reached_milestones = set()
         self.last_empty_server_message = None
-        self.empty_server_message_interval = 4 * 60 * 60  # 4 hours in seconds
+        self.empty_server_message_interval = empty_server_message_interval
         self.last_message_type = None  # Track last message type for variety
         self.running = False
-        self.use_rich_embeds = True  # Enable rich embeds by default
+        self.use_rich_embeds = use_rich_embeds
         
         # ============================================================================
         # 🖼️ UPDATE THESE URLs WITH YOUR CUSTOM IMAGES
