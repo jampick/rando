@@ -928,17 +928,31 @@ class GrimObserver:
         # Find the most recent connection event for this player
         # Note: Since we're running separate instances per map, all events are map-specific
         connection_time = None
+        connection_event = None
+        
         for event in reversed(self.events):
             if event.event_type == 'player_connected' and event.player_name == player_name:
+                connection_event = event
                 connection_time = self.parse_timestamp(event.timestamp)
                 break
         
-        if connection_time:
+        if connection_time and connection_time > 0:
             # Calculate duration from connection to now (approximate)
             current_time = time.time()
             duration_seconds = current_time - connection_time
             
-            if duration_seconds < 60:
+            # Debug logging
+            self.logger.debug(f"Session duration calculation for {player_name}:")
+            self.logger.debug(f"  Connection timestamp: {connection_event.timestamp if connection_event else 'None'}")
+            self.logger.debug(f"  Parsed connection time: {connection_time}")
+            self.logger.debug(f"  Current time: {current_time}")
+            self.logger.debug(f"  Duration seconds: {duration_seconds}")
+            
+            if duration_seconds < 0:
+                # Negative duration means timestamp parsing issue
+                self.logger.warning(f"Negative duration calculated for {player_name}: {duration_seconds}s")
+                return "Unknown"
+            elif duration_seconds < 60:
                 return "< 1m"
             elif duration_seconds < 3600:
                 minutes = int(duration_seconds // 60)
@@ -950,8 +964,9 @@ class GrimObserver:
                     return f"{hours}h"
                 else:
                     return f"{hours}h {minutes}m"
-        
-        return None
+        else:
+            self.logger.warning(f"Could not find valid connection time for {player_name}")
+            return "Unknown"
     
     def _check_peak_milestone(self, current_players: int) -> Optional[Dict]:
         """Check if we've reached a new peak or milestone and generate celebration message."""
@@ -1240,9 +1255,33 @@ class GrimObserver:
         try:
             # Convert [2025.08.09-22.09.34:324] to datetime
             dt_str = timestamp.replace('[', '').replace(']', '')
-            dt = datetime.strptime(dt_str, '%Y.%m.%d-%H.%M.%S:%f')
-            return dt.timestamp()
-        except Exception:
+            
+            # Try multiple timestamp formats
+            formats_to_try = [
+                '%Y.%m.%d-%H.%M.%S:%f',  # [2025.08.09-22.09.34:324]
+                '%Y.%m.%d-%H.%M.%S',     # [2025.08.09-22.09:34]
+                '%Y-%m-%d %H:%M:%S',     # 2025-08-09 22:09:34
+                '%Y/%m/%d %H:%M:%S',     # 2025/08/09 22:09:34
+                '%m/%d/%Y %H:%M:%S',     # 08/09/2025 22:09:34
+            ]
+            
+            for fmt in formats_to_try:
+                try:
+                    dt = datetime.strptime(dt_str, fmt)
+                    # Assume the timestamp is in local server time (not UTC)
+                    # Convert to Unix timestamp
+                    unix_timestamp = dt.timestamp()
+                    self.logger.debug(f"Successfully parsed timestamp '{timestamp}' with format '{fmt}' -> {unix_timestamp}")
+                    return unix_timestamp
+                except ValueError:
+                    continue
+            
+            # If none of the formats worked, log the original timestamp
+            self.logger.error(f"Could not parse timestamp '{timestamp}' with any known format")
+            return 0
+            
+        except Exception as e:
+            self.logger.error(f"Failed to parse timestamp '{timestamp}': {e}")
             return 0
     
     def run(self, interval: float = 1.0):
@@ -1313,6 +1352,82 @@ class GrimObserver:
             if event.event_type in ['player_connected', 'player_disconnected']:
                 print(payload['content'])
 
+    def debug_timestamp_parsing(self, sample_lines: List[str] = None):
+        """Debug timestamp parsing by testing sample log lines."""
+        if sample_lines is None:
+            # Get some sample lines from recent events
+            sample_lines = []
+            for event in self.events[-10:]:  # Last 10 events
+                if hasattr(event, 'raw_line') and event.raw_line:
+                    sample_lines.append(event.raw_line)
+                elif hasattr(event, 'timestamp'):
+                    sample_lines.append(f"[{event.timestamp}] Sample event")
+        
+        self.logger.info("=== TIMESTAMP PARSING DEBUG ===")
+        for i, line in enumerate(sample_lines):
+            self.logger.info(f"Sample line {i+1}: {line}")
+            
+            # Try to extract timestamp
+            timestamp_match = re.search(r'\[([^\]]+)\]', line)
+            if timestamp_match:
+                timestamp = timestamp_match.group(1)
+                parsed = self.parse_timestamp(timestamp)
+                self.logger.info(f"  Extracted timestamp: {timestamp}")
+                self.logger.info(f"  Parsed result: {parsed}")
+                if parsed > 0:
+                    dt = datetime.fromtimestamp(parsed)
+                    self.logger.info(f"  As datetime: {dt}")
+                else:
+                    self.logger.info(f"  Parsing failed!")
+            else:
+                self.logger.info(f"  No timestamp found in line")
+        self.logger.info("=== END TIMESTAMP DEBUG ===")
+    
+    def _get_session_duration(self, player_name: str) -> str:
+        """Calculate session duration for a player who just disconnected."""
+        # Find the most recent connection event for this player
+        # Note: Since we're running separate instances per map, all events are map-specific
+        connection_time = None
+        connection_event = None
+        
+        for event in reversed(self.events):
+            if event.event_type == 'player_connected' and event.player_name == player_name:
+                connection_event = event
+                connection_time = self.parse_timestamp(event.timestamp)
+                break
+        
+        if connection_time and connection_time > 0:
+            # Calculate duration from connection to now (approximate)
+            current_time = time.time()
+            duration_seconds = current_time - connection_time
+            
+            # Debug logging
+            self.logger.debug(f"Session duration calculation for {player_name}:")
+            self.logger.debug(f"  Connection timestamp: {connection_event.timestamp if connection_event else 'None'}")
+            self.logger.debug(f"  Parsed connection time: {connection_time}")
+            self.logger.debug(f"  Current time: {current_time}")
+            self.logger.debug(f"  Duration seconds: {duration_seconds}")
+            
+            if duration_seconds < 0:
+                # Negative duration means timestamp parsing issue
+                self.logger.warning(f"Negative duration calculated for {player_name}: {duration_seconds}s")
+                return "Unknown"
+            elif duration_seconds < 60:
+                return "< 1m"
+            elif duration_seconds < 3600:
+                minutes = int(duration_seconds // 60)
+                return f"{minutes}m"
+            else:
+                hours = int(duration_seconds // 3600)
+                minutes = int((duration_seconds % 3600) // 60)
+                if minutes == 0:
+                    return f"{hours}h"
+                else:
+                    return f"{hours}h {minutes}m"
+        else:
+            self.logger.warning(f"Could not find valid connection time for {player_name}")
+            return "Unknown"
+
 
 def load_secrets(map_name: Optional[str] = None) -> Dict[str, str]:
     """Load secrets from environment variables set by the batch wrapper.
@@ -1375,6 +1490,7 @@ def main():
     parser.add_argument('--main-image-url', help='Custom main image URL for empty server messages')
     parser.add_argument('--footer-icon-url', help='Custom footer icon URL for empty server messages')
     parser.add_argument('--no-random-images', action='store_true', help='Disable image randomization for empty server messages (use same images each time)')
+    parser.add_argument('--debug-timestamps', action='store_true', help='Enable timestamp parsing debugging to troubleshoot duration issues')
     
     args = parser.parse_args()
     
@@ -1400,6 +1516,7 @@ def main():
     print(f"[DEBUG] - main-image-url: {args.main_image_url}", file=sys.stderr)
     print(f"[DEBUG] - footer-icon-url: {args.footer_icon_url}", file=sys.stderr)
     print(f"[DEBUG] - no-random-images: {args.no_random_images}", file=sys.stderr)
+    print(f"[DEBUG] - debug-timestamps: {args.debug_timestamps}", file=sys.stderr)
     
     # Load secrets based on map parameter
     secrets = load_secrets(args.map)
@@ -1413,53 +1530,29 @@ def main():
             print("[GrimObserver][WARN] Set DISCORD_WEBHOOK_URL environment variable or create secrets file", file=sys.stderr)
     
     try:
+        # Create Grim Observer instance
         observer = GrimObserver(
             log_file_path=args.log_file,
+            discord_webhook_url=discord_webhook_url,
             output_file=args.output,
-            verbose=args.verbose,
-            discord_webhook_url=discord_webhook_url, # Pass the loaded URL
-            force_curl=args.force_curl,  # Pass the force-curl flag
-            map_name=args.map  # Pass the map name for Discord titles
+            empty_server_message_interval=args.empty_interval * 3600,  # Convert hours to seconds
+            use_rich_embeds=not args.no_rich_embeds,
+            force_curl=args.force_curl
         )
         
-        # Set the empty server interval from command line argument
-        observer.set_empty_server_interval(args.empty_interval)
-        
-        # Configure rich embeds
-        if args.no_rich_embeds:
-            observer.toggle_rich_embeds(False)
-            print("[GrimObserver][INFO] Rich embeds disabled for empty server messages.")
-        else:
-            print("[GrimObserver][INFO] Rich embeds enabled for empty server messages.")
-
-        # Set custom images if provided
+        # Apply custom image URLs if provided
         if args.thumbnail_url:
-            observer.set_empty_server_images(thumbnail=args.thumbnail_url)
-            print(f"[GrimObserver][INFO] Custom thumbnail image set to: {args.thumbnail_url}")
+            observer.empty_server_images['thumbnail'] = args.thumbnail_url
         if args.main_image_url:
-            observer.set_empty_server_images(main_image=args.main_image_url)
-            print(f"[GrimObserver][INFO] Custom main image set to: {args.main_image_url}")
+            observer.empty_server_images['main_image'] = args.main_image_url
         if args.footer_icon_url:
-            observer.set_empty_server_images(footer_icon=args.footer_icon_url)
-            print(f"[GrimObserver][INFO] Custom footer icon set to: {args.footer_icon_url}")
+            observer.empty_server_images['footer_icon'] = args.footer_icon_url
         
-        # Configure image randomization
-        if args.no_random_images:
-            observer.disable_image_randomization()
-            print("[GrimObserver][INFO] Image randomization disabled for empty server messages.")
-        else:
-            print("[GrimObserver][INFO] Image randomization enabled for empty server messages.")
-
-        if args.service:
-            # Windows service mode - basic implementation
-            print("[GrimObserver][INFO] Windows service mode activated")
-            print("[GrimObserver][INFO] Running as background service...")
-            print("[GrimObserver][INFO] Note: Full Windows service integration requires pywin32")
-            
-            # For now, just run in the background
-            observer.run(interval=args.interval)
-            return
+        # Enable timestamp debugging if requested
+        if args.debug_timestamps:
+            observer.debug_timestamp_parsing()
         
+        # Run based on mode
         if args.mode == 'scan':
             # Scan mode: process entire log and emit all events
             events = observer.scan_entire_log()
