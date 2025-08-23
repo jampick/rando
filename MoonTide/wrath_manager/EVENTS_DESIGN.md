@@ -171,7 +171,7 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 **Systems**: `PlayerActiveThirstMultiplier↑`, `PlayerIdleThirstMultiplier↓`, `StaminaRegenerationTime↑` (e.g., ~4.0 during peak), `PlayerStaminaCostSprintMultiplier↑`, `PlayerMovementSpeedScale↓`  
 **Intent**: travel and combat become resource games; the sun is the enemy  
 **Trigger**: seasonal midday windows in summer  
-**MOTD cue**: "Solar Flare: brutal heat and thirst—seek shade and water."  
+**MOTD cue**: "Solar Flare: brutal heat and thirst-seek shade and water."  
 **Operator tips**: remind players about water/ice; nudge caravan/supply play; movement/sprint speed merge multiplicatively to avoid additive speed-ups
 **Integration**: **Grim Observer** monitors player behavior changes and resource consumption patterns
 **Status**: **NOT CONFIGURED** in events.json
@@ -183,7 +183,7 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 **Systems**: `NightTimeSpeedScale↓`, `DayTimeSpeedScale↑`, `StaminaCostMultiplier↑`, `PlayerActiveHungerMultiplier↑`, `PlayerActiveThirstMultiplier↑`, `StaminaRegenerationTime↑`, `PlayerDamageTakenMultiplier↑`, `HealthbarVisibilityDistance↑`  
 **Intent**: test discipline and preparation; lights and teamwork matter  
 **Trigger**: solstice date window  
-**MOTD cue**: "Winter Solstice: longer nights and chill winds—bundle up."  
+**MOTD cue**: "Winter Solstice: longer nights and chill winds-bundle up."  
 **Operator tips**: consider themed rewards; advise torches, fur gear, campfires
 **Integration**: **Grim Observer** tracks night activity patterns and seasonal player behavior
 **Status**: **NOT CONFIGURED** in events.json
@@ -207,7 +207,7 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 **Systems**: `PlayerXPTimeMultiplier↑`, `PlayerXPRateMultiplier↑`, `PlayerXPKillMultiplier↑`, `PlayerXPHarvestMultiplier↑`, `PlayerXPCraftMultiplier↑`  
 **Intent**: a few nights a year where progression pops; bring new blood up to speed  
 **Trigger**: true blue moon with weekend window  
-**MOTD cue**: "Blue Moon: rare augury—unique loot and power await."  
+**MOTD cue**: "Blue Moon: rare augury-unique loot and power await."  
 **Operator tips**: advertise ahead; great for onboarding and catch‑up
 **Integration**: **Grim Observer** coordinates XP event notifications and player onboarding tracking
 **Status**: Currently **DISABLED** in events.json

@@ -26,7 +26,7 @@
         "name": "New Moon - The Calm",
         "motd": {
           "en": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
-          "ja": "新月：世界は安全だが、収穫は乏しい。探索し、築き、備えよ。"
+          "ja": "新月: 世界は安全だが、収穫は乏しい。探索し、築き、備えよ。"
         },
         "settings": {
           "ServerMessageOfTheDay": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
@@ -41,11 +41,11 @@
         "enabled": true,
         "name": "Waxing Crescent - The Stirring",
         "motd": {
-          "en": "Waxing Crescent: the Stirring—threats rising, gains growing.",
-          "ja": "三日月：脅威が増し、収穫も増え始める。"
+          "en": "Waxing Crescent: the Stirring-threats rising, gains growing.",
+          "ja": "三日月: 脅威が増し、収穫も増え始める。"
         },
         "settings": {
-          "ServerMessageOfTheDay": "Waxing Crescent: the Stirring—threats rising, gains growing.",
+          "ServerMessageOfTheDay": "Waxing Crescent: the Stirring-threats rising, gains growing.",
           "MaxAggroRange": 9000,
           "NPCMaxSpawnCapMultiplier": 1.0,
           "NPCRespawnMultiplier": 0.95,
@@ -57,11 +57,11 @@
         "enabled": true,
         "name": "First Quarter - The Ascent",
         "motd": {
-          "en": "First Quarter: the Ascent—adventure awaits; resources improving.",
-          "ja": "上弦の月：冒険が待ち受け、資源が豊かになる。"
+          "en": "First Quarter: the Ascent-adventure awaits; resources improving.",
+          "ja": "上弦の月: 冒険が待ち受け、資源が豊かになる。"
         },
         "settings": {
-          "ServerMessageOfTheDay": "First Quarter: the Ascent—adventure awaits; resources improving.",
+          "ServerMessageOfTheDay": "First Quarter: the Ascent-adventure awaits; resources improving.",
           "MaxAggroRange": 10500,
           "NPCMaxSpawnCapMultiplier": 1.2,
           "NPCRespawnMultiplier": 0.9,
@@ -73,11 +73,11 @@
         "enabled": true,
         "name": "Waxing Gibbous - The Surge",
         "motd": {
-          "en": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
-          "ja": "十三夜：敵は強く、報酬は豊かになる。"
+          "en": "Waxing Gibbous: the Surge-stronger foes, richer rewards.",
+          "ja": "十三夜: 敵は強く、報酬は豊かになる。"
         },
         "settings": {
-          "ServerMessageOfTheDay": "Waxing Gibbous: the Surge—stronger foes, richer rewards.",
+          "ServerMessageOfTheDay": "Waxing Gibbous: the Surge-stronger foes, richer rewards.",
           "MaxAggroRange": 12000,
           "NPCMaxSpawnCapMultiplier": 1.3,
           "NPCRespawnMultiplier": 0.85,
@@ -89,11 +89,11 @@
         "enabled": true,
         "name": "Full Moon - The Hunt",
         "motd": {
-          "en": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
-          "ja": "満月：敵は最強、収穫は最高潮。"
+          "en": "Full Moon: the Hunt-enemies at peak power; harvest at its best.",
+          "ja": "満月: 敵は最強、収穫は最高潮。"
         },
         "settings": {
-          "ServerMessageOfTheDay": "Full Moon: the Hunt—enemies at peak power; harvest at its best.",
+          "ServerMessageOfTheDay": "Full Moon: the Hunt-enemies at peak power; harvest at its best.",
           "MaxAggroRange": 15000,
           "NPCMaxSpawnCapMultiplier": 1.5,
           "NPCRespawnMultiplier": 0.75,
@@ -105,11 +105,11 @@
         "enabled": true,
         "name": "Waning Gibbous - The Fade",
         "motd": {
-          "en": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful.",
-          "ja": "十六夜：戦いの激しさは和らぐが、宝はまだ豊富だ。"
+          "en": "Waning Gibbous: the Fade-intensity easing; treasure still plentiful.",
+          "ja": "十六夜: 戦いの激しさは和らぐが、宝はまだ豊富だ。"
         },
         "settings": {
-          "ServerMessageOfTheDay": "Waning Gibbous: the Fade—intensity easing; treasure still plentiful.",
+          "ServerMessageOfTheDay": "Waning Gibbous: the Fade-intensity easing; treasure still plentiful.",
           "MaxAggroRange": 13000,
           "NPCMaxSpawnCapMultiplier": 1.4,
           "NPCRespawnMultiplier": 0.9,
@@ -121,11 +121,11 @@
         "enabled": true,
         "name": "Last Quarter - The Ebb",
         "motd": {
-          "en": "Last Quarter: the Ebb—press on; fortunes balancing.",
-          "ja": "下弦の月：進み続けよ。運は均衡へ向かう。"
+          "en": "Last Quarter: the Ebb-press on; fortunes balancing.",
+          "ja": "下弦の月: 進み続けよ。運は均衡へ向かう。"
         },
         "settings": {
-          "ServerMessageOfTheDay": "Last Quarter: the Ebb—press on; fortunes balancing.",
+          "ServerMessageOfTheDay": "Last Quarter: the Ebb-press on; fortunes balancing.",
           "MaxAggroRange": 10000,
           "NPCMaxSpawnCapMultiplier": 1.1,
           "NPCRespawnMultiplier": 0.95,
@@ -137,11 +137,11 @@
         "enabled": true,
         "name": "Waning Crescent - The Dusk",
         "motd": {
-          "en": "Waning Crescent: the Dusk—quiet returns; stock your stores.",
-          "ja": "二十六夜：静けさが戻る。備蓄を満たせ。"
+          "en": "Waning Crescent: the Dusk-quiet returns; stock your stores.",
+          "ja": "二十六夜: 静けさが戻る。備蓄を満たせ。"
         },
         "settings": {
-          "ServerMessageOfTheDay": "Waning Crescent: the Dusk—quiet returns; stock your stores.",
+          "ServerMessageOfTheDay": "Waning Crescent: the Dusk-quiet returns; stock your stores.",
           "MaxAggroRange": 8000,
           "NPCMaxSpawnCapMultiplier": 0.9,
           "NPCRespawnMultiplier": 1.05,
@@ -156,7 +156,7 @@
         "name": "Blood Moon - The Reckoning",
         "motd": {
           "en": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
-          "ja": "血の満月イベント：精鋭モンスターが徘徊する！ 危険は大きく、報酬もまた大きい。"
+          "ja": "血の満月イベント: 精鋭モンスターが徘徊する！ 危険は大きく、報酬もまた大きい。"
         },
         "trigger": {
           "type": "astronomical",
@@ -187,8 +187,8 @@
         "enabled": false,
         "name": "Blue Moon - The Forgotten Prophecy",
         "motd": {
-          "en": "Blue Moon: rare augury—unique loot and power await.",
-          "ja": "青い満月：稀なる兆し。特別な戦利品と力が待ち受ける。"
+          "en": "Blue Moon: rare augury-unique loot and power await.",
+          "ja": "青い満月: 稀なる兆し。特別な戦利品と力が待ち受ける。"
         },
         "trigger": {
           "type": "astronomical",
@@ -202,7 +202,7 @@
         },
         "settings": {
           "PlayerXPTimeMultiplier": 2.0,
-          "ServerMessageOfTheDay": "Blue Moon: rare augury—unique loot and power await.",
+          "ServerMessageOfTheDay": "Blue Moon: rare augury-unique loot and power await.",
           "PlayerXPRateMultiplier": 4.0,
           "PlayerXPKillMultiplier": 2.0,
           "PlayerXPHarvestMultiplier": 1.5,
