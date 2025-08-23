@@ -26,7 +26,7 @@
         "name": "New Moon - The Calm",
         "motd": {
           "en": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
-          "ja": "新月: 世界は安全だが、収穫は乏しい。探索し、築き、備えよ。"
+          "ja": "新月：敵は消極的、収穫は乏しい。探索し、築き、備えよ。"
         },
         "settings": {
           "ServerMessageOfTheDay": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
@@ -42,7 +42,7 @@
         "name": "Waxing Crescent - The Stirring",
         "motd": {
           "en": "Waxing Crescent: the Stirring-threats rising, gains growing.",
-          "ja": "三日月: 脅威が増し、収穫も増え始める。"
+          "ja": "三日月：敵が活発化、収穫も増え始める。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waxing Crescent: the Stirring-threats rising, gains growing.",
@@ -58,7 +58,7 @@
         "name": "First Quarter - The Ascent",
         "motd": {
           "en": "First Quarter: the Ascent-adventure awaits; resources improving.",
-          "ja": "上弦の月: 冒険が待ち受け、資源が豊かになる。"
+          "ja": "上弦の月：敵は成長中。資源が豊かに。"
         },
         "settings": {
           "ServerMessageOfTheDay": "First Quarter: the Ascent-adventure awaits; resources improving.",
@@ -74,7 +74,7 @@
         "name": "Waxing Gibbous - The Surge",
         "motd": {
           "en": "Waxing Gibbous: the Surge-stronger foes, richer rewards.",
-          "ja": "十三夜: 敵は強く、報酬は豊かになる。"
+          "ja": "十三夜：強敵が増加。豊作"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waxing Gibbous: the Surge-stronger foes, richer rewards.",
@@ -90,7 +90,7 @@
         "name": "Full Moon - The Hunt",
         "motd": {
           "en": "Full Moon: the Hunt-enemies at peak power; harvest at its best.",
-          "ja": "満月: 敵は最強、収穫は最高潮。"
+          "ja": "満月：狩りの時：敵は狂暴化、収穫は最大"
         },
         "settings": {
           "ServerMessageOfTheDay": "Full Moon: the Hunt-enemies at peak power; harvest at its best.",
@@ -106,7 +106,7 @@
         "name": "Waning Gibbous - The Fade",
         "motd": {
           "en": "Waning Gibbous: the Fade-intensity easing; treasure still plentiful.",
-          "ja": "十六夜: 戦いの激しさは和らぐが、宝はまだ豊富だ。"
+          "ja": "十六夜：敵の強さは若干和らぐが、収穫はまだ豊富。"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waning Gibbous: the Fade-intensity easing; treasure still plentiful.",
@@ -122,7 +122,7 @@
         "name": "Last Quarter - The Ebb",
         "motd": {
           "en": "Last Quarter: the Ebb-press on; fortunes balancing.",
-          "ja": "下弦の月: 進み続けよ。運は均衡へ向かう。"
+          "ja": "下弦の月：敵の脅威、収穫のバランス"
         },
         "settings": {
           "ServerMessageOfTheDay": "Last Quarter: the Ebb-press on; fortunes balancing.",
@@ -138,7 +138,7 @@
         "name": "Waning Crescent - The Dusk",
         "motd": {
           "en": "Waning Crescent: the Dusk-quiet returns; stock your stores.",
-          "ja": "二十六夜: 静けさが戻る。備蓄を満たせ。"
+          "ja": "二十六夜：静けさが戻り、大地がやせ細る"
         },
         "settings": {
           "ServerMessageOfTheDay": "Waning Crescent: the Dusk-quiet returns; stock your stores.",
@@ -156,7 +156,7 @@
         "name": "Blood Moon - The Reckoning",
         "motd": {
           "en": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
-          "ja": "血の満月イベント: 精鋭モンスターが徘徊する！ 危険は大きく、報酬もまた大きい。"
+          "ja": "血の満月イベント：目の血走る狂暴な敵が徘徊している。収穫は今までにない豊作。"
         },
         "trigger": {
           "type": "astronomical",
@@ -188,7 +188,7 @@
         "name": "Blue Moon - The Forgotten Prophecy",
         "motd": {
           "en": "Blue Moon: rare augury-unique loot and power await.",
-          "ja": "青い満月: 稀なる兆し。特別な戦利品と力が待ち受ける。"
+          "ja": "青い満月：稀なる希望の兆し。豊穣の女神が君臨し、人々に加護を与える"
         },
         "trigger": {
           "type": "astronomical",
@@ -215,11 +215,11 @@
   "motd": {
     "languages": ["en", "ja"],
     "header": {
-      "en": "Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>Join the warband: discord.gg/g7D3GzVrDt",
-      "ja": "クロムはお前の運命に興味はない。<BR>これはムーンタイドだ。耐えよ、さもなくば滅べ。<BR>戦団に参加: discord.gg/g7D3GzVrDt"
+      "en": "discord.gg/g7D3GzVrDt<BR><BR>Crom cares not for your fate.<BR>This is MoonTide. Endure or perish.<BR>",
+      "ja": "クロム神はお前の運命に興味を持たぬ。<BR>ここは月の地、ムーンタイド。耐えよ、さもなくば滅べ。<BR>"
     },
     "footer": {
-      "en": "Fight. Build. Bleed. Survive the night.",
+      "en": "Fight. Build. Bleed. Survive the night.<BR>",
       "ja": "戦え。築け。血を流せ。夜を生き延びろ。"
     },
     "always_include": true
