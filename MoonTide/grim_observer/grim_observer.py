@@ -24,7 +24,7 @@ import time
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, UTC
 import logging
 import random # Added for peak milestone messages
 
@@ -60,7 +60,7 @@ class LogEvent:
         self.ip_address = ip_address
         self.player_id = player_id
         self.raw_line = raw_line
-        self.parsed_at = datetime.now().isoformat()
+        self.parsed_at = datetime.now(UTC).isoformat()
     
     def to_dict(self) -> Dict:
         """Convert event to dictionary for serialization."""
@@ -843,7 +843,7 @@ class GrimObserver:
         print(f"{'='*80}")
         print(f"Total events: {len(events)}")
         print(f"Log file: {self.log_file_path}")
-        print(f"Scan time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Scan time: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"{'='*80}\n")
         
         # Group events by type
@@ -940,7 +940,8 @@ class GrimObserver:
         
         if connection_time and connection_time > 0:
             # Calculate duration from connection to now (approximate)
-            current_time = time.time()
+            # Use UTC timestamp for consistency
+            current_time = datetime.now(UTC).timestamp()
             duration_seconds = current_time - connection_time
             
             # Debug logging
@@ -971,6 +972,7 @@ class GrimObserver:
                             self.logger.info(f"Using event-based duration for {player_name}: {event_duration}s")
                             return self._format_duration(event_duration)
                 
+                # If we still can't get a valid duration, return a safe default
                 return "Unknown"
             elif duration_seconds < 60:
                 return "< 1m"
@@ -1123,7 +1125,7 @@ class GrimObserver:
     
     def _get_time_context(self) -> dict:
         """Get time-based context for seasonal variations."""
-        now = datetime.now()
+        now = datetime.now(UTC)
         hour = now.hour
         
         # Determine time of day
@@ -1209,7 +1211,7 @@ class GrimObserver:
                     "text": random.choice(self.empty_server_footer_variations),
                     "icon_url": self.empty_server_images["footer_icon"]
                 },
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(UTC).isoformat()
             }
             
             return {
@@ -1278,7 +1280,7 @@ class GrimObserver:
     
     def get_recent_events(self, minutes: int = 10) -> List[LogEvent]:
         """Get events from the last N minutes."""
-        cutoff_time = datetime.now().timestamp() - (minutes * 60)
+        cutoff_time = datetime.now(UTC).timestamp() - (minutes * 60)
         return [e for e in self.events if self.parse_timestamp(e.timestamp) > cutoff_time]
     
     def parse_timestamp(self, timestamp: str) -> float:
@@ -1299,10 +1301,12 @@ class GrimObserver:
             for fmt in formats_to_try:
                 try:
                     dt = datetime.strptime(dt_str, fmt)
+                    # Make the parsed datetime timezone-aware by assuming UTC
+                    dt = dt.replace(tzinfo=UTC)
                     
                     # Handle timezone issues: server timestamps might be in different timezone
                     # Use UTC time for consistent comparison
-                    current_utc = datetime.utcnow()
+                    current_utc = datetime.now(UTC)
                     server_time = dt
                     
                     # If server time is more than 24 hours in the future relative to current time,
@@ -1312,14 +1316,25 @@ class GrimObserver:
                         # Server time is likely in a different timezone, treat as relative
                         # Use current time as baseline and calculate relative duration
                         self.logger.debug(f"Server timestamp '{timestamp}' appears to be in different timezone, adjusting calculation")
-                        return current_utc.timestamp() - time_diff
+                        # Don't subtract time_diff as it would make it negative
+                        # Instead, treat it as a relative offset from current time
+                        return current_utc.timestamp()
                     elif time_diff < -86400:  # More than 24 hours behind
                         # Server time is likely in the past, treat as relative
                         self.logger.debug(f"Server timestamp '{timestamp}' appears to be in the past, adjusting calculation")
-                        return current_utc.timestamp() + abs(time_diff)
+                        # Don't add abs(time_diff) as it would make it far in the future
+                        # Instead, treat it as a relative offset from current time
+                        return current_utc.timestamp()
                     else:
                         # Server time is within reasonable range, use as-is
                         unix_timestamp = dt.timestamp()
+                        
+                        # Additional validation: ensure timestamp is not too far in the past or future
+                        current_timestamp = current_utc.timestamp()
+                        if abs(unix_timestamp - current_timestamp) > 86400 * 365:  # More than 1 year difference
+                            self.logger.warning(f"Timestamp '{timestamp}' is more than 1 year from current time, using current time instead")
+                            return current_timestamp
+                        
                         self.logger.debug(f"Server timestamp '{timestamp}' parsed successfully with format '{fmt}' -> {unix_timestamp}")
                         return unix_timestamp
                         
