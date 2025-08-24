@@ -6,7 +6,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    host: true
+    host: '0.0.0.0', // Bind to all network interfaces
+    strictPort: true,
+    // Allow external network access
+    hmr: {
+      host: '0.0.0.0'
+    }
   },
   build: {
     outDir: 'dist',

@@ -20,6 +20,7 @@ import {
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline'
 import axios from 'axios'
+import { API_CONFIG } from '../config'
 
 interface StatisticsData {
   total_incidents: number
@@ -54,7 +55,7 @@ const Statistics: React.FC = () => {
 
   const fetchStatistics = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/statistics/overview')
+      const response = await axios.get(API_CONFIG.getApiUrl('/api/statistics/overview'))
       setStats(response.data)
     } catch (err) {
       setError('Failed to load statistics')
@@ -67,7 +68,7 @@ const Statistics: React.FC = () => {
   const fetchTrends = async () => {
     try {
       console.log('Fetching trends for period:', selectedPeriod)
-      const response = await axios.get(`http://localhost:8000/api/statistics/trends?period=${selectedPeriod}`)
+      const response = await axios.get(API_CONFIG.getApiUrl(`/api/statistics/trends?period=${selectedPeriod}`))
       console.log('Trends response:', response.data)
       setTrends(response.data.trends)
       console.log('Trends state updated:', response.data.trends.length, 'items')

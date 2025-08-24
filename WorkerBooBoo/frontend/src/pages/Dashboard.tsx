@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { format } from 'date-fns'
 import axios from 'axios'
+import { API_CONFIG } from '../config'
 
 interface DashboardStats {
   total_incidents: number
@@ -31,7 +32,7 @@ const Dashboard: React.FC = () => {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true)
-      const response = await axios.get('http://localhost:8000/api/statistics/overview')
+      const response = await axios.get(API_CONFIG.getApiUrl('/api/statistics/overview'))
       setStats(response.data)
     } catch (err) {
       setError('Failed to load dashboard statistics')

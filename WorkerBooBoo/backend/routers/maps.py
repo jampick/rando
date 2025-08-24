@@ -17,6 +17,7 @@ async def get_map_incidents(
     start_date: Optional[datetime] = Query(None, description="Start date filter"),
     end_date: Optional[datetime] = Query(None, description="End date filter"),
     industry: Optional[str] = Query(None, description="Industry filter"),
+    state: Optional[str] = Query(None, description="State filter"),
     limit: int = Query(1000, ge=1, le=5000),
     db: Session = Depends(get_db)
 ):
@@ -36,6 +37,70 @@ async def get_map_incidents(
         query = query.filter(WorkplaceIncident.incident_date <= end_date)
     if industry:
         query = query.filter(WorkplaceIncident.industry.ilike(f"%{industry}%"))
+    if state:
+        # Handle state filtering with proper state abbreviation matching
+        state_upper = state.upper().strip()
+        
+        # Define state mappings for common abbreviations
+        state_mappings = {
+            'WA': ['WA', 'WASHINGTON'],
+            'CA': ['CA', 'CALIFORNIA'],
+            'TX': ['TX', 'TEXAS'],
+            'NY': ['NY', 'NEW YORK'],
+            'FL': ['FL', 'FLORIDA'],
+            'PA': ['PA', 'PENNSYLVANIA'],
+            'OH': ['OH', 'OHIO'],
+            'IL': ['IL', 'ILLINOIS'],
+            'GA': ['GA', 'GEORGIA'],
+            'NC': ['NC', 'NORTH CAROLINA'],
+            'MI': ['MI', 'MICHIGAN'],
+            'VA': ['VA', 'VIRGINIA'],
+            'TN': ['TN', 'TENNESSEE'],
+            'IN': ['IN', 'INDIANA'],
+            'MO': ['MO', 'MISSOURI'],
+            'WI': ['WI', 'WISCONSIN'],
+            'MN': ['MN', 'MINNESOTA'],
+            'CO': ['CO', 'COLORADO'],
+            'AL': ['AL', 'ALABAMA'],
+            'SC': ['SC', 'SOUTH CAROLINA'],
+            'LA': ['LA', 'LOUISIANA'],
+            'KY': ['KY', 'KENTUCKY'],
+            'OR': ['OR', 'OREGON'],
+            'OK': ['OK', 'OKLAHOMA'],
+            'AR': ['AR', 'ARKANSAS'],
+            'MS': ['MS', 'MISSISSIPPI'],
+            'KS': ['KS', 'KANSAS'],
+            'IA': ['IA', 'IOWA'],
+            'NE': ['NE', 'NEBRASKA'],
+            'ID': ['ID', 'IDAHO'],
+            'NV': ['NV', 'NEVADA'],
+            'UT': ['UT', 'UTAH'],
+            'AZ': ['AZ', 'ARIZONA'],
+            'NM': ['NM', 'NEW MEXICO'],
+            'MT': ['MT', 'MONTANA'],
+            'WY': ['WY', 'WYOMING'],
+            'ND': ['ND', 'NORTH DAKOTA'],
+            'SD': ['SD', 'SOUTH DAKOTA'],
+            'DE': ['DE', 'DELAWARE'],
+            'MD': ['MD', 'MARYLAND'],
+            'NJ': ['NJ', 'NEW JERSEY'],
+            'CT': ['CT', 'CONNECTICUT'],
+            'RI': ['RI', 'RHODE ISLAND'],
+            'MA': ['MA', 'MASSACHUSETTS'],
+            'VT': ['VT', 'VERMONT'],
+            'NH': ['NH', 'NEW HAMPSHIRE'],
+            'ME': ['ME', 'MAINE'],
+            'HI': ['HI', 'HAWAII'],
+            'AK': ['AK', 'ALASKA']
+        }
+        
+        if state_upper in state_mappings:
+            # Use the predefined state mappings
+            valid_states = state_mappings[state_upper]
+            query = query.filter(WorkplaceIncident.state.in_(valid_states))
+        else:
+            # Fallback to exact match for unknown states
+            query = query.filter(WorkplaceIncident.state == state_upper)
     
     # Apply geographic bounds if provided
     if bounds:
@@ -82,7 +147,8 @@ async def get_map_incidents(
             "incident_type": incident_type,
             "start_date": start_date.isoformat() if start_date else None,
             "end_date": end_date.isoformat() if end_date else None,
-            "industry": industry
+            "industry": industry,
+            "state": state
         }
     }
 
@@ -191,6 +257,7 @@ async def get_heatmap_data(
     incident_type: Optional[str] = Query(None, description="Filter by incident type"),
     start_date: Optional[datetime] = Query(None, description="Start date filter"),
     end_date: Optional[datetime] = Query(None, description="End date filter"),
+    state: Optional[str] = Query(None, description="State filter"),
     db: Session = Depends(get_db)
 ):
     """Get heatmap data for incidents"""
@@ -215,6 +282,70 @@ async def get_heatmap_data(
         query = query.filter(WorkplaceIncident.incident_date >= start_date)
     if end_date:
         query = query.filter(WorkplaceIncident.incident_date <= end_date)
+    if state:
+        # Handle state filtering with proper state abbreviation matching
+        state_upper = state.upper().strip()
+        
+        # Define state mappings for common abbreviations
+        state_mappings = {
+            'WA': ['WA', 'WASHINGTON'],
+            'CA': ['CA', 'CALIFORNIA'],
+            'TX': ['TX', 'TEXAS'],
+            'NY': ['NY', 'NEW YORK'],
+            'FL': ['FL', 'FLORIDA'],
+            'PA': ['PA', 'PENNSYLVANIA'],
+            'OH': ['OH', 'OHIO'],
+            'IL': ['IL', 'ILLINOIS'],
+            'GA': ['GA', 'GEORGIA'],
+            'NC': ['NC', 'NORTH CAROLINA'],
+            'MI': ['MI', 'MICHIGAN'],
+            'VA': ['VA', 'VIRGINIA'],
+            'TN': ['TN', 'TENNESSEE'],
+            'IN': ['IN', 'INDIANA'],
+            'MO': ['MO', 'MISSOURI'],
+            'WI': ['WI', 'WISCONSIN'],
+            'MN': ['MN', 'MINNESOTA'],
+            'CO': ['CO', 'COLORADO'],
+            'AL': ['AL', 'ALABAMA'],
+            'SC': ['SC', 'SOUTH CAROLINA'],
+            'LA': ['LA', 'LOUISIANA'],
+            'KY': ['KY', 'KENTUCKY'],
+            'OR': ['OR', 'OREGON'],
+            'OK': ['OK', 'OKLAHOMA'],
+            'AR': ['AR', 'ARKANSAS'],
+            'MS': ['MS', 'MISSISSIPPI'],
+            'KS': ['KS', 'KANSAS'],
+            'IA': ['IA', 'IOWA'],
+            'NE': ['NE', 'NEBRASKA'],
+            'ID': ['ID', 'IDAHO'],
+            'NV': ['NV', 'NEVADA'],
+            'UT': ['UT', 'UTAH'],
+            'AZ': ['AZ', 'ARIZONA'],
+            'NM': ['NM', 'NEW MEXICO'],
+            'MT': ['MT', 'MONTANA'],
+            'WY': ['WY', 'WYOMING'],
+            'ND': ['ND', 'NORTH DAKOTA'],
+            'SD': ['SD', 'SOUTH DAKOTA'],
+            'DE': ['DE', 'DELAWARE'],
+            'MD': ['MD', 'MARYLAND'],
+            'NJ': ['NJ', 'NEW JERSEY'],
+            'CT': ['CT', 'CONNECTICUT'],
+            'RI': ['RI', 'RHODE ISLAND'],
+            'MA': ['MA', 'MASSACHUSETTS'],
+            'VT': ['VT', 'VERMONT'],
+            'NH': ['NH', 'NEW HAMPSHIRE'],
+            'ME': ['ME', 'MAINE'],
+            'HI': ['HI', 'HAWAII'],
+            'AK': ['AK', 'ALASKA']
+        }
+        
+        if state_upper in state_mappings:
+            # Use the predefined state mappings
+            valid_states = state_mappings[state_upper]
+            query = query.filter(WorkplaceIncident.state.in_(valid_states))
+        else:
+            # Fallback to exact match for unknown states
+            query = query.filter(WorkplaceIncident.state == state_upper)
     
     incidents = query.all()
     
@@ -237,7 +368,8 @@ async def get_heatmap_data(
         "filters": {
             "incident_type": incident_type,
             "start_date": start_date.isoformat() if start_date else None,
-            "end_date": end_date.isoformat() if end_date else None
+            "end_date": end_date.isoformat() if end_date else None,
+            "state": state
         }
     }
 

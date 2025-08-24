@@ -372,6 +372,11 @@ class EnhancedCSVImporter:
     
     def _create_new_record(self, record: Dict) -> WorkplaceIncident:
         """Create a new WorkplaceIncident record"""
+        # Convert date strings to datetime objects
+        incident_date = self._parse_date(record.get('incident_date'))
+        created_at = self._parse_date(record.get('created_at')) or datetime.now()
+        updated_at = self._parse_date(record.get('updated_at')) or datetime.now()
+        
         return WorkplaceIncident(
             osha_id=record.get('osha_id'),
             company_name=record.get('company_name'),
@@ -381,7 +386,7 @@ class EnhancedCSVImporter:
             zip_code=record.get('zip_code'),
             latitude=record.get('latitude'),
             longitude=record.get('longitude'),
-            incident_date=record.get('incident_date'),
+            incident_date=incident_date,
             incident_type=record.get('incident_type'),
             industry=record.get('industry'),
             naics_code=record.get('naics_code'),
@@ -389,9 +394,40 @@ class EnhancedCSVImporter:
             investigation_status=record.get('investigation_status'),
             citations_issued=record.get('citations_issued'),
             penalty_amount=record.get('penalty_amount'),
-            created_at=datetime.now(),
-            updated_at=datetime.now()
+            created_at=created_at,
+            updated_at=updated_at
         )
+    
+    def _parse_date(self, date_value) -> Optional[datetime]:
+        """Parse date value from various formats"""
+        if not date_value or pd.isna(date_value):
+            return None
+        
+        if isinstance(date_value, datetime):
+            return date_value
+        
+        if isinstance(date_value, str):
+            # Try multiple date formats
+            date_formats = [
+                '%Y-%m-%d',
+                '%Y-%m-%d %H:%M:%S',
+                '%m/%d/%Y',
+                '%m/%d/%Y %H:%M:%S'
+            ]
+            
+            for fmt in date_formats:
+                try:
+                    return datetime.strptime(date_value, fmt)
+                except ValueError:
+                    continue
+            
+            # If all formats fail, try pandas parsing
+            try:
+                return pd.to_datetime(date_value)
+            except:
+                pass
+        
+        return None
     
     def _update_existing_record(self, existing_record: WorkplaceIncident, new_data: Dict):
         """Update existing record with new data"""
@@ -411,7 +447,7 @@ class EnhancedCSVImporter:
         if new_data.get('longitude'):
             existing_record.longitude = new_data['longitude']
         if new_data.get('incident_date'):
-            existing_record.incident_date = new_data['incident_date']
+            existing_record.incident_date = self._parse_date(new_data['incident_date'])
         if new_data.get('incident_type'):
             existing_record.incident_type = new_data['incident_type']
         if new_data.get('industry'):
