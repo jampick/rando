@@ -18,11 +18,23 @@ async def get_incidents(
     state: Optional[str] = Query(None, description="State filter"),
     city: Optional[str] = Query(None, description="City filter"),
     naics_code: Optional[str] = Query(None, description="NAICS code filter"),
+    search: Optional[str] = Query(None, description="Search in company name, address, or description"),
+    citations_issued: Optional[bool] = Query(None, description="Filter by citations issued"),
+    min_penalty: Optional[float] = Query(None, description="Minimum penalty amount"),
+    max_penalty: Optional[float] = Query(None, description="Maximum penalty amount"),
+    sort_by: Optional[str] = Query("incident_date", description="Field to sort by"),
+    sort_order: Optional[str] = Query("desc", description="Sort order (asc/desc)"),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db)
 ):
     """Get incidents with filtering and pagination"""
+    
+    # Validate pagination parameters
+    if offset < 0:
+        raise HTTPException(status_code=422, detail="Offset must be non-negative")
+    if limit < 1 or limit > 1000:
+        raise HTTPException(status_code=422, detail="Limit must be between 1 and 1000")
     
     query = db.query(WorkplaceIncident)
     
@@ -41,6 +53,41 @@ async def get_incidents(
         query = query.filter(WorkplaceIncident.city.ilike(f"%{city}%"))
     if naics_code:
         query = query.filter(WorkplaceIncident.naics_code == naics_code)
+    if citations_issued is not None:
+        query = query.filter(WorkplaceIncident.citations_issued == citations_issued)
+    if min_penalty is not None:
+        query = query.filter(WorkplaceIncident.penalty_amount >= min_penalty)
+    if max_penalty is not None:
+        query = query.filter(WorkplaceIncident.penalty_amount <= max_penalty)
+    
+    # Apply search
+    if search:
+        search_filter = or_(
+            WorkplaceIncident.company_name.ilike(f"%{search}%"),
+            WorkplaceIncident.address.ilike(f"%{search}%"),
+            WorkplaceIncident.description.ilike(f"%{search}%")
+        )
+        query = query.filter(search_filter)
+    
+    # Apply sorting
+    if sort_by == "incident_date":
+        if sort_order == "asc":
+            query = query.order_by(WorkplaceIncident.incident_date.asc())
+        else:
+            query = query.order_by(WorkplaceIncident.incident_date.desc())
+    elif sort_by == "company_name":
+        if sort_order == "asc":
+            query = query.order_by(WorkplaceIncident.company_name.asc())
+        else:
+            query = query.order_by(WorkplaceIncident.company_name.desc())
+    elif sort_by == "penalty_amount":
+        if sort_order == "asc":
+            query = query.order_by(WorkplaceIncident.penalty_amount.asc())
+        else:
+            query = query.order_by(WorkplaceIncident.penalty_amount.desc())
+    else:
+        # Default sorting by incident_date desc
+        query = query.order_by(WorkplaceIncident.incident_date.desc())
     
     # Get total count
     total = query.count()

@@ -37,8 +37,18 @@ async def get_statistics_overview(
     total_fatalities = query.filter(WorkplaceIncident.incident_type == "fatality").count()
     total_injuries = query.filter(WorkplaceIncident.incident_type == "injury").count()
     
-    # Incidents by year
-    incidents_by_year = db.query(
+    # Incidents by year (apply same filters)
+    year_query = db.query(WorkplaceIncident)
+    if start_date:
+        year_query = year_query.filter(WorkplaceIncident.incident_date >= start_date)
+    if end_date:
+        year_query = year_query.filter(WorkplaceIncident.incident_date <= end_date)
+    if state:
+        year_query = year_query.filter(WorkplaceIncident.state.ilike(f"%{state}%"))
+    if industry:
+        year_query = year_query.filter(WorkplaceIncident.industry.ilike(f"%{industry}%"))
+    
+    incidents_by_year = year_query.with_entities(
         extract('year', WorkplaceIncident.incident_date).label('year'),
         func.count(WorkplaceIncident.id).label('count')
     ).filter(
@@ -168,56 +178,70 @@ async def get_geographic_statistics(
 ):
     """Get geographic distribution statistics"""
     
-    # States with most incidents
-    top_states = db.query(
-        WorkplaceIncident.state,
-        func.count(WorkplaceIncident.id).label('count'),
-        func.sum(func.case([(WorkplaceIncident.incident_type == 'fatality', 1)], else_=0)).label('fatalities')
-    ).group_by(WorkplaceIncident.state).order_by(
-        func.count(WorkplaceIncident.id).desc()
-    ).limit(10).all()
+    # Get all incidents for processing
+    incidents = db.query(WorkplaceIncident).all()
     
-    # Cities with most incidents
-    top_cities = db.query(
-        WorkplaceIncident.city,
-        WorkplaceIncident.state,
-        func.count(WorkplaceIncident.id).label('count')
-    ).group_by(WorkplaceIncident.city, WorkplaceIncident.state).order_by(
-        func.count(WorkplaceIncident.id).desc()
-    ).limit(15).all()
+    # Process states with most incidents
+    state_counts = {}
+    for incident in incidents:
+        if incident.state not in state_counts:
+            state_counts[incident.state] = {'total': 0, 'fatalities': 0}
+        state_counts[incident.state]['total'] += 1
+        if incident.incident_type == 'fatality':
+            state_counts[incident.state]['fatalities'] += 1
     
-    # Geographic coordinates summary
-    geo_summary = db.query(
-        func.avg(WorkplaceIncident.latitude).label('avg_lat'),
-        func.avg(WorkplaceIncident.longitude).label('avg_lng'),
-        func.count(WorkplaceIncident.latitude.isnot(None)).label('geocoded_count'),
-        func.count(WorkplaceIncident.id).label('total_count')
-    ).first()
+    # Sort states by total incidents
+    top_states = sorted(state_counts.items(), key=lambda x: x[1]['total'], reverse=True)[:10]
+    
+    # Process cities with most incidents
+    city_counts = {}
+    for incident in incidents:
+        city_key = (incident.city, incident.state)
+        if city_key not in city_counts:
+            city_counts[city_key] = 0
+        city_counts[city_key] += 1
+    
+    # Sort cities by total incidents
+    top_cities = sorted(city_counts.items(), key=lambda x: x[1], reverse=True)[:15]
+    
+    # Calculate geographic summary
+    total_count = len(incidents)
+    geocoded_count = sum(1 for incident in incidents if incident.latitude is not None and incident.longitude is not None)
+    
+    # Calculate center coordinates
+    valid_coords = [(incident.latitude, incident.longitude) for incident in incidents 
+                    if incident.latitude is not None and incident.longitude is not None]
+    
+    if valid_coords:
+        avg_lat = sum(coord[0] for coord in valid_coords) / len(valid_coords)
+        avg_lng = sum(coord[1] for coord in valid_coords) / len(valid_coords)
+    else:
+        avg_lat = avg_lng = None
     
     return {
         "top_states": [
             {
-                "state": row.state,
-                "total_incidents": row.count,
-                "fatalities": row.fatalities
+                "state": state,
+                "total_incidents": data['total'],
+                "fatalities": data['fatalities']
             }
-            for row in top_states
+            for state, data in top_states
         ],
         "top_cities": [
             {
-                "city": row.city,
-                "state": row.state,
-                "total_incidents": row.count
+                "city": city,
+                "state": state,
+                "total_incidents": count
             }
-            for row in top_cities
+            for (city, state), count in top_cities
         ],
         "geographic_coverage": {
-            "geocoded_incidents": geo_summary.geocoded_count,
-            "total_incidents": geo_summary.total_count,
-            "coverage_percentage": round((geo_summary.geocoded_count / geo_summary.total_count) * 100, 2) if geo_summary.total_count > 0 else 0,
+            "geocoded_incidents": geocoded_count,
+            "total_incidents": total_count,
+            "coverage_percentage": round((geocoded_count / total_count) * 100, 2) if total_count > 0 else 0,
             "center_coordinates": {
-                "latitude": float(geo_summary.avg_lat) if geo_summary.avg_lat else None,
-                "longitude": float(geo_summary.avg_lng) if geo_summary.avg_lng else None
+                "latitude": float(avg_lat) if avg_lat else None,
+                "longitude": float(avg_lng) if avg_lng else None
             }
         }
     }
