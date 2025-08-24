@@ -21,6 +21,28 @@ A web application that visualizes workplace injuries and fatalities using OSHA d
 
 ## Quick Start
 
+### 🍎 macOS / Linux
+```bash
+# Make scripts executable
+chmod +x *.sh
+
+# One-click startup (recommended)
+./start_all.sh
+
+# Or start individually
+./start_backend.sh    # Terminal 1
+./start_frontend.sh   # Terminal 2
+```
+
+### 🪟 Windows
+```bash
+# Double-click the batch files
+start_all.bat         # One-click startup
+start_backend.bat     # Backend only
+start_frontend.bat    # Frontend only
+```
+
+### 📋 Manual Setup
 1. **Install Dependencies**
    ```bash
    # Backend
@@ -42,7 +64,7 @@ A web application that visualizes workplace injuries and fatalities using OSHA d
    ```bash
    # Backend (Terminal 1)
    cd backend
-   uvicorn main:app --reload
+   python main.py
    
    # Frontend (Terminal 2)
    cd frontend
@@ -75,3 +97,9 @@ WorkerBooBoo/
 ## Contributing
 
 This is a prototype for workplace safety awareness. Please ensure all data handling follows privacy and security best practices.
+
+## 📚 Documentation
+
+- **Mac/Linux**: [QUICK_START_MAC.md](QUICK_START_MAC.md)
+- **Windows**: [QUICK_START.md](QUICK_START.md)
+- **General**: [QUICK_START.md](QUICK_START.md)
