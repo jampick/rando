@@ -35,7 +35,7 @@ async def get_statistics_overview(
     # Total counts
     total_incidents = query.count()
     total_fatalities = query.filter(WorkplaceIncident.incident_type == "fatality").count()
-    total_injuries = query.filter(WorkplaceIncident.incident_type == "injury").count()
+    total_injuries = query.filter(WorkplaceIncident.incident_type != "fatality").count()
     
     # Incidents by year (apply same filters)
     year_query = db.query(WorkplaceIncident)
@@ -151,7 +151,7 @@ async def get_trends(
         
         if incident.incident_type == 'fatality':
             trends_data[key]['fatalities'] += 1
-        elif incident.incident_type == 'injury':
+        else:
             trends_data[key]['injuries'] += 1
     
     # Convert to sorted list

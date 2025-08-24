@@ -21,6 +21,15 @@ build/
 *.sqlite
 *.sqlite3
 
+# Data files (OSHA data, CSV files, etc.)
+data/osha/
+*.csv
+*.xlsx
+*.xls
+data/*.csv
+data/*.xlsx
+data/*.xls
+
 # Environment variables
 .env
 .env.local

@@ -28,6 +28,7 @@ class OSHACSVImporter:
         # Common OSHA CSV column mappings
         self.column_mappings = {
             # Standard OSHA columns
+            'osha_id': ['osha_id', 'id', 'incident_id', 'case_id'],
             'company_name': ['company_name', 'employer', 'establishment', 'company', 'employer_name'],
             'address': ['address', 'street_address', 'location', 'street'],
             'city': ['city', 'city_name', 'municipality'],
@@ -152,15 +153,31 @@ class OSHACSVImporter:
                     value = False
                 elif target_field == 'penalty_amount' and not value:
                     value = 0.0
-                elif target_field == 'created_at':
+                elif target_field == 'created_at' and not value:
                     value = datetime.now()
-                elif target_field == 'updated_at':
+                elif target_field == 'updated_at' and not value:
                     value = datetime.now()
+                
+                # Convert date strings to datetime objects
+                if target_field == 'incident_date' and isinstance(value, str):
+                    try:
+                        value = datetime.strptime(value, '%Y-%m-%d')
+                    except ValueError:
+                        # Try alternative date formats
+                        for fmt in ['%m/%d/%Y', '%Y-%m-%d', '%m-%d-%Y']:
+                            try:
+                                value = datetime.strptime(value, fmt)
+                                break
+                            except ValueError:
+                                continue
+                        else:
+                            # If all formats fail, use today's date
+                            value = datetime.now()
                 
                 mapped_record[target_field] = value
             
             # Generate OSHA ID if not present
-            if not mapped_record.get('osha_id'):
+            if not mapped_record.get('osha_id') or pd.isna(mapped_record.get('osha_id')):
                 mapped_record['osha_id'] = f"CSV-{datetime.now().year}-{len(mapped_records):06d}"
             
             mapped_records.append(mapped_record)
@@ -196,7 +213,7 @@ class OSHACSVImporter:
                 except (ValueError, TypeError):
                     record_errors.append(f"Invalid penalty amount: {record['penalty_amount']}")
             
-            if record.get('latitude'):
+            if record.get('latitude') and pd.notna(record.get('latitude')):
                 try:
                     lat = float(record['latitude'])
                     if not -90 <= lat <= 90:
@@ -204,7 +221,7 @@ class OSHACSVImporter:
                 except (ValueError, TypeError):
                     record_errors.append(f"Invalid latitude: {record['latitude']}")
             
-            if record.get('longitude'):
+            if record.get('longitude') and pd.notna(record.get('longitude')):
                 try:
                     lng = float(record['longitude'])
                     if not -180 <= lng <= 180:
@@ -230,7 +247,8 @@ class OSHACSVImporter:
         errors = []
         
         try:
-            for record in data:
+            batch_size = 1000
+            for i, record in enumerate(data):
                 try:
                     # Check if record already exists
                     existing = self.db_session.query(WorkplaceIncident).filter_by(
@@ -246,17 +264,41 @@ class OSHACSVImporter:
                     self.db_session.add(incident)
                     imported_count += 1
                     
+                    # Commit in batches to avoid memory issues
+                    if (i + 1) % batch_size == 0:
+                        try:
+                            self.db_session.commit()
+                            logger.info(f"Committed batch of {batch_size} records. Total imported: {imported_count}")
+                        except Exception as commit_error:
+                            logger.error(f"Commit error: {commit_error}")
+                            self.db_session.rollback()
+                            # Continue with next batch
+                    
                 except Exception as e:
                     error_msg = f"Error importing record {record.get('osha_id', 'Unknown')}: {e}"
                     logger.error(error_msg)
                     errors.append(error_msg)
+                    # Rollback this record and continue
+                    try:
+                        self.db_session.rollback()
+                    except:
+                        pass
             
-            # Commit all changes
-            self.db_session.commit()
+            # Commit any remaining records
+            if imported_count % batch_size != 0:
+                try:
+                    self.db_session.commit()
+                except Exception as commit_error:
+                    logger.error(f"Final commit error: {commit_error}")
+                    self.db_session.rollback()
+            
             logger.info(f"Successfully imported {imported_count} records")
             
         except Exception as e:
-            self.db_session.rollback()
+            try:
+                self.db_session.rollback()
+            except:
+                pass
             error_msg = f"Database error during import: {e}"
             logger.error(error_msg)
             errors.append(error_msg)
