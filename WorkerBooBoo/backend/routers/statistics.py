@@ -109,46 +109,57 @@ async def get_trends(
 ):
     """Get trend analysis over time"""
     
-    end_date = datetime.utcnow()
+    end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
     
-    query = db.query(WorkplaceIncident).filter(
+    # Get all incidents in the date range
+    incidents = db.query(WorkplaceIncident).filter(
         WorkplaceIncident.incident_date >= start_date,
         WorkplaceIncident.incident_date <= end_date
-    )
+    ).all()
     
-    if period == "daily":
-        group_by = func.date(WorkplaceIncident.incident_date)
-    elif period == "weekly":
-        group_by = func.strftime('%Y-%W', WorkplaceIncident.incident_date)
-    elif period == "monthly":
-        group_by = func.strftime('%Y-%m', WorkplaceIncident.incident_date)
-    else:  # yearly
-        group_by = extract('year', WorkplaceIncident.incident_date)
+    # Process trends in Python instead of complex SQL
+    trends_data = {}
     
-    trends = db.query(
-        group_by.label('period'),
-        func.count(WorkplaceIncident.id).label('total'),
-        func.sum(func.case([(WorkplaceIncident.incident_type == 'fatality', 1)], else_=0)).label('fatalities'),
-        func.sum(func.case([(WorkplaceIncident.incident_type == 'injury', 1)], else_=0)).label('injuries')
-    ).filter(
-        WorkplaceIncident.incident_date >= start_date,
-        WorkplaceIncident.incident_date <= end_date
-    ).group_by(group_by).order_by('period').all()
+    for incident in incidents:
+        if not incident.incident_date:
+            continue
+            
+        if period == "daily":
+            key = incident.incident_date.strftime('%Y-%m-%d')
+        elif period == "weekly":
+            key = incident.incident_date.strftime('%Y-W%U')
+        elif period == "monthly":
+            key = incident.incident_date.strftime('%Y-%m')
+        else:  # yearly
+            key = incident.incident_date.strftime('%Y')
+            
+        if key not in trends_data:
+            trends_data[key] = {'total': 0, 'fatalities': 0, 'injuries': 0}
+            
+        trends_data[key]['total'] += 1
+        
+        if incident.incident_type == 'fatality':
+            trends_data[key]['fatalities'] += 1
+        elif incident.incident_type == 'injury':
+            trends_data[key]['injuries'] += 1
+    
+    # Convert to sorted list
+    trends = [
+        {
+            "period": period_key,
+            "total": data['total'],
+            "fatalities": data['fatalities'],
+            "injuries": data['injuries']
+        }
+        for period_key, data in sorted(trends_data.items())
+    ]
     
     return {
         "period": period,
         "start_date": start_date.isoformat(),
         "end_date": end_date.isoformat(),
-        "trends": [
-            {
-                "period": str(row.period),
-                "total": row.total,
-                "fatalities": row.fatalities,
-                "injuries": row.injuries
-            }
-            for row in trends
-        ]
+        "trends": trends
     }
 
 @router.get("/geographic")

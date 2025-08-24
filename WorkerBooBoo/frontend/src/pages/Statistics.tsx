@@ -66,8 +66,11 @@ const Statistics: React.FC = () => {
 
   const fetchTrends = async () => {
     try {
+      console.log('Fetching trends for period:', selectedPeriod)
       const response = await axios.get(`http://localhost:8000/api/statistics/trends?period=${selectedPeriod}`)
+      console.log('Trends response:', response.data)
       setTrends(response.data.trends)
+      console.log('Trends state updated:', response.data.trends.length, 'items')
     } catch (err) {
       console.error('Error fetching trends:', err)
     }
@@ -126,6 +129,9 @@ const Statistics: React.FC = () => {
     fatalities: trend.fatalities,
     injuries: trend.injuries
   }))
+  
+  console.log('Trends state:', trends)
+  console.log('Trend data for chart:', trendData)
 
   return (
     <div className="space-y-6">

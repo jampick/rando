@@ -13,7 +13,7 @@ import axios from 'axios'
 import { format } from 'date-fns'
 
 // Set your Mapbox access token here
-mapboxgl.accessToken = 'pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJjbGV4YW1wbGUifQ.example'
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''
 
 interface Incident {
   id: number
@@ -66,6 +66,15 @@ const MapView: React.FC = () => {
     fetchIncidents()
   }, [filters])
 
+  // Add markers when incidents change and map is ready
+  useEffect(() => {
+    console.log('useEffect triggered - incidents:', incidents.length, 'map ready:', map.current?.isStyleLoaded())
+    if (incidents.length > 0 && map.current) {
+      console.log('Calling addIncidentMarkers from useEffect')
+      addIncidentMarkers()
+    }
+  }, [incidents])
+
   const initializeMap = () => {
     if (!mapContainer.current) return
 
@@ -81,20 +90,41 @@ const MapView: React.FC = () => {
     map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right')
 
     map.current.on('load', () => {
-      // Add custom markers for incidents
-      addIncidentMarkers()
+      console.log('Map loaded, checking if incidents are ready...')
+      // Only add markers if incidents are already loaded
+      if (incidents.length > 0) {
+        addIncidentMarkers()
+      }
     })
   }
 
   const addIncidentMarkers = () => {
-    if (!map.current) return
+    if (!map.current) {
+      console.log('Map not ready yet')
+      return
+    }
+
+    console.log('Adding markers for', incidents.length, 'incidents')
+    console.log('Map ready:', map.current.isStyleLoaded())
+    console.log('Map loaded:', map.current.loaded())
 
     // Remove existing markers
     const existingMarkers = document.querySelectorAll('.incident-marker')
     existingMarkers.forEach(marker => marker.remove())
 
     incidents.forEach((incident) => {
-      if (!incident.coordinates) return
+      if (!incident.coordinates) {
+        console.log('Skipping incident without coordinates:', incident)
+        return
+      }
+      
+      // Validate coordinate values
+      const [lat, lng] = incident.coordinates
+      if (typeof lat !== 'number' || typeof lng !== 'number' || 
+          lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        console.log('Skipping incident with invalid coordinates:', incident.coordinates, incident)
+        return
+      }
 
       // Create marker element
       const markerEl = document.createElement('div')
@@ -123,8 +153,9 @@ const MapView: React.FC = () => {
       }).setHTML(createPopupContent(incident))
 
       // Add marker to map
+      // Mapbox expects [longitude, latitude] but our API returns [latitude, longitude]
       new mapboxgl.Marker(markerEl)
-        .setLngLat(incident.coordinates)
+        .setLngLat([lng, lat])
         .setPopup(popup)
         .addTo(map.current)
 
@@ -176,15 +207,11 @@ const MapView: React.FC = () => {
       if (filters.start_date) params.append('start_date', filters.start_date)
       if (filters.end_date) params.append('end_date', filters.end_date)
 
+      console.log('Fetching incidents...')
       const response = await axios.get(`http://localhost:8000/api/maps/incidents?${params.toString()}`)
+      console.log('API Response:', response.data)
+      console.log('Incidents count:', response.data.incidents.length)
       setIncidents(response.data.incidents)
-      
-      // Update markers after incidents change
-      setTimeout(() => {
-        if (map.current?.isStyleLoaded()) {
-          addIncidentMarkers()
-        }
-      }, 100)
       
     } catch (err) {
       setError('Failed to load incidents')

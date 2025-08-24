@@ -3,7 +3,7 @@ echo Starting WorkerBooBoo - Complete Application
 echo.
 
 echo Starting Backend Server...
-start "WorkerBooBoo Backend" cmd /k "cd backend && pip install -r requirements.txt && python main.py"
+start "WorkerBooBoo Backend" cmd /k "cd backend && if exist venv\Scripts\activate.bat (call venv\Scripts\activate.bat && python main.py) else (python -m venv venv && call venv\Scripts\activate.bat && pip install -r requirements.txt && python main.py)"
 
 echo Waiting for backend to start...
 timeout /t 5 /nobreak >nul

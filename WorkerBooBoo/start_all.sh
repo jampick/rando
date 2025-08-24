@@ -3,6 +3,20 @@
 echo "Starting WorkerBooBoo - Complete Application"
 echo
 
+# Check if virtual environment exists and activate it
+if [ -d "backend/venv" ]; then
+    echo "Activating virtual environment..."
+    source backend/venv/bin/activate
+else
+    echo "Creating virtual environment..."
+    cd backend
+    python3 -m venv venv
+    source venv/bin/activate
+    echo "Installing Python dependencies..."
+    pip install -r requirements.txt
+    cd ..
+fi
+
 # Start backend in background
 echo "Starting Backend Server..."
 ./start_backend.sh &
