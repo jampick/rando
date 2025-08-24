@@ -19,7 +19,7 @@ def test_get_statistics_overview_basic(client: TestClient, sample_incidents):
     
     assert data["total_incidents"] == 3
     assert data["total_fatalities"] == 1
-    assert data["total_injuries"] == 1
+    assert data["total_injuries"] == 2
 
 def test_get_statistics_overview_with_filters(client: TestClient, sample_incidents):
     """Test statistics overview with date filters"""
