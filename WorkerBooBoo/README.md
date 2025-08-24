@@ -98,8 +98,33 @@ WorkerBooBoo/
 
 This is a prototype for workplace safety awareness. Please ensure all data handling follows privacy and security best practices.
 
+### Development Workflow
+1. **Run Tests**: Ensure all tests pass before making changes
+   ```bash
+   # Backend tests
+   cd backend && python3 run_tests.py all
+   
+   # Frontend tests  
+   cd frontend && npm run test:run
+   ```
+2. **Make Changes**: Implement new features or fixes
+3. **Test Again**: Verify tests still pass
+4. **Commit**: Use descriptive commit messages
+
+## 🧪 Testing
+
+The application includes a comprehensive testing framework:
+
+- **Backend Tests**: pytest with coverage reporting
+- **Frontend Tests**: Vitest + React Testing Library
+- **Test Runner Scripts**: Easy test execution from command line
+- **Coverage Reports**: Detailed code coverage analysis
+
+For detailed testing information, see [TESTING.md](TESTING.md)
+
 ## 📚 Documentation
 
+- **Testing**: [TESTING.md](TESTING.md)
 - **Mac/Linux**: [QUICK_START_MAC.md](QUICK_START_MAC.md)
 - **Windows**: [QUICK_START.md](QUICK_START.md)
 - **General**: [QUICK_START.md](QUICK_START.md)

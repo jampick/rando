@@ -154,19 +154,50 @@ WorkerBooBoo/
 │   ├── models.py           # Pydantic models
 │   ├── routers/            # API endpoints
 │   ├── data_processor.py   # OSHA data processing
-│   └── seed_data.py        # Database seeding
+│   ├── seed_data.py        # Database seeding
+│   ├── tests/              # Backend test suite
+│   ├── pytest.ini          # pytest configuration
+│   └── run_tests.py        # Test runner script
 ├── frontend/               # React frontend
 │   ├── src/
 │   │   ├── components/     # Reusable components
 │   │   ├── pages/          # Page components
+│   │   ├── __tests__/      # Frontend test suite
 │   │   └── App.tsx         # Main app
 │   ├── package.json        # Dependencies
+│   ├── vite.config.ts      # Vite configuration
 │   └── tailwind.config.js  # Styling
 ├── start_all.sh            # macOS startup script
 ├── start_backend.sh        # Backend startup script
 ├── start_frontend.sh       # Frontend startup script
+├── TESTING.md              # Comprehensive testing guide
 └── README.md               # This file
 ```
+
+## 🧪 Testing
+
+The application includes a comprehensive testing framework to ensure code quality:
+
+### Backend Testing
+```bash
+cd backend
+python3 run_tests.py all         # All tests with coverage
+python3 run_tests.py quick       # Fast test run
+python3 run_tests.py maps        # Maps tests only
+python3 run_tests.py stats       # Statistics tests only
+python3 run_tests.py incidents   # Incidents tests only
+```
+
+### Frontend Testing
+```bash
+cd frontend
+npm run test:run                 # Run all tests once
+npm run test                     # Watch mode
+npm run test:ui                  # Interactive UI
+npm run test:coverage            # With coverage report
+```
+
+For detailed testing information, see [TESTING.md](../TESTING.md)
 
 ## 🚨 Troubleshooting
 
