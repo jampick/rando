@@ -1,0 +1,2 @@
+company_name,address,city,state,zip_code,incident_date,incident_type,industry,naics_code,description,investigation_status,citations_issued,penalty_amount,latitude,longitude
+Sample Company Inc,123 Main Street,Anytown,CA,90210,2024-01-15,fatality,Construction,236220,Worker fell from scaffolding,Open,true,15000.00,34.0522,-118.2437
