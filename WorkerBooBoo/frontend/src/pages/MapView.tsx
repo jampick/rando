@@ -150,11 +150,16 @@ const MapView: React.FC = () => {
       setIncidents(incidents)
       setError(null)
       
-      // Debug: Show sample incident dates
+      // Debug: Show sample incident dates and coordinates
       if (incidents.length > 0) {
         console.log('📊 Sample incident dates:')
         incidents.slice(0, 5).forEach((incident: any, index: number) => {
           console.log(`  ${index + 1}. ID ${incident.id}: ${incident.incident_date} (${new Date(incident.incident_date).toISOString()})`)
+        })
+        
+        console.log('🔍 Sample incident coordinates:')
+        incidents.slice(0, 5).forEach((incident: any, index: number) => {
+          console.log(`  ${index + 1}. ID ${incident.id}: coordinates=${incident.coordinates}, type=${typeof incident.coordinates}, isArray=${Array.isArray(incident.coordinates)}`)
         })
       }
       
@@ -426,9 +431,11 @@ const MapView: React.FC = () => {
     const incidentsToShow = filteredIncidents
     
     console.log('🔥 MARKER CREATION 🔥')
-    console.log('Adding markers for incidents:', incidentsToShow.length)
-    console.log('Using filtered incidents:', filteredIncidents.length > 0)
-    console.log('Filtered incidents:', incidentsToShow)
+    console.log('Map ready:', !!map.current)
+    console.log('Map style loaded:', map.current?.isStyleLoaded())
+    console.log('Total incidents:', incidents.length)
+    console.log('Filtered incidents:', filteredIncidents.length)
+    console.log('Incidents to show:', incidentsToShow.length)
     console.log('First incident details:', incidentsToShow[0] ? {
       id: incidentsToShow[0].id,
       state: incidentsToShow[0].state,
@@ -457,6 +464,7 @@ const MapView: React.FC = () => {
     
     incidentsToShow.forEach((incident) => {
       console.log(`🎯 Processing incident ${incident.id}: ${incident.city}, ${incident.state}`)
+      console.log(`🔍 Raw coordinates:`, incident.coordinates)
       
       // Validate coordinates before creating marker
       if (!incident.coordinates || !Array.isArray(incident.coordinates) || incident.coordinates.length !== 2) {
@@ -466,17 +474,28 @@ const MapView: React.FC = () => {
         return
       }
 
-      const [lng, lat] = incident.coordinates // Mapbox expects [longitude, latitude] order
+      // Parse coordinates - handle both string and number formats
+      let lng: number, lat: number
+      if (Array.isArray(incident.coordinates)) {
+        [lng, lat] = incident.coordinates
+      } else {
+        console.warn('❌ Coordinates not in expected array format for incident:', incident.id, incident.coordinates)
+        return
+      }
       
-      console.log(`📍 Coordinates: lng=${lng}, lat=${lat}`)
+      // Convert to numbers if they're strings
+      lng = parseFloat(lng.toString())
+      lat = parseFloat(lat.toString())
+      
+      console.log(`📍 Coordinates: lng=${lng}, lat=${lat}, types: lng=${typeof lng}, lat=${typeof lat}`)
       
       // Validate coordinate values with strict bounds checking
-      if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) {
+      if (isNaN(lng) || lng < -180 || lng > 180) {
         console.warn('❌ Invalid longitude for incident:', incident.id, { lng, lat })
         return
       }
       
-      if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) {
+      if (isNaN(lat) || lat < -90 || lat > 90) {
         console.warn('❌ Invalid latitude for incident:', incident.id, { lng, lat })
         return
       }
