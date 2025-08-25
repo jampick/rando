@@ -477,11 +477,11 @@ const MapView: React.FC = () => {
   }, [incidents, filteredIncidents])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header with Filters Toggle */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-gray-900">Map View - Real Incidents</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Map View - Real Incidents</h1>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
@@ -493,29 +493,29 @@ const MapView: React.FC = () => {
         {loading && (
           <div className="flex items-center mt-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-            <span className="text-sm text-gray-600">Loading incidents...</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Loading incidents...</span>
           </div>
         )}
         {error && (
-          <div className="mt-2 text-sm text-red-600">
+          <div className="mt-2 text-sm text-red-600 dark:text-red-400">
             {error}
           </div>
         )}
         {!loading && !error && (
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Showing {filteredIncidents.length} of {incidents.length} incidents
             {filters.start_date && filters.end_date && (
-              <span className="ml-2 text-green-600">
+              <span className="ml-2 text-green-600 dark:text-green-400">
                 📅 {filters.start_date} to {filters.end_date}
               </span>
             )}
             {filters.state && (
-              <span className="ml-2 text-blue-600">
+              <span className="ml-2 text-blue-600 dark:text-blue-400">
                 • Filtered by: {filters.state}
               </span>
             )}
             {incidents.length >= 5000 && (
-              <span className="ml-2 text-amber-600">
+              <span className="ml-2 text-amber-600 dark:text-amber-400">
                 ⚠️ Showing maximum 5000 incidents. Additional data available beyond this limit.
               </span>
             )}
@@ -525,11 +525,11 @@ const MapView: React.FC = () => {
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-white border-b border-gray-200 px-4 py-4">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Date Range Filters */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Start Date</label>
               <input
                 type="date"
                 value={filters.start_date}
@@ -538,12 +538,12 @@ const MapView: React.FC = () => {
                   setUserSetDates(true)
                   setFilters({...filters, start_date: e.target.value})
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">End Date</label>
               <input
                 type="date"
                 value={filters.end_date}
@@ -552,20 +552,20 @@ const MapView: React.FC = () => {
                   setUserSetDates(true)
                   setFilters({...filters, end_date: e.target.value})
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
             {/* Incident Type Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Incident Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Incident Type</label>
               <select
                 value={filters.incident_type}
                 onChange={(e) => {
                   console.log('Incident type changed to:', e.target.value)
                   setFilters({...filters, incident_type: e.target.value})
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">All Types</option>
                 <option value="fatality">Fatality</option>
@@ -576,14 +576,14 @@ const MapView: React.FC = () => {
 
             {/* State Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">State</label>
               <select
                 value={filters.state}
                 onChange={(e) => {
                   console.log('State changed to:', e.target.value)
                   setFilters({...filters, state: e.target.value})
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">All States</option>
                 {[...new Set(incidents.map(i => i.state))].sort().map(state => (
@@ -594,8 +594,8 @@ const MapView: React.FC = () => {
           </div>
 
           {/* Filter Info */}
-          <div className="mt-4 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="mt-4 mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
               💡 <strong>How filtering works:</strong> Date filters trigger a new database query. 
               State and incident type filters are applied to the current results. 
               Use "Refresh Data" to manually update with current filters.
