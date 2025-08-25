@@ -317,9 +317,9 @@ const MapView: React.FC = () => {
         return
       }
       
-      // Calculate center point
-      const totalLat = validCoordinates.reduce((sum, coord) => sum + coord[1], 0)
-      const totalLng = validCoordinates.reduce((sum, coord) => sum + coord[0], 0)
+      // Calculate center point - FIXED: coordinates are [latitude, longitude] from API
+      const totalLat = validCoordinates.reduce((sum, coord) => sum + coord[0], 0) // coord[0] is latitude
+      const totalLng = validCoordinates.reduce((sum, coord) => sum + coord[1], 0) // coord[1] is longitude
       const centerLat = totalLat / validCoordinates.length
       const centerLng = totalLng / validCoordinates.length
       
@@ -341,11 +341,11 @@ const MapView: React.FC = () => {
       
       console.log('🚀 Flying to coordinates:', [centerLng, centerLat])
       
-      // Calculate appropriate zoom level based on coordinate spread
-      const lngs = validCoordinates.map(coord => coord[0])
-      const lats = validCoordinates.map(coord => coord[1])
-      const lngRange = Math.max(...lngs) - Math.min(...lngs)
+      // Calculate appropriate zoom level based on coordinate spread - FIXED: coordinates are [latitude, longitude] from API
+      const lats = validCoordinates.map(coord => coord[0]) // coord[0] is latitude
+      const lngs = validCoordinates.map(coord => coord[1]) // coord[1] is longitude
       const latRange = Math.max(...lats) - Math.min(...lats)
+      const lngRange = Math.max(...lngs) - Math.min(...lngs)
       
       // Determine zoom level based on coordinate spread
       let zoomLevel = 6 // Default zoom
@@ -360,9 +360,11 @@ const MapView: React.FC = () => {
       console.log(`🗺️ Coordinate spread: lng=${lngRange.toFixed(2)}, lat=${latRange.toFixed(2)}, zoom=${zoomLevel}`)
       
       // Use fitBounds to show all pins in the state with appropriate padding
+      // FIXED: coordinates are [latitude, longitude] from API, need to convert to [longitude, latitude] for Mapbox
       const bounds = new mapboxgl.LngLatBounds()
       validCoordinates.forEach(coord => {
-        bounds.extend(coord)
+        const [lat, lng] = coord // coord is [latitude, longitude]
+        bounds.extend([lng, lat]) // Mapbox expects [longitude, latitude]
       })
       
       // Add padding to ensure all pins are visible
