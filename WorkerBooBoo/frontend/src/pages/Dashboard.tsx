@@ -187,68 +187,68 @@ const Dashboard: React.FC = () => {
       {/* Recent Activity */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium text-gray-900">Recent Activity</h2>
-          <Link to="/map" className="text-sm text-primary-600 hover:text-primary-500">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Activity</h2>
+          <Link to="/map" className="text-sm text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
             View all →
           </Link>
         </div>
         
         <div className="space-y-4">
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
-                <ExclamationTriangleIcon className="h-4 w-4 text-red-600" />
+              <div className="h-8 w-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                <ExclamationTriangleIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
                 New fatality incident reported
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Construction industry - New York, NY
               </p>
             </div>
-            <div className="flex-shrink-0 text-sm text-gray-500">
+            <div className="flex-shrink-0 text-sm text-gray-500 dark:text-gray-400">
               <CalendarIcon className="h-4 w-4 inline mr-1" />
               2 hours ago
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <ExclamationTriangleIcon className="h-4 w-4 text-orange-600" />
+              <div className="h-8 w-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                <ExclamationTriangleIcon className="h-4 w-4 text-orange-600 dark:text-orange-400" />
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
                 Injury incident investigation closed
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Manufacturing industry - Chicago, IL
               </p>
             </div>
-            <div className="flex-shrink-0 text-sm text-gray-500">
+            <div className="flex-shrink-0 text-sm text-gray-500 dark:text-gray-400">
               <CalendarIcon className="h-4 w-4 inline mr-1" />
               1 day ago
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <BuildingOfficeIcon className="h-4 w-4 text-blue-600" />
+              <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                <BuildingOfficeIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
                 New company added to database
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Chemical manufacturing - Houston, TX
               </p>
             </div>
-            <div className="flex-shrink-0 text-sm text-gray-500">
+            <div className="flex-shrink-0 text-sm text-gray-500 dark:text-gray-400">
               <CalendarIcon className="h-4 w-4 inline mr-1" />
               3 days ago
             </div>
@@ -257,13 +257,13 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Safety Tips */}
-      <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <h2 className="text-lg font-medium text-blue-900 mb-3">Safety Tip of the Day</h2>
-        <p className="text-blue-800">
+      <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+        <h2 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-3">Safety Tip of the Day</h2>
+        <p className="text-blue-800 dark:text-blue-200">
           Always ensure proper fall protection equipment is worn when working at heights above 6 feet. 
           Regular safety training and equipment inspections can prevent serious workplace accidents.
         </p>
-        <div className="mt-4 text-sm text-blue-700">
+        <div className="mt-4 text-sm text-blue-700 dark:text-blue-300">
           <strong>Remember:</strong> Safety is everyone's responsibility. Report hazards immediately.
         </div>
       </div>
