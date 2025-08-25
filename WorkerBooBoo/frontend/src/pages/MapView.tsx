@@ -257,7 +257,8 @@ const MapView: React.FC = () => {
             return false
           }
           
-          const [lng, lat] = incident.coordinates
+          // FIXED: API returns [latitude, longitude] but we need [longitude, latitude] for Mapbox
+          const [lat, lng] = incident.coordinates // Swap the order to fix the coordinate mismatch
           
           console.log(`🔍 Incident ${incident.id} coordinates: [${lng}, ${lat}], types: lng=${typeof lng}, lat=${typeof lat}`)
           
@@ -530,7 +531,8 @@ const MapView: React.FC = () => {
       // Parse coordinates - handle both string and number formats
       let lng: number, lat: number
       if (Array.isArray(incident.coordinates)) {
-        [lng, lat] = incident.coordinates
+        // FIXED: API returns [latitude, longitude] but we need [longitude, latitude] for Mapbox
+        [lat, lng] = incident.coordinates // Swap the order to fix the coordinate mismatch
       } else {
         console.warn('❌ Coordinates not in expected array format for incident:', incident.id, incident.coordinates)
         return
@@ -556,16 +558,12 @@ const MapView: React.FC = () => {
       // Validate coordinate values with strict bounds checking
       if (isNaN(lng) || lng < -180 || lng > 180) {
         console.warn('❌ Invalid longitude for incident:', incident.id, { lng, lat })
-        // TEMPORARILY ALLOW INVALID COORDINATES FOR DEBUGGING
-        console.warn('⚠️ TEMPORARILY ALLOWING INVALID LONGITUDE FOR DEBUGGING')
-        // return
+        return
       }
       
       if (isNaN(lat) || lat < -90 || lat > 90) {
         console.warn('❌ Invalid latitude for incident:', incident.id, { lng, lat })
-        // TEMPORARILY ALLOW INVALID COORDINATES FOR DEBUGGING
-        console.warn('⚠️ TEMPORARILY ALLOWING INVALID LATITUDE FOR DEBUGGING')
-        // return
+        return
       }
 
       // Create marker element
