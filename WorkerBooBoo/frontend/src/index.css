@@ -49,7 +49,7 @@
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6;
   }
   
   .input-field {
@@ -65,18 +65,18 @@
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
   }
   
-  /* Mobile bottom sheet styles */
+    /* Mobile bottom sheet styles */
   .mobile-bottom-sheet {
-    @apply fixed inset-x-0 bottom-0 z-100 bg-white shadow-2xl border-t border-gray-200;
+    @apply fixed inset-x-0 bottom-0 z-100 bg-white dark:bg-gray-800 shadow-2xl border-t border-gray-200 dark:border-gray-700;
     animation: slideUp 0.3s ease-out;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
     border-radius: 1.5rem 1.5rem 0 0;
   }
-  
+
   /* Mobile bottom sheet with better edge spacing */
   .mobile-bottom-sheet {
-    @apply fixed inset-x-0 bottom-0 z-100 bg-white shadow-2xl border-t border-gray-200;
+    @apply fixed inset-x-0 bottom-0 z-100 bg-white dark:bg-gray-800 shadow-2xl border-t border-gray-200 dark:border-gray-700;
     animation: slideUp 0.3s ease-out;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
@@ -86,7 +86,7 @@
   
   /* Mobile close button improvements */
   .mobile-close-btn {
-    @apply p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors;
+    @apply p-3 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors;
     min-width: 48px;
     min-height: 48px;
     background-color: white;
@@ -105,17 +105,17 @@
     min-height: 60px;
   }
   
-  .mobile-drag-handle::after {
+    .mobile-drag-handle::after {
     content: '';
-    @apply w-12 h-1 bg-gray-300 rounded-full;
+    @apply w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full;
   }
-  
+
   .mobile-drag-handle:hover::after {
-    @apply bg-gray-400;
+    @apply bg-gray-400 dark:bg-gray-500;
   }
-  
+
   .mobile-drag-handle:active::after {
-    @apply bg-gray-500;
+    @apply bg-gray-500 dark:bg-gray-400;
   }
   
   /* Mobile bottom sheet backdrop */

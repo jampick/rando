@@ -96,11 +96,11 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Workplace Safety Dashboard</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Workplace Safety Dashboard</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-300">
           Monitor and analyze workplace injuries, fatalities, and safety violations
         </p>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Last updated: {format(new Date(), 'MMM dd, yyyy HH:mm')}
         </p>
       </div>
@@ -114,8 +114,8 @@ const Dashboard: React.FC = () => {
                 <ExclamationTriangleIcon className="h-8 w-8 text-red-500" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Incidents</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.total_incidents.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Incidents</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.total_incidents.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -126,8 +126,8 @@ const Dashboard: React.FC = () => {
                 <ShieldExclamationIcon className="h-8 w-8 text-red-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Fatalities</p>
-                <p className="text-2xl font-semibold text-red-600">{stats.total_fatalities.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Fatalities</p>
+                <p className="text-2xl font-semibold text-red-600 dark:text-red-400">{stats.total_fatalities.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -138,8 +138,8 @@ const Dashboard: React.FC = () => {
                 <ExclamationTriangleIcon className="h-8 w-8 text-orange-500" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Injuries</p>
-                <p className="text-2xl font-semibold text-orange-600">{stats.total_injuries.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Injuries</p>
+                <p className="text-2xl font-semibold text-orange-600 dark:text-orange-400">{stats.total_injuries.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -150,8 +150,8 @@ const Dashboard: React.FC = () => {
                 <BuildingOfficeIcon className="h-8 w-8 text-blue-500" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Avg. Penalty</p>
-                <p className="text-2xl font-semibold text-blue-600">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg. Penalty</p>
+                <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
                   ${stats.average_penalty.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </p>
               </div>
@@ -162,7 +162,7 @@ const Dashboard: React.FC = () => {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {quickActions.map((action) => (
             <Link
@@ -175,8 +175,8 @@ const Dashboard: React.FC = () => {
                   <action.icon className="h-6 w-6 text-white" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-900">{action.name}</h3>
-                  <p className="text-sm text-gray-500">{action.description}</p>
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">{action.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>
                 </div>
               </div>
             </Link>
