@@ -868,18 +868,7 @@ const MapView: React.FC = () => {
               Refresh Data
             </button>
             
-            {filters.state && (
-              <button
-                onClick={() => {
-                  console.log('Centering map on selected state:', filters.state)
-                  centerMapOnState(filters.state)
-                }}
-                className="bg-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
-                title={`Center map on ${filters.state}`}
-              >
-                🗺️ Center on {filters.state}
-              </button>
-            )}
+
           </div>
         </div>
       )}
