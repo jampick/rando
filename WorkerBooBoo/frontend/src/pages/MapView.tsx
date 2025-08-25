@@ -220,11 +220,72 @@ const MapView: React.FC = () => {
     }
   }, [filters.start_date, filters.end_date, userSetDates])
 
+  // Center map on filtered state
+  const centerMapOnState = (stateFilter: string) => {
+    if (!map.current || !stateFilter) return
+    
+    console.log('🗺️ Centering map on state:', stateFilter)
+    
+    // Find all incidents for the selected state
+    const stateIncidents = incidents.filter(incident => incident.state === stateFilter)
+    
+    if (stateIncidents.length === 0) {
+      console.log('No incidents found for state:', stateFilter)
+      return
+    }
+    
+    // Calculate the center point of all incidents in the state
+    const validCoordinates = stateIncidents
+      .filter(incident => incident.coordinates && Array.isArray(incident.coordinates) && incident.coordinates.length === 2)
+      .map(incident => incident.coordinates)
+    
+    if (validCoordinates.length === 0) {
+      console.log('No valid coordinates found for state:', stateFilter)
+      return
+    }
+    
+    // Calculate center point
+    const totalLat = validCoordinates.reduce((sum, coord) => sum + coord[1], 0)
+    const totalLng = validCoordinates.reduce((sum, coord) => sum + coord[0], 0)
+    const centerLat = totalLat / validCoordinates.length
+    const centerLng = totalLng / validCoordinates.length
+    
+    console.log('📍 Centering map at:', { lat: centerLat, lng: centerLng })
+    
+    // Smoothly animate to the center point with appropriate zoom
+    map.current.flyTo({
+      center: [centerLng, centerLat],
+      zoom: 6, // Zoom in closer for state-level view
+      duration: 2000, // 2 second smooth animation
+      essential: true
+    })
+  }
+
   // Apply client-side filters when incidents or other filters change
   useEffect(() => {
     console.log('Incidents or client-side filters changed, applying filters...')
     filterIncidents()
+    
+    // Center map on state if state filter is applied
+    if (filters.state) {
+      centerMapOnState(filters.state)
+    }
   }, [incidents, filters.incident_type, filters.state])
+
+  // Reset map to default view
+  const resetMapView = () => {
+    if (!map.current) return
+    
+    console.log('🗺️ Resetting map to default view')
+    
+    // Return to default US center with appropriate zoom
+    map.current.flyTo({
+      center: [-98.5795, 39.8283], // Center of US
+      zoom: 4,
+      duration: 1500, // 1.5 second smooth animation
+      essential: true
+    })
+  }
 
   // Clear all filters
   const clearFilters = () => {
@@ -236,6 +297,9 @@ const MapView: React.FC = () => {
       start_date: '',
       end_date: ''
     })
+    
+    // Reset map view when clearing filters
+    resetMapView()
   }
 
   // Incident detail card navigation
@@ -642,6 +706,19 @@ const MapView: React.FC = () => {
             >
               Refresh Data
             </button>
+            
+            {filters.state && (
+              <button
+                onClick={() => {
+                  console.log('Centering map on selected state:', filters.state)
+                  centerMapOnState(filters.state)
+                }}
+                className="bg-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                title={`Center map on ${filters.state}`}
+              >
+                🗺️ Center on {filters.state}
+              </button>
+            )}
           </div>
         </div>
       )}
