@@ -308,7 +308,7 @@ const MapView: React.FC = () => {
           console.log('✅ Using fallback center for state:', stateFilter, fallbackCenter)
           map.current.flyTo({
             center: fallbackCenter,
-            zoom: 6,
+            zoom: 5, // More conservative zoom for fallback centers
             duration: 2000,
             essential: true
           })
@@ -340,13 +340,38 @@ const MapView: React.FC = () => {
       
       console.log('🚀 Flying to coordinates:', [centerLng, centerLat])
       
-      // Smoothly animate to the center point with appropriate zoom
-      map.current.flyTo({
-        center: [centerLng, centerLat],
-        zoom: 6, // Zoom in closer for state-level view
-        duration: 2000, // 2 second smooth animation
+      // Calculate appropriate zoom level based on coordinate spread
+      const lngs = validCoordinates.map(coord => coord[0])
+      const lats = validCoordinates.map(coord => coord[1])
+      const lngRange = Math.max(...lngs) - Math.min(...lngs)
+      const latRange = Math.max(...lats) - Math.min(...lats)
+      
+      // Determine zoom level based on coordinate spread
+      let zoomLevel = 6 // Default zoom
+      if (lngRange > 10 || latRange > 10) {
+        zoomLevel = 4 // Large spread - zoom out more
+      } else if (lngRange > 5 || latRange > 5) {
+        zoomLevel = 5 // Medium spread
+      } else if (lngRange < 1 && latRange < 1) {
+        zoomLevel = 8 // Small spread - zoom in more
+      }
+      
+      console.log(`🗺️ Coordinate spread: lng=${lngRange.toFixed(2)}, lat=${latRange.toFixed(2)}, zoom=${zoomLevel}`)
+      
+      // Use fitBounds to show all pins in the state with appropriate padding
+      const bounds = new mapboxgl.LngLatBounds()
+      validCoordinates.forEach(coord => {
+        bounds.extend(coord)
+      })
+      
+      // Add padding to ensure all pins are visible
+      map.current.fitBounds(bounds, {
+        padding: 50, // Add 50px padding around the bounds
+        duration: 2000,
         essential: true
       })
+      
+      console.log('🗺️ Using fitBounds to show all pins in state')
     } catch (error) {
       console.error('❌ Error centering map on state:', stateFilter, error)
       // Don't crash the app, just log the error
@@ -561,6 +586,10 @@ const MapView: React.FC = () => {
         // Continue with other markers instead of crashing
       }
     })
+    
+    // Log summary of marker creation
+    const markersCreated = document.querySelectorAll('.incident-marker').length
+    console.log(`🎯 MARKER CREATION SUMMARY: Created ${markersCreated} markers out of ${incidentsToShow.length} incidents`)
   }
 
   useEffect(() => {
