@@ -235,6 +235,14 @@ const MapView: React.FC = () => {
       // Find all incidents for the selected state
       const stateIncidents = incidents.filter(incident => incident.state === stateFilter)
       
+      console.log('🔍 State incidents found:', stateIncidents.length)
+      console.log('🔍 First few state incidents:', stateIncidents.slice(0, 3).map(i => ({
+        id: i.id,
+        coordinates: i.coordinates,
+        coordType: typeof i.coordinates,
+        isArray: Array.isArray(i.coordinates)
+      })))
+      
       if (stateIncidents.length === 0) {
         console.log('No incidents found for state:', stateFilter)
         return
@@ -245,29 +253,35 @@ const MapView: React.FC = () => {
         .filter(incident => {
           // Check if coordinates exist and are an array
           if (!incident.coordinates || !Array.isArray(incident.coordinates) || incident.coordinates.length !== 2) {
+            console.warn('❌ Invalid coordinate structure for incident:', incident.id, incident.coordinates)
             return false
           }
           
           const [lng, lat] = incident.coordinates
           
+          console.log(`🔍 Incident ${incident.id} coordinates: [${lng}, ${lat}], types: lng=${typeof lng}, lat=${typeof lat}`)
+          
           // Validate longitude: must be between -180 and 180
           if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) {
-            console.warn('Invalid longitude:', lng, 'for incident:', incident.id)
+            console.warn('❌ Invalid longitude:', lng, 'for incident:', incident.id)
             return false
           }
           
           // Validate latitude: must be between -90 and 90
           if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) {
-            console.warn('Invalid latitude:', lat, 'for incident:', incident.id)
+            console.warn('❌ Invalid latitude:', lat, 'for incident:', incident.id)
             return false
           }
           
+          console.log(`✅ Valid coordinates for incident ${incident.id}: [${lng}, ${lat}]`)
           return true
         })
         .map(incident => incident.coordinates)
       
+      console.log('🔍 Valid coordinates found:', validCoordinates.length)
+      
       if (validCoordinates.length === 0) {
-        console.log('No valid coordinates found for state:', stateFilter)
+        console.log('❌ No valid coordinates found for state:', stateFilter)
         // Fallback to default state center if no valid coordinates
         const stateCenters: { [key: string]: [number, number] } = {
           'AL': [-86.7911, 32.8067], 'AK': [-152.4044, 61.3707], 'AZ': [-111.4312, 33.7298],
@@ -291,7 +305,7 @@ const MapView: React.FC = () => {
         
         const fallbackCenter = stateCenters[stateFilter]
         if (fallbackCenter) {
-          console.log('Using fallback center for state:', stateFilter, fallbackCenter)
+          console.log('✅ Using fallback center for state:', stateFilter, fallbackCenter)
           map.current.flyTo({
             center: fallbackCenter,
             zoom: 6,
@@ -312,11 +326,19 @@ const MapView: React.FC = () => {
       if (isNaN(centerLat) || isNaN(centerLng) || 
           centerLat < -90 || centerLat > 90 || 
           centerLng < -180 || centerLng > 180) {
-        console.error('Calculated center coordinates are invalid:', { lat: centerLat, lng: centerLng })
+        console.error('❌ Calculated center coordinates are invalid:', { lat: centerLat, lng: centerLng })
         return
       }
       
-      console.log('📍 Centering map at:', { lat: centerLat, lng: centerLng })
+      console.log('✅ Centering map at:', { lat: centerLat, lng: centerLng })
+      
+      // Safety check: ensure coordinates are reasonable before flying
+      if (Math.abs(centerLng) > 180 || Math.abs(centerLat) > 90) {
+        console.error('❌ Calculated coordinates are out of bounds:', { lng: centerLng, lat: centerLat })
+        return
+      }
+      
+      console.log('🚀 Flying to coordinates:', [centerLng, centerLat])
       
       // Smoothly animate to the center point with appropriate zoom
       map.current.flyTo({
@@ -326,19 +348,25 @@ const MapView: React.FC = () => {
         essential: true
       })
     } catch (error) {
-      console.error('Error centering map on state:', stateFilter, error)
+      console.error('❌ Error centering map on state:', stateFilter, error)
       // Don't crash the app, just log the error
     }
   }
 
   // Apply client-side filters when incidents or other filters change
   useEffect(() => {
-    console.log('Incidents or client-side filters changed, applying filters...')
+    console.log('🔥 FILTER EFFECT TRIGGERED 🔥')
+    console.log('Filters changed:', filters)
+    console.log('Incidents count:', incidents.length)
+    
     filterIncidents()
     
     // Center map on state if state filter is applied
     if (filters.state) {
+      console.log('🗺️ State filter detected, calling centerMapOnState for:', filters.state)
       centerMapOnState(filters.state)
+    } else {
+      console.log('🗺️ No state filter, skipping map centering')
     }
   }, [incidents, filters.incident_type, filters.state])
 
