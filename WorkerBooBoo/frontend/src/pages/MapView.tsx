@@ -205,6 +205,11 @@ const MapView: React.FC = () => {
   // BUT only if they were manually set by user, not auto-set
   const [userSetDates, setUserSetDates] = useState(false)
   
+  // Incident detail card state
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null)
+  const [currentIncidentIndex, setCurrentIncidentIndex] = useState(0)
+  const [showIncidentCard, setShowIncidentCard] = useState(false)
+  
   useEffect(() => {
     if (filters.start_date || filters.end_date) {
       // Only refetch if user manually set dates, not auto-set
@@ -231,6 +236,53 @@ const MapView: React.FC = () => {
       start_date: '',
       end_date: ''
     })
+  }
+
+  // Incident detail card navigation
+  const openIncidentCard = (incident: Incident) => {
+    const index = filteredIncidents.findIndex(i => i.id === incident.id)
+    setCurrentIncidentIndex(index >= 0 ? index : 0)
+    setSelectedIncident(incident)
+    setShowIncidentCard(true)
+  }
+
+  const closeIncidentCard = () => {
+    setShowIncidentCard(false)
+    setSelectedIncident(null)
+    setCurrentIncidentIndex(0)
+  }
+
+  const navigateToNextIncident = () => {
+    if (filteredIncidents.length === 0) return
+    const nextIndex = (currentIncidentIndex + 1) % filteredIncidents.length
+    setCurrentIncidentIndex(nextIndex)
+    setSelectedIncident(filteredIncidents[nextIndex])
+  }
+
+  const navigateToPreviousIncident = () => {
+    if (filteredIncidents.length === 0) return
+    const prevIndex = currentIncidentIndex === 0 ? filteredIncidents.length - 1 : currentIncidentIndex - 1
+    setCurrentIncidentIndex(prevIndex)
+    setSelectedIncident(filteredIncidents[prevIndex])
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return 'Not specified'
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
   }
 
   // Add incident markers to map
@@ -312,22 +364,16 @@ const MapView: React.FC = () => {
         markerEl.style.backgroundColor = '#ea580c' // Orange
       }
 
-      // Create popup content
-      const popupContent = `
-        <div class="p-2">
-          <h3 class="font-bold text-lg mb-1">${incident.company_name}</h3>
-          <p class="text-sm text-gray-600 mb-1">${incident.city}, ${incident.state}</p>
-          <p class="text-sm text-gray-600 mb-2">${incident.incident_type} • ${incident.industry}</p>
-          <p class="text-xs text-gray-500">OSHA ID: ${incident.osha_id}</p>
-        </div>
-      `
+      // Add click event to marker
+      markerEl.addEventListener('click', () => {
+        openIncidentCard(incident)
+      })
 
       // Create and add marker
       try {
         console.log(`🎨 Creating marker for incident ${incident.id}`)
-        const marker = new mapboxgl.Marker(markerEl)
+        new mapboxgl.Marker(markerEl)
           .setLngLat([lng, lat]) // Mapbox expects [longitude, latitude]
-          .setPopup(new mapboxgl.Popup().setHTML(popupContent))
           .addTo(map.current!)
         console.log(`✅ Marker created and added to map for incident ${incident.id}`)
       } catch (error) {
@@ -364,6 +410,28 @@ const MapView: React.FC = () => {
   useEffect(() => {
     fetchIncidents()
   }, [])
+
+  // Keyboard navigation for incident card
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!showIncidentCard) return
+      
+      switch (event.key) {
+        case 'Escape':
+          closeIncidentCard()
+          break
+        case 'ArrowLeft':
+          navigateToPreviousIncident()
+          break
+        case 'ArrowRight':
+          navigateToNextIncident()
+          break
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [showIncidentCard, currentIncidentIndex, filteredIncidents])
   
   // Mac-specific fallback for marker addition - REMOVED to prevent conflicts
 
@@ -578,6 +646,173 @@ const MapView: React.FC = () => {
         </div>
       )}
       
+      {/* Incident Detail Card */}
+      {showIncidentCard && selectedIncident && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={closeIncidentCard}
+        >
+                    <div 
+            className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Card Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">{selectedIncident.company_name}</h2>
+                  <p className="text-blue-100 text-lg">{selectedIncident.city}, {selectedIncident.state}</p>
+                </div>
+                <button
+                  onClick={closeIncidentCard}
+                  className="text-white hover:text-gray-200 transition-colors p-2"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Navigation Progress */}
+              <div className="flex items-center justify-center mt-4">
+                <button
+                  onClick={navigateToPreviousIncident}
+                  className="text-white hover:text-blue-200 transition-colors p-2 mr-4"
+                  disabled={filteredIncidents.length <= 1}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <span className="text-blue-100 font-medium">
+                  {currentIncidentIndex + 1} of {filteredIncidents.length} incidents
+                </span>
+                
+                <button
+                  onClick={navigateToNextIncident}
+                  className="text-white hover:text-blue-200 transition-colors p-2 ml-4"
+                  disabled={filteredIncidents.length <= 1}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Card Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left Column */}
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2">Incident Details</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Type:</span>
+                        <span className="font-medium capitalize">{selectedIncident.incident_type.replace('_', ' ')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Date:</span>
+                        <span className="font-medium">{formatDate(selectedIncident.incident_date)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Industry:</span>
+                        <span className="font-medium">{selectedIncident.industry}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">OSHA ID:</span>
+                        <span className="font-medium font-mono text-xs">{selectedIncident.osha_id}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Address:</span>
+                        <span className="font-medium">{selectedIncident.address}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">City:</span>
+                        <span className="font-medium">{selectedIncident.city}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">State:</span>
+                        <span className="font-medium">{selectedIncident.state}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2">Investigation Status</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Status:</span>
+                        <span className={`font-medium px-2 py-1 rounded text-xs ${
+                          selectedIncident.investigation_status === 'closed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {selectedIncident.investigation_status}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Citations:</span>
+                        <span className="font-medium">{selectedIncident.citations_issued ? 'Yes' : 'No'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Penalty:</span>
+                        <span className="font-medium">{formatCurrency(selectedIncident.penalty_amount)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedIncident.description && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {selectedIncident.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Card Footer */}
+            <div className="bg-gray-50 px-6 py-4 border-t">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Click outside or press ESC to close
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={navigateToPreviousIncident}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                    disabled={filteredIncidents.length <= 1}
+                  >
+                    ← Previous
+                  </button>
+                  <button
+                    onClick={navigateToNextIncident}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                    disabled={filteredIncidents.length <= 1}
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Map Container */}
       <div className="flex-1 relative">
         <div 
