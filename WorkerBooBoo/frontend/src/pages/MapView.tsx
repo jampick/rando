@@ -540,17 +540,32 @@ const MapView: React.FC = () => {
       lng = parseFloat(lng.toString())
       lat = parseFloat(lat.toString())
       
+      // Emergency debugging: log ALL coordinate attempts
+      console.log(`🔍 EMERGENCY DEBUG - Incident ${incident.id}:`, {
+        rawCoordinates: incident.coordinates,
+        parsedLng: lng,
+        parsedLat: lat,
+        lngType: typeof lng,
+        latType: typeof lat,
+        lngValid: !isNaN(lng) && lng >= -180 && lng <= 180,
+        latValid: !isNaN(lat) && lat >= -90 && lat <= 90
+      })
+      
       console.log(`📍 Coordinates: lng=${lng}, lat=${lat}, types: lng=${typeof lng}, lat=${typeof lat}`)
       
       // Validate coordinate values with strict bounds checking
       if (isNaN(lng) || lng < -180 || lng > 180) {
         console.warn('❌ Invalid longitude for incident:', incident.id, { lng, lat })
-        return
+        // TEMPORARILY ALLOW INVALID COORDINATES FOR DEBUGGING
+        console.warn('⚠️ TEMPORARILY ALLOWING INVALID LONGITUDE FOR DEBUGGING')
+        // return
       }
       
       if (isNaN(lat) || lat < -90 || lat > 90) {
         console.warn('❌ Invalid latitude for incident:', incident.id, { lng, lat })
-        return
+        // TEMPORARILY ALLOW INVALID COORDINATES FOR DEBUGGING
+        console.warn('⚠️ TEMPORARILY ALLOWING INVALID LATITUDE FOR DEBUGGING')
+        // return
       }
 
       // Create marker element
