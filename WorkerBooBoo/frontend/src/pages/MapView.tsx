@@ -226,39 +226,104 @@ const MapView: React.FC = () => {
     
     console.log('🗺️ Centering map on state:', stateFilter)
     
-    // Find all incidents for the selected state
-    const stateIncidents = incidents.filter(incident => incident.state === stateFilter)
-    
-    if (stateIncidents.length === 0) {
-      console.log('No incidents found for state:', stateFilter)
-      return
+    try {
+      // Find all incidents for the selected state
+      const stateIncidents = incidents.filter(incident => incident.state === stateFilter)
+      
+      if (stateIncidents.length === 0) {
+        console.log('No incidents found for state:', stateFilter)
+        return
+      }
+      
+      // Calculate the center point of all incidents in the state with strict validation
+      const validCoordinates = stateIncidents
+        .filter(incident => {
+          // Check if coordinates exist and are an array
+          if (!incident.coordinates || !Array.isArray(incident.coordinates) || incident.coordinates.length !== 2) {
+            return false
+          }
+          
+          const [lng, lat] = incident.coordinates
+          
+          // Validate longitude: must be between -180 and 180
+          if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) {
+            console.warn('Invalid longitude:', lng, 'for incident:', incident.id)
+            return false
+          }
+          
+          // Validate latitude: must be between -90 and 90
+          if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) {
+            console.warn('Invalid latitude:', lat, 'for incident:', incident.id)
+            return false
+          }
+          
+          return true
+        })
+        .map(incident => incident.coordinates)
+      
+      if (validCoordinates.length === 0) {
+        console.log('No valid coordinates found for state:', stateFilter)
+        // Fallback to default state center if no valid coordinates
+        const stateCenters: { [key: string]: [number, number] } = {
+          'AL': [-86.7911, 32.8067], 'AK': [-152.4044, 61.3707], 'AZ': [-111.4312, 33.7298],
+          'AR': [-92.3731, 34.9697], 'CA': [-119.6816, 36.7783], 'CO': [-105.3111, 39.5501],
+          'CT': [-72.7550, 41.6032], 'DE': [-75.5071, 39.3185], 'FL': [-81.6868, 27.6648],
+          'GA': [-83.6431, 32.1656], 'HI': [-157.4983, 19.8968], 'ID': [-114.4784, 44.2405],
+          'IL': [-88.9861, 40.3495], 'IN': [-86.1349, 39.8494], 'IA': [-93.2105, 42.0329],
+          'KS': [-96.7265, 38.5266], 'KY': [-84.6701, 37.6681], 'LA': [-91.8678, 31.1695],
+          'ME': [-69.3819, 44.6939], 'MD': [-76.6413, 39.0639], 'MA': [-71.5301, 42.2304],
+          'MI': [-84.5362, 44.3148], 'MN': [-93.9000, 46.7296], 'MS': [-89.6785, 32.7416],
+          'MO': [-92.2884, 38.4561], 'MT': [-110.4544, 46.8797], 'NE': [-99.9018, 41.4925],
+          'NV': [-117.0554, 38.8026], 'NH': [-71.5639, 43.1939], 'NJ': [-74.2179, 40.0583],
+          'NM': [-106.2485, 34.5199], 'NY': [-74.2179, 43.2994], 'NC': [-79.0193, 35.7596],
+          'ND': [-99.7840, 47.5515], 'OH': [-82.7937, 40.4173], 'OK': [-96.9289, 35.0078],
+          'OR': [-120.5542, 43.8041], 'PA': [-77.2098, 40.5908], 'RI': [-71.5118, 41.6809],
+          'SC': [-80.9450, 33.8569], 'SD': [-99.4388, 44.2998], 'TN': [-86.6920, 35.7478],
+          'TX': [-99.9018, 31.9686], 'UT': [-111.8624, 39.3209], 'VT': [-72.7107, 44.0459],
+          'VA': [-78.6569, 37.4316], 'WA': [-121.4905, 47.4009], 'WV': [-80.7939, 38.5976],
+          'WI': [-89.6165, 44.2685], 'WY': [-107.3025, 42.7475]
+        }
+        
+        const fallbackCenter = stateCenters[stateFilter]
+        if (fallbackCenter) {
+          console.log('Using fallback center for state:', stateFilter, fallbackCenter)
+          map.current.flyTo({
+            center: fallbackCenter,
+            zoom: 6,
+            duration: 2000,
+            essential: true
+          })
+        }
+        return
+      }
+      
+      // Calculate center point
+      const totalLat = validCoordinates.reduce((sum, coord) => sum + coord[1], 0)
+      const totalLng = validCoordinates.reduce((sum, coord) => sum + coord[0], 0)
+      const centerLat = totalLat / validCoordinates.length
+      const centerLng = totalLng / validCoordinates.length
+      
+      // Final validation of calculated center
+      if (isNaN(centerLat) || isNaN(centerLng) || 
+          centerLat < -90 || centerLat > 90 || 
+          centerLng < -180 || centerLng > 180) {
+        console.error('Calculated center coordinates are invalid:', { lat: centerLat, lng: centerLng })
+        return
+      }
+      
+      console.log('📍 Centering map at:', { lat: centerLat, lng: centerLng })
+      
+      // Smoothly animate to the center point with appropriate zoom
+      map.current.flyTo({
+        center: [centerLng, centerLat],
+        zoom: 6, // Zoom in closer for state-level view
+        duration: 2000, // 2 second smooth animation
+        essential: true
+      })
+    } catch (error) {
+      console.error('Error centering map on state:', stateFilter, error)
+      // Don't crash the app, just log the error
     }
-    
-    // Calculate the center point of all incidents in the state
-    const validCoordinates = stateIncidents
-      .filter(incident => incident.coordinates && Array.isArray(incident.coordinates) && incident.coordinates.length === 2)
-      .map(incident => incident.coordinates)
-    
-    if (validCoordinates.length === 0) {
-      console.log('No valid coordinates found for state:', stateFilter)
-      return
-    }
-    
-    // Calculate center point
-    const totalLat = validCoordinates.reduce((sum, coord) => sum + coord[1], 0)
-    const totalLng = validCoordinates.reduce((sum, coord) => sum + coord[0], 0)
-    const centerLat = totalLat / validCoordinates.length
-    const centerLng = totalLng / validCoordinates.length
-    
-    console.log('📍 Centering map at:', { lat: centerLat, lng: centerLng })
-    
-    // Smoothly animate to the center point with appropriate zoom
-    map.current.flyTo({
-      center: [centerLng, centerLat],
-      zoom: 6, // Zoom in closer for state-level view
-      duration: 2000, // 2 second smooth animation
-      essential: true
-    })
   }
 
   // Apply client-side filters when incidents or other filters change
@@ -401,14 +466,18 @@ const MapView: React.FC = () => {
         return
       }
 
-      const [lat, lng] = incident.coordinates
+      const [lng, lat] = incident.coordinates // Mapbox expects [longitude, latitude] order
       
-      console.log(`📍 Coordinates: lat=${lat}, lng=${lng}`)
+      console.log(`📍 Coordinates: lng=${lng}, lat=${lat}`)
       
-      // Validate coordinate values
-      if (typeof lat !== 'number' || typeof lng !== 'number' || 
-          lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        console.warn('❌ Invalid coordinate values for incident:', incident.id, { lat, lng })
+      // Validate coordinate values with strict bounds checking
+      if (typeof lng !== 'number' || isNaN(lng) || lng < -180 || lng > 180) {
+        console.warn('❌ Invalid longitude for incident:', incident.id, { lng, lat })
+        return
+      }
+      
+      if (typeof lat !== 'number' || isNaN(lat) || lat < -90 || lat > 90) {
+        console.warn('❌ Invalid latitude for incident:', incident.id, { lng, lat })
         return
       }
 
@@ -437,11 +506,12 @@ const MapView: React.FC = () => {
       try {
         console.log(`🎨 Creating marker for incident ${incident.id}`)
         new mapboxgl.Marker(markerEl)
-          .setLngLat([lng, lat]) // Mapbox expects [longitude, latitude]
+          .setLngLat([lng, lat]) // Already in [longitude, latitude] order
           .addTo(map.current!)
         console.log(`✅ Marker created and added to map for incident ${incident.id}`)
       } catch (error) {
         console.error('❌ Error creating marker for incident:', incident.id, error)
+        // Continue with other markers instead of crashing
       }
     })
   }
