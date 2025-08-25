@@ -652,20 +652,20 @@ const MapView: React.FC = () => {
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={closeIncidentCard}
         >
-                    <div 
-            className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+          <div 
+            className="bg-white rounded-xl shadow-2xl w-full max-w-2xl h-[85vh] flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Card Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">{selectedIncident.company_name}</h2>
+            {/* Card Header - Fixed height to prevent clipping */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex-shrink-0">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-2xl font-bold mb-2 truncate">{selectedIncident.company_name}</h2>
                   <p className="text-blue-100 text-lg">{selectedIncident.city}, {selectedIncident.state}</p>
                 </div>
                 <button
                   onClick={closeIncidentCard}
-                  className="text-white hover:text-gray-200 transition-colors p-2"
+                  className="text-white hover:text-gray-200 transition-colors p-2 ml-4 flex-shrink-0"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -674,7 +674,7 @@ const MapView: React.FC = () => {
               </div>
               
               {/* Navigation Progress */}
-              <div className="flex items-center justify-center mt-4">
+              <div className="flex items-center justify-center">
                 <button
                   onClick={navigateToPreviousIncident}
                   className="text-white hover:text-blue-200 transition-colors p-2 mr-4"
@@ -701,14 +701,53 @@ const MapView: React.FC = () => {
               </div>
             </div>
 
-            {/* Card Content */}
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card Content - Fixed height with scrollable content */}
+            <div className="p-6 overflow-y-auto flex-1">
+              {/* Top Section - Business Info and Description */}
+              <div className="space-y-4 mb-6">
+                {/* Business Information */}
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-3 text-lg">Business Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-blue-700 font-medium">Company:</span>
+                      <span className="text-blue-900 font-semibold">{selectedIncident.company_name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700 font-medium">Industry:</span>
+                      <span className="text-blue-900 font-semibold">{selectedIncident.industry}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700 font-medium">Address:</span>
+                      <span className="text-blue-900 font-semibold">{selectedIncident.address}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700 font-medium">Location:</span>
+                      <span className="text-blue-900 font-semibold">{selectedIncident.city}, {selectedIncident.state}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description - Always show, even if empty */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-gray-900 mb-3 text-lg">Description</h3>
+                  {selectedIncident.description ? (
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {selectedIncident.description}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">No description available for this incident.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Bottom Section - Incident Details in Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Left Column */}
                 <div className="space-y-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2">Incident Details</h3>
-                    <div className="space-y-2 text-sm">
+                    <h3 className="font-semibold text-gray-900 mb-3">Incident Details</h3>
+                    <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Type:</span>
                         <span className="font-medium capitalize">{selectedIncident.incident_type.replace('_', ' ')}</span>
@@ -718,30 +757,8 @@ const MapView: React.FC = () => {
                         <span className="font-medium">{formatDate(selectedIncident.incident_date)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Industry:</span>
-                        <span className="font-medium">{selectedIncident.industry}</span>
-                      </div>
-                      <div className="flex justify-between">
                         <span className="text-gray-600">OSHA ID:</span>
                         <span className="font-medium font-mono text-xs">{selectedIncident.osha_id}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Address:</span>
-                        <span className="font-medium">{selectedIncident.address}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">City:</span>
-                        <span className="font-medium">{selectedIncident.city}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">State:</span>
-                        <span className="font-medium">{selectedIncident.state}</span>
                       </div>
                     </div>
                   </div>
@@ -750,11 +767,11 @@ const MapView: React.FC = () => {
                 {/* Right Column */}
                 <div className="space-y-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 mb-2">Investigation Status</h3>
-                    <div className="space-y-2 text-sm">
+                    <h3 className="font-semibold text-gray-900 mb-3">Investigation Status</h3>
+                    <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Status:</span>
-                        <span className={`font-medium px-2 py-1 rounded text-xs ${
+                        <span className={`font-medium px-3 py-1 rounded-full text-xs ${
                           selectedIncident.investigation_status === 'closed' 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-yellow-100 text-yellow-800'
@@ -772,21 +789,12 @@ const MapView: React.FC = () => {
                       </div>
                     </div>
                   </div>
-
-                  {selectedIncident.description && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        {selectedIncident.description}
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
 
-            {/* Card Footer */}
-            <div className="bg-gray-50 px-6 py-4 border-t">
+            {/* Card Footer - Fixed height */}
+            <div className="bg-gray-50 px-6 py-4 border-t flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
                   Click outside or press ESC to close
