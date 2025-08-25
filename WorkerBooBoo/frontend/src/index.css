@@ -10,6 +10,33 @@
   body {
     @apply bg-gray-50 text-gray-900;
   }
+  
+  /* Ensure application content is above browser UI */
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Mobile-first touch improvements */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Ensure map view content is properly layered */
+  .map-view-container {
+    position: relative;
+    z-index: 10;
+  }
+  
+  /* Improve scrolling on mobile */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent zoom on input focus on iOS */
+  input, select, textarea {
+    font-size: 16px;
+  }
 }
 
 @layer components {
@@ -31,5 +58,346 @@
   
   .mapboxgl-popup-content {
     @apply rounded-lg shadow-lg border-0;
+  }
+  
+  /* Mobile-specific button styles */
+  .btn-mobile {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  /* Mobile bottom sheet styles */
+  .mobile-bottom-sheet {
+    @apply fixed inset-x-0 bottom-0 z-100 bg-white shadow-2xl border-t border-gray-200;
+    animation: slideUp 0.3s ease-out;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+  
+  /* Mobile bottom sheet with better edge spacing */
+  .mobile-bottom-sheet {
+    @apply fixed inset-x-0 bottom-0 z-100 bg-white shadow-2xl border-t border-gray-200;
+    animation: slideUp 0.3s ease-out;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    border-radius: 1.5rem 1.5rem 0 0;
+    max-height: 75vh;
+  }
+  
+  /* Mobile close button improvements */
+  .mobile-close-btn {
+    @apply p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors;
+    min-width: 48px;
+    min-height: 48px;
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+  }
+  
+  .mobile-close-btn:active {
+    @apply bg-gray-100 scale-95;
+    transition: all 0.1s ease;
+  }
+  
+  /* Mobile drag handle improvements */
+  .mobile-drag-handle {
+    @apply flex justify-center pt-3 pb-2 cursor-pointer;
+    min-height: 60px;
+  }
+  
+  .mobile-drag-handle::after {
+    content: '';
+    @apply w-12 h-1 bg-gray-300 rounded-full;
+  }
+  
+  .mobile-drag-handle:hover::after {
+    @apply bg-gray-400;
+  }
+  
+  .mobile-drag-handle:active::after {
+    @apply bg-gray-500;
+  }
+  
+  /* Mobile bottom sheet backdrop */
+  .mobile-bottom-sheet-backdrop {
+    @apply fixed inset-0 bg-black bg-opacity-25 z-90;
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  /* Mobile bottom sheet animations */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideDown {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Mobile filter toggle */
+  .mobile-filter-toggle {
+    @apply flex items-center space-x-2 bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition-colors;
+    min-height: 48px;
+  }
+  
+  /* Mobile-friendly form controls */
+  .mobile-select {
+    @apply block w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    min-height: 48px;
+  }
+  
+  .mobile-input {
+    @apply block w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    min-height: 48px;
+  }
+  
+  /* Mobile navigation improvements */
+  .mobile-nav-item {
+    @apply flex items-center px-4 py-4 text-base font-medium rounded-xl transition-all duration-200;
+    min-height: 56px;
+  }
+  
+  /* Mobile map controls */
+  .mobile-map-control {
+    @apply absolute bg-white rounded-lg shadow-lg p-3 z-10;
+    min-width: 120px;
+  }
+  
+  /* Mobile incident card */
+  .mobile-incident-card {
+    @apply bg-gray-50 rounded-lg p-4 space-y-3;
+  }
+  
+  /* Mobile status badge */
+  .mobile-status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  /* Mobile drag handle */
+  .mobile-drag-handle {
+    @apply flex justify-center pt-3 pb-2;
+  }
+  
+  .mobile-drag-handle::after {
+    content: '';
+    @apply w-12 h-1 bg-gray-300 rounded-full;
+  }
+  
+  /* Mobile close button */
+  .mobile-close-btn {
+    @apply p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors;
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  /* Mobile legend */
+  .mobile-legend {
+    @apply absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3 z-10;
+    max-width: 140px;
+  }
+  
+  /* Mobile filter panel */
+  .mobile-filter-panel {
+    @apply mt-4 space-y-4 p-4 bg-gray-50 rounded-lg max-h-[70vh] overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  /* Mobile filter panel with better scrolling */
+  .mobile-filter-panel {
+    @apply mt-4 space-y-4 p-4 bg-gray-50 rounded-lg max-h-[70vh] overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile state filter improvements */
+  .mobile-state-filter {
+    @apply relative;
+  }
+  
+  .mobile-state-filter select {
+    @apply w-full;
+    max-height: 200px;
+  }
+  
+  /* Mobile search input styling */
+  .mobile-search-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    min-height: 40px;
+  }
+  
+  /* Mobile filter labels */
+  .mobile-filter-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+  
+  /* Mobile filter spacing */
+  .mobile-filter-section {
+    @apply mb-4;
+  }
+  
+  /* Mobile filter toggle improvements */
+  .mobile-filter-toggle {
+    @apply flex items-center space-x-2 bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition-colors;
+    min-height: 48px;
+  }
+  
+  /* Mobile filter panel animations */
+  .mobile-filter-panel {
+    @apply mt-4 space-y-4 p-4 bg-gray-50 rounded-lg max-h-[70vh] overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  /* Mobile filter close button */
+  .mobile-filter-close {
+    @apply absolute top-2 right-2 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  /* Mobile grid layouts */
+  .mobile-grid-2 {
+    @apply grid grid-cols-2 gap-3;
+  }
+  
+  /* Mobile spacing utilities */
+  .mobile-space-y {
+    @apply space-y-4;
+  }
+  
+  .mobile-px {
+    @apply px-4;
+  }
+  
+  .mobile-py {
+    @apply py-3;
+  }
+}
+
+@layer utilities {
+  /* Mobile-specific utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Mobile animations */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideDown {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+  
+  /* Mobile responsive text */
+  .mobile-text-sm {
+    @apply text-sm;
+  }
+  
+  .mobile-text-base {
+    @apply text-base;
+  }
+  
+  .mobile-text-lg {
+    @apply text-lg;
+  }
+  
+  .mobile-text-xl {
+    @apply text-xl;
+  }
+  
+  /* Mobile responsive spacing */
+  .mobile-gap-2 {
+    @apply gap-2;
+  }
+  
+  .mobile-gap-3 {
+    @apply gap-3;
+  }
+  
+  .mobile-gap-4 {
+    @apply gap-4;
+  }
+  
+  /* Mobile z-index utilities */
+  .z-100 {
+    z-index: 100;
+  }
+  
+  .z-90 {
+    z-index: 90;
+  }
+  
+  .z-80 {
+    z-index: 80;
+  }
+}
+
+/* Mobile-specific media queries */
+@media (max-width: 640px) {
+  .mobile-bottom-sheet {
+    max-height: 85vh;
+  }
+  
+  .mobile-filter-panel {
+    @apply mx-2;
+  }
+  
+  .mobile-legend {
+    @apply left-2 bottom-2;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .btn-primary,
+  .btn-secondary {
+    @apply active:scale-95 transition-transform;
+  }
+  
+  .mobile-nav-item {
+    @apply active:bg-gray-100;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .mobile-drag-handle::after {
+    @apply bg-gray-400;
   }
 }

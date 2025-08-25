@@ -28,38 +28,45 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
-          <div className="flex h-16 items-center justify-between px-4">
+      {/* Mobile sidebar - Full screen overlay */}
+      <div className={`fixed inset-0 z-90 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
+        {/* Backdrop */}
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+        
+        {/* Sidebar */}
+        <div className="fixed inset-y-0 left-0 flex w-80 max-w-[85vw] flex-col bg-white shadow-2xl">
+          <div className="flex h-16 items-center justify-between px-6 py-4 border-b border-gray-200">
             <div className="flex items-center">
-              <div className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">WB</span>
+              <div className="h-10 w-10 bg-primary-600 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-lg">WB</span>
               </div>
-              <span className="ml-2 text-lg font-semibold text-gray-900">WorkerBooBoo</span>
+              <span className="ml-3 text-xl font-bold text-gray-900">WorkerBooBoo</span>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <XMarkIcon className="h-6 w-6" />
+              <XMarkIcon className="h-7 w-7" />
             </button>
           </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
+          
+          <nav className="flex-1 space-y-2 px-4 py-6">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                className={`group flex items-center px-4 py-4 text-base font-medium rounded-xl transition-all duration-200 ${
                   isActive(item.href)
-                    ? 'bg-primary-100 text-primary-900'
+                    ? 'bg-primary-100 text-primary-900 shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
                 <item.icon
-                  className={`mr-3 h-5 w-5 ${
+                  className={`mr-4 h-6 w-6 ${
                     isActive(item.href) ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500'
                   }`}
                 />
@@ -67,6 +74,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
             ))}
           </nav>
+          
+          {/* Mobile footer */}
+          <div className="border-t border-gray-200 px-4 py-4">
+            <div className="text-sm text-gray-500 text-center">
+              Workplace Safety Data
+            </div>
+          </div>
         </div>
       </div>
 
@@ -104,29 +118,31 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top bar */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+        {/* Top bar - Mobile optimized */}
+        <div className="sticky top-0 z-80 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+          {/* Mobile menu button - Larger touch target */}
           <button
             type="button"
-            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+            className="lg:hidden p-2 -m-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             onClick={() => setSidebarOpen(true)}
           >
-            <Bars3Icon className="h-6 w-6" />
+            <Bars3Icon className="h-7 w-7" />
           </button>
           
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1"></div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <div className="text-sm text-gray-500">
-                Workplace Safety Data
+              {/* Mobile title */}
+              <div className="lg:hidden text-lg font-semibold text-gray-900">
+                {navigation.find(item => isActive(item.href))?.name || 'WorkerBooBoo'}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Page content */}
-        <main className="py-6">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Page content - Mobile optimized padding */}
+        <main className="py-4 sm:py-6">
+          <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-8">
             {children}
           </div>
         </main>
