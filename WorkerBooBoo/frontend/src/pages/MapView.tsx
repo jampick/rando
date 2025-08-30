@@ -19,6 +19,15 @@ interface Incident {
   investigation_status: string
   citations_issued: boolean
   penalty_amount: number | null
+  // OIICS Fields
+  body_part?: string
+  event_type?: string
+  source?: string
+  secondary_source?: string
+  hospitalized?: boolean
+  amputation?: boolean
+  inspection_id?: string
+  jurisdiction?: string
 }
 
 interface MapFilters {
@@ -930,9 +939,79 @@ const MapView: React.FC = () => {
 
             {/* Card Content - Fixed height with scrollable content */}
             <div className="p-6 overflow-y-auto flex-1">
-              {/* Top Section - Business Info and Description */}
+              {/* Top Section - OIICS Classification First */}
               <div className="space-y-4 mb-6">
-                {/* Business Information */}
+                {/* OIICS Classification - Show if any OIICS data is available */}
+                {(selectedIncident.body_part || selectedIncident.event_type || selectedIncident.source || 
+                  selectedIncident.hospitalized !== undefined || selectedIncident.amputation !== undefined) && (
+                  <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-3 text-lg">Injury Classification (OIICS)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      {selectedIncident.body_part && (
+                        <div className="flex justify-between">
+                          <span className="text-orange-700 dark:text-orange-300 font-medium">Body Part:</span>
+                          <span className="text-orange-900 dark:text-orange-100 font-semibold">{selectedIncident.body_part}</span>
+                        </div>
+                      )}
+                      {selectedIncident.event_type && (
+                        <div className="flex justify-between">
+                          <span className="text-orange-700 dark:text-orange-300 font-medium">Event Type:</span>
+                          <span className="text-orange-900 dark:text-orange-100 font-semibold">{selectedIncident.event_type}</span>
+                        </div>
+                      )}
+                      {selectedIncident.source && (
+                        <div className="flex justify-between">
+                          <span className="text-orange-700 dark:text-orange-300 font-medium">Source:</span>
+                          <span className="text-orange-900 dark:text-orange-100 font-semibold">{selectedIncident.source}</span>
+                        </div>
+                      )}
+                      {selectedIncident.secondary_source && (
+                        <div className="flex justify-between">
+                          <span className="text-orange-700 dark:text-orange-300 font-medium">Secondary Source:</span>
+                          <span className="text-orange-900 dark:text-orange-100 font-semibold">{selectedIncident.secondary_source}</span>
+                        </div>
+                      )}
+                      {selectedIncident.hospitalized !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="text-orange-700 dark:text-orange-300 font-medium">Hospitalized:</span>
+                          <span className={`font-semibold px-2 py-1 rounded-full text-xs ${
+                            selectedIncident.hospitalized 
+                              ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' 
+                              : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                          }`}>
+                            {selectedIncident.hospitalized ? 'Yes' : 'No'}
+                          </span>
+                        </div>
+                      )}
+                      {selectedIncident.amputation !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="text-orange-700 dark:text-orange-300 font-medium">Amputation:</span>
+                          <span className={`font-semibold px-2 py-1 rounded-full text-xs ${
+                            selectedIncident.amputation 
+                              ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' 
+                              : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                          }`}>
+                            {selectedIncident.amputation ? 'Yes' : 'No'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Description - Always show, even if empty */}
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3 text-lg">Description</h3>
+                  {selectedIncident.description ? (
+                    <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
+                      {selectedIncident.description}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">No description available for this incident.</p>
+                  )}
+                </div>
+
+                {/* Business Information - Moved below description */}
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                   <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 text-lg">Business Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -953,18 +1032,6 @@ const MapView: React.FC = () => {
                       <span className="text-blue-900 dark:text-blue-100 font-semibold">{selectedIncident.city}, {selectedIncident.state}</span>
                     </div>
                   </div>
-                </div>
-
-                {/* Description - Always show, even if empty */}
-                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3 text-lg">Description</h3>
-                  {selectedIncident.description ? (
-                    <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
-                      {selectedIncident.description}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">No description available for this incident.</p>
-                  )}
                 </div>
               </div>
 
@@ -1006,6 +1073,18 @@ const MapView: React.FC = () => {
                           {selectedIncident.investigation_status}
                         </span>
                       </div>
+                      {selectedIncident.inspection_id && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-300">Inspection ID:</span>
+                          <span className="font-medium font-mono text-xs text-gray-900 dark:text-white">{selectedIncident.inspection_id}</span>
+                        </div>
+                      )}
+                      {selectedIncident.jurisdiction && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-300">Jurisdiction:</span>
+                          <span className="font-medium text-gray-900 dark:text-white">{selectedIncident.jurisdiction}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-gray-600 dark:text-gray-300">Citations:</span>
                         <span className="font-medium text-gray-900 dark:text-white">{selectedIncident.citations_issued ? 'Yes' : 'No'}</span>

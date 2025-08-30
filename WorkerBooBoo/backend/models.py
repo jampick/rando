@@ -16,6 +16,15 @@ class IncidentBase(BaseModel):
     investigation_status: Optional[str] = None
     citations_issued: bool = False
     penalty_amount: Optional[float] = None
+    # OIICS Fields
+    body_part: Optional[str] = None
+    event_type: Optional[str] = None
+    source: Optional[str] = None
+    secondary_source: Optional[str] = None
+    hospitalized: Optional[bool] = None
+    amputation: Optional[bool] = None
+    inspection_id: Optional[str] = None
+    jurisdiction: Optional[str] = None
 
 class IncidentCreate(IncidentBase):
     osha_id: str

@@ -34,8 +34,8 @@ async def get_statistics_overview(
     
     # Total counts
     total_incidents = query.count()
-    total_fatalities = query.filter(WorkplaceIncident.incident_type == "fatality").count()
-    total_injuries = query.filter(WorkplaceIncident.incident_type != "fatality").count()
+    total_fatalities = query.filter(WorkplaceIncident.incident_type == "Fatality").count()
+    total_injuries = query.filter(WorkplaceIncident.incident_type != "Fatality").count()
     
     # Incidents by year (apply same filters)
     year_query = db.query(WorkplaceIncident)

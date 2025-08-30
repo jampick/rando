@@ -135,7 +135,16 @@ async def get_map_incidents(
             "description": incident.description,
             "investigation_status": incident.investigation_status,
             "citations_issued": incident.citations_issued,
-            "penalty_amount": incident.penalty_amount
+            "penalty_amount": incident.penalty_amount,
+            # OIICS Fields
+            "body_part": incident.body_part,
+            "event_type": incident.event_type,
+            "source": incident.source,
+            "secondary_source": incident.secondary_source,
+            "hospitalized": incident.hospitalized,
+            "amputation": incident.amputation,
+            "inspection_id": incident.inspection_id,
+            "jurisdiction": incident.jurisdiction
         }
         map_incidents.append(map_incident)
     

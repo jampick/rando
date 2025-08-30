@@ -37,6 +37,15 @@ class WorkplaceIncident(Base):
     investigation_status = Column(String)
     citations_issued = Column(Boolean, default=False)
     penalty_amount = Column(Float)
+    # OIICS Fields
+    body_part = Column(String)
+    event_type = Column(String)
+    source = Column(String)
+    secondary_source = Column(String)
+    hospitalized = Column(Boolean)
+    amputation = Column(Boolean)
+    inspection_id = Column(String)
+    jurisdiction = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
