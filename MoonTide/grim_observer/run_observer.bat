@@ -59,6 +59,10 @@ echo   scan        - Process entire log file once, then exit
 echo   monitor     - Monitor for new events only (no historical)
 echo   scan-monitor - Process entire log, then monitor new events (default)
 echo.
+echo Note: Auto-detection is now enabled by default. The system will
+echo automatically find and monitor the most recent ConanSandbox.log file
+echo in the specified log directory.
+echo.
 echo [DEBUG] Exiting with code 1: No arguments provided
 pause
 exit /b 1
@@ -153,12 +157,13 @@ REM Run the observer with selected mode
 echo.
 echo [DEBUG] All checks passed, starting Grim Observer...
 echo Starting Grim Observer for %MAP% map in %MODE% mode...
-echo Log file: %LOG_FILE_PATH%
+echo Log directory: %LOG_FILE_PATH%
+echo Auto-detection: ENABLED
 echo Press Ctrl+C to stop
 echo.
 
-echo [DEBUG] Running command: python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl
-python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl
+echo [DEBUG] Running command: python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
+python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
 
 echo.
 echo [DEBUG] Python script finished

@@ -1,6 +1,7 @@
 {
   "version": "1.0.0",
   "version_date": "2025-08-09",
+  "log_file_path": "~/Library/Application Support/Steam/steamapps/common/Conan Exiles/ConanSandbox/Saved/Logs",
   "output_file": "grim_events_exiled.json",
   "check_interval": 1.0,
   "verbose": true,
@@ -10,6 +11,7 @@
   "player_count_update_interval": 30,
   "map_name": "exiled",
   "map_description": "Exiled Lands - The original map with classic Conan Exiles content",
+  "auto_detect_log": true,
   "patterns": {
     "player_connected": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) \\((\\S+):(\\d+)\\) connected",
     "player_disconnected_battleye": "BattlEyeServer: Print Message: Player #(\\d+) (\\S+) disconnected",

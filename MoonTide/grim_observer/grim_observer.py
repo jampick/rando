@@ -476,6 +476,10 @@ class GrimObserver:
     def get_current_position(self) -> int:
         """Get current position in the log file."""
         try:
+            # Check if the log_file_path is actually a file
+            if not os.path.isfile(self.log_file_path):
+                return 0
+                
             log_path = Path(self.log_file_path)
             return log_path.stat().st_size
         except OSError:
@@ -484,6 +488,11 @@ class GrimObserver:
     def read_new_lines(self) -> List[str]:
         """Read new lines from the log file since last check."""
         try:
+            # Check if the log_file_path is actually a file
+            if not os.path.isfile(self.log_file_path):
+                self.logger.warning(f"Log file path is not a file: {self.log_file_path}")
+                return []
+                
             with open(self.log_file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 f.seek(self.current_position)
                 new_lines = f.readlines()
@@ -562,6 +571,11 @@ class GrimObserver:
         events = []
         
         try:
+            # Check if the log_file_path is actually a file
+            if not os.path.isfile(self.log_file_path):
+                self.logger.warning(f"Log file path is not a file: {self.log_file_path}")
+                return []
+                
             with open(self.log_file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 total_lines = 0
                 for line_num, line in enumerate(f, 1):
@@ -1357,8 +1371,20 @@ class GrimObserver:
         self.running = True
         self.current_position = self.get_current_position()
         
+        # Track when we last checked for new log files
+        last_log_file_check = time.time()
+        log_file_check_interval = 60  # Check for new log files every 60 seconds
+        
         try:
             while self.running:
+                # Check for new log files periodically
+                current_time = time.time()
+                if current_time - last_log_file_check >= log_file_check_interval:
+                    if self.switch_to_active_log_file():
+                        # If we switched files, update the position
+                        self.current_position = self.get_current_position()
+                    last_log_file_check = current_time
+                
                 new_lines = self.read_new_lines()
                 
                 for line in new_lines:
@@ -1448,6 +1474,94 @@ class GrimObserver:
                 self.logger.info(f"  No timestamp found in line")
         self.logger.info("=== END TIMESTAMP DEBUG ===")
     
+    def detect_active_log_file(self, log_directory: str = None) -> str:
+        """Detect the most recent/active log file in the specified directory.
+        
+        Args:
+            log_directory: Directory to search for log files. If None, uses the directory of current log_file_path.
+            
+        Returns:
+            Path to the most recent log file, or the original log_file_path if no better file found.
+        """
+        if log_directory is None:
+            # Extract directory from current log_file_path
+            log_directory = str(Path(self.log_file_path).parent)
+        
+        self.logger.info(f"Searching for active log files in: {log_directory}")
+        
+        try:
+            log_dir = Path(log_directory)
+            if not log_dir.exists():
+                self.logger.warning(f"Log directory does not exist: {log_directory}")
+                return self.log_file_path
+            
+            # Look for ConanSandbox.log files (with potential timestamps or numbers)
+            log_patterns = [
+                "ConanSandbox.log",
+                "ConanSandbox*.log",
+                "ConanSandbox_*.log",
+                "ConanSandbox-*.log"
+            ]
+            
+            candidate_files = []
+            for pattern in log_patterns:
+                candidate_files.extend(log_dir.glob(pattern))
+            
+            if not candidate_files:
+                self.logger.warning(f"No log files found matching patterns in: {log_directory}")
+                return self.log_file_path
+            
+            # Sort by modification time (most recent first)
+            candidate_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+            
+            # Check if the most recent file is actually being written to
+            most_recent = candidate_files[0]
+            current_time = time.time()
+            file_age = current_time - most_recent.stat().st_mtime
+            
+            # If file is older than 5 minutes, it might not be active
+            if file_age > 300:  # 5 minutes
+                self.logger.warning(f"Most recent log file appears stale (age: {file_age:.1f}s): {most_recent}")
+                
+                # Look for files modified in the last 10 minutes
+                recent_files = [f for f in candidate_files if (current_time - f.stat().st_mtime) < 600]
+                if recent_files:
+                    most_recent = recent_files[0]
+                    self.logger.info(f"Found more recent active file: {most_recent}")
+                else:
+                    self.logger.warning("No recently modified log files found, using most recent anyway")
+            
+            self.logger.info(f"Selected active log file: {most_recent}")
+            return str(most_recent)
+            
+        except Exception as e:
+            self.logger.error(f"Error detecting active log file: {e}")
+            return self.log_file_path
+    
+    def switch_to_active_log_file(self) -> bool:
+        """Switch to the most active log file if it's different from current one.
+        
+        Returns:
+            True if switched to a new file, False otherwise.
+        """
+        new_log_file = self.detect_active_log_file()
+        
+        if new_log_file != self.log_file_path:
+            self.logger.info(f"Switching from {self.log_file_path} to {new_log_file}")
+            
+            # Reset position to start reading from beginning of new file
+            self.log_file_path = new_log_file
+            self.current_position = 0
+            
+            # Scan the new file to get current player state
+            new_events = self.scan_entire_log()
+            self.events.extend(new_events)
+            
+            self.logger.info(f"Switched to new log file, found {len(new_events)} additional events")
+            return True
+        
+        return False
+
 def load_secrets(map_name: Optional[str] = None) -> Dict[str, str]:
     """Load secrets from environment variables set by the batch wrapper.
     
@@ -1493,7 +1607,7 @@ def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description='Monitor Conan Exiles server logs for player events')
     parser.add_argument('mode', choices=['scan', 'monitor', 'scan-monitor'], help='Operation mode')
-    parser.add_argument('log_file', help='Path to the log file to monitor')
+    parser.add_argument('log_file', help='Path to the log file to monitor (or directory for auto-detection)')
     parser.add_argument('--output', help='Output file for events (JSON format)')
     parser.add_argument('--interval', type=float, default=1.0, help='Check interval in seconds')
     parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose logging')
@@ -1510,6 +1624,8 @@ def main():
     parser.add_argument('--footer-icon-url', help='Custom footer icon URL for empty server messages')
     parser.add_argument('--no-random-images', action='store_true', help='Disable image randomization for empty server messages (use same images each time)')
     parser.add_argument('--debug-timestamps', action='store_true', help='Enable timestamp parsing debugging to troubleshoot duration issues')
+    parser.add_argument('--auto-detect-log', action='store_true', help='Auto-detect the most recent log file in the specified directory')
+    parser.add_argument('--log-directory', help='Directory to search for log files (overrides log_file argument)')
     
     args = parser.parse_args()
     
@@ -1536,6 +1652,8 @@ def main():
     print(f"[DEBUG] - footer-icon-url: {args.footer_icon_url}", file=sys.stderr)
     print(f"[DEBUG] - no-random-images: {args.no_random_images}", file=sys.stderr)
     print(f"[DEBUG] - debug-timestamps: {args.debug_timestamps}", file=sys.stderr)
+    print(f"[DEBUG] - auto-detect-log: {args.auto_detect_log}", file=sys.stderr)
+    print(f"[DEBUG] - log-directory: {args.log_directory}", file=sys.stderr)
     
     # Load secrets based on map parameter
     secrets = load_secrets(args.map)
@@ -1548,10 +1666,31 @@ def main():
             print("[GrimObserver][WARN] Discord webhook URL not found in secrets or environment", file=sys.stderr)
             print("[GrimObserver][WARN] Set DISCORD_WEBHOOK_URL environment variable or create secrets file", file=sys.stderr)
     
+    # Handle log file auto-detection
+    log_file_path = args.log_file
+    if args.auto_detect_log or args.log_directory:
+        # Create a temporary observer to use its detection method
+        temp_observer = GrimObserver(
+            log_file_path=args.log_directory or args.log_file,
+            discord_webhook_url=discord_webhook_url,
+            output_file=args.output,
+            empty_server_message_interval=args.empty_interval * 3600,
+            use_rich_embeds=not args.no_rich_embeds,
+            force_curl=args.force_curl
+        )
+        
+        # Detect the active log file
+        detected_file = temp_observer.detect_active_log_file(args.log_directory)
+        if detected_file != args.log_file:
+            print(f"[GrimObserver][INFO] Auto-detected log file: {detected_file}", file=sys.stderr)
+            log_file_path = detected_file
+        else:
+            print(f"[GrimObserver][INFO] Using specified log file: {args.log_file}", file=sys.stderr)
+    
     try:
         # Create Grim Observer instance
         observer = GrimObserver(
-            log_file_path=args.log_file,
+            log_file_path=log_file_path,
             discord_webhook_url=discord_webhook_url,
             output_file=args.output,
             empty_server_message_interval=args.empty_interval * 3600,  # Convert hours to seconds
