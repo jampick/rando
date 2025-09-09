@@ -7,7 +7,7 @@ class IncidentBase(BaseModel):
     address: str
     city: str
     state: str
-    zip_code: str
+    zip_code: Optional[str] = None
     incident_date: datetime
     incident_type: str
     industry: str
@@ -25,6 +25,11 @@ class IncidentBase(BaseModel):
     amputation: Optional[bool] = None
     inspection_id: Optional[str] = None
     jurisdiction: Optional[str] = None
+    # Icon Category Fields
+    icon_injury: Optional[str] = None
+    icon_event: Optional[str] = None
+    icon_source: Optional[str] = None
+    icon_severity: Optional[str] = None
 
 class IncidentCreate(IncidentBase):
     osha_id: str
@@ -47,6 +52,20 @@ class IncidentUpdate(BaseModel):
     penalty_amount: Optional[float] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    # OIICS Fields
+    body_part: Optional[str] = None
+    event_type: Optional[str] = None
+    source: Optional[str] = None
+    secondary_source: Optional[str] = None
+    hospitalized: Optional[bool] = None
+    amputation: Optional[bool] = None
+    inspection_id: Optional[str] = None
+    jurisdiction: Optional[str] = None
+    # Icon Category Fields
+    icon_injury: Optional[str] = None
+    icon_event: Optional[str] = None
+    icon_source: Optional[str] = None
+    icon_severity: Optional[str] = None
 
 class Incident(IncidentBase):
     id: int

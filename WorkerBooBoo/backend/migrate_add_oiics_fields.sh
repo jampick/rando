@@ -30,3 +30,4 @@ python3 migrate_add_oiics_fields.py
 echo ""
 echo "Migration completed!"
 echo ""
+

@@ -46,6 +46,11 @@ class WorkplaceIncident(Base):
     amputation = Column(Boolean)
     inspection_id = Column(String)
     jurisdiction = Column(String)
+    # Icon Category Fields
+    icon_injury = Column(String, index=True)
+    icon_event = Column(String, index=True)
+    icon_source = Column(String, index=True)
+    icon_severity = Column(String, index=True)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 

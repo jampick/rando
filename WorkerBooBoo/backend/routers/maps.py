@@ -144,7 +144,12 @@ async def get_map_incidents(
             "hospitalized": incident.hospitalized,
             "amputation": incident.amputation,
             "inspection_id": incident.inspection_id,
-            "jurisdiction": incident.jurisdiction
+            "jurisdiction": incident.jurisdiction,
+            # Icon Category Fields
+            "icon_injury": incident.icon_injury,
+            "icon_event": incident.icon_event,
+            "icon_source": incident.icon_source,
+            "icon_severity": incident.icon_severity
         }
         map_incidents.append(map_incident)
     

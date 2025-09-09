@@ -20,6 +20,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from database import SessionLocal, WorkplaceIncident, Industry, Base, engine
 from models import IncidentCreate
+from icon_categories import icon_mapper
 
 # Configure logging
 logging.basicConfig(
@@ -338,6 +339,22 @@ class DatabaseResetAndReimport:
                         'amputation': oiics_record.get('amputation'),
                         'inspection_id': oiics_record.get('inspection_id'),
                         'jurisdiction': oiics_record.get('jurisdiction'),
+                        # Icon Category Fields
+                        'icon_injury': icon_mapper.map_injury_category(
+                            oiics_record.get('body_part'), 
+                            incident_data['incident_type']
+                        ),
+                        'icon_event': icon_mapper.map_event_category(
+                            oiics_record.get('event_type')
+                        ),
+                        'icon_source': icon_mapper.map_source_category(
+                            oiics_record.get('source')
+                        ),
+                        'icon_severity': icon_mapper.map_severity_category(
+                            oiics_record.get('hospitalized'),
+                            oiics_record.get('amputation'),
+                            incident_data['incident_type']
+                        ),
                         'created_at': datetime.now(),
                         'updated_at': datetime.now()
                     }
