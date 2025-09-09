@@ -145,11 +145,11 @@ Rare celestial and seasonal events stack on top of the lunar phases to create mo
 
 | Event | Theme | Trigger | Systems snapshot | Integration | Status |
 |---|---|---|---|---|---|
-| 🩸 Blood Moon | Elite danger, high reward | Near full moon (weekend bias, ~24h window) | `NPCHealth↑`, `PurgeLevel↑`, `Aggro↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDmgTaken↑`, `HealthbarDist↑`, `ThrallDmgToNPCs↓` | **Grim Observer**: High-activity alerts, player tracking | **DISABLED** |
+| 🩸 Blood Moon | Elite danger, high reward | Near full moon (weekend bias, ~24h window) | `NPCHealth↑`, `PurgeLevel↑`, `Aggro↑`, `SpawnCap↑`, `Respawn↓`, `PlayerDmgTaken↑`, `HealthbarDist↑`, `ThrallDmgToNPCs↓` | **Grim Observer**: High-activity alerts, player tracking | **ENABLED** |
 | 🔥 Solar Flare | Heat and fatigue | Summer months, daily 12:00–14:00 | `ActiveThirst↑`, `IdleThirst↓`, `StaminaRegenTime↑`, `SprintCost↑`, `MoveSpeed↓` | **Grim Observer**: Player behavior monitoring, resource alerts | **NOT CONFIGURED** |
 | ❄️ Winter Solstice | Long, cold nights | Dec 20–23, nights 18:00–06:00 | `NightSpeed↓`, `DaySpeed↑`, `StaminaCost↑`, `ActiveHunger↑`, `ActiveThirst↑`, `StaminaRegenTime↑`, `PlayerDmgTaken↑`, `HealthbarDist↑` | **Grim Observer**: Night activity tracking, seasonal notifications | **NOT CONFIGURED** |
 | 🌪️ Storm Season | Environmental hazard | Weather trigger (stub) or Sep–Nov seasonal window | `BuildingDmg↑`, `SprintSpeed↓`, `ConsumeRegenPause↑`, `ExhaustRegenPause↑`, `MoveSpeed↓` | **Grim Observer**: Building damage alerts, movement monitoring | **NOT CONFIGURED** |
-| 🔵 Blue Moon | Progression surge | Second full moon in month; Fri 18:00–Sun 23:59 | `XPTimeOnline↑(PlayerXPTime↑)`, `XPRate↑`, `XPKill↑`, `XPHarvest↑`, `XPCraft↑` | **Grim Observer**: XP event coordination, player onboarding | **DISABLED** |
+| 🔵 Blue Moon | Progression surge | Second full moon in month; Fri 18:00–Sun 23:59 | `XPTimeOnline↑(PlayerXPTime↑)`, `XPRate↑`, `XPKill↑`, `XPHarvest↑`, `XPCraft↑` | **Grim Observer**: XP event coordination, player onboarding | **ENABLED** |
 
 ---
 

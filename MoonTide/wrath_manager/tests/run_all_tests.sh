@@ -66,8 +66,23 @@ else
 fi
 echo
 
-# 4) Verify actual write deltas on a temp copy (Full Moon example)
-echo "[4/4] Verify updated INI only changes expected keys (Full Moon example)"
+# 4) Blood Moon and Blue Moon trigger tests
+echo "[4/5] Blood Moon and Blue Moon trigger tests"
+set +e
+bash "$ROOT/tests/test_blood_blue_moon_triggers.sh" "$INI" "$EVENTS" > >(tee /dev/stderr) 2>/dev/null
+blood_blue_status=$?
+set -e
+if [[ $blood_blue_status -eq 0 ]]; then
+  echo " - blood/blue moon triggers: PASS"
+  ((overall_pass++))
+else
+  echo " - blood/blue moon triggers: FAIL (see output above)" >&2
+  ((overall_fail++))
+fi
+echo
+
+# 5) Verify actual write deltas on a temp copy (Full Moon example)
+echo "[5/5] Verify updated INI only changes expected keys (Full Moon example)"
 TMP_INI=$(mktemp)
 TMP_RAW=$(mktemp)
 TMP_JSON=$(mktemp)

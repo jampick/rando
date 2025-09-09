@@ -152,7 +152,7 @@
     },
     "calendar": [
       {
-        "enabled": false,
+        "enabled": true,
         "name": "Blood Moon - The Reckoning",
         "motd": {
           "en": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
@@ -184,7 +184,7 @@
         }
       },
       {
-        "enabled": false,
+        "enabled": true,
         "name": "Blue Moon - The Forgotten Prophecy",
         "motd": {
           "en": "Blue Moon: rare augury-unique loot and power await.",

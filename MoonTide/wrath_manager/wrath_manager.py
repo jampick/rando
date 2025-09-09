@@ -243,9 +243,27 @@ def is_trigger_active(
             # Near a full moon and that full moon is the 2nd in month
             if diff_hours > (window_hours / 2.0):
                 return False
+            
+            # Calculate current full moon date more accurately using phase_days
             ref_new = dt.datetime(2000, 1, 6, 18, 14, tzinfo=dt.timezone.utc)
-            cur_full = nearest_full_moon_datetime(now_utc, ref_new, synodic_days)
+            synodic_days = 29.53058867
+            
+            # Calculate the current full moon by working backwards from the current time
+            # using the phase_days to determine which full moon we're near
+            delta_days = (now_utc - ref_new).total_seconds() / 86400.0
+            cycles_since_ref = delta_days / synodic_days
+            
+            # Determine which full moon we're closest to based on phase_days
+            if phase_days < synodic_days / 2:
+                # We're in the first half of the cycle, so we're approaching the current full moon
+                n = int(cycles_since_ref)
+            else:
+                # We're in the second half of the cycle, so we're past the current full moon
+                n = int(cycles_since_ref)
+            
+            cur_full = ref_new + dt.timedelta(days=(n + 0.5) * synodic_days)
             prev_full = cur_full - dt.timedelta(days=synodic_days)
+            
             if cur_full.month == prev_full.month and cur_full.year == prev_full.year:
                 # Optional weekly activation window like ["Fri 18:00","Sun 23:59"]
                 win = trigger.get("activate_window")
