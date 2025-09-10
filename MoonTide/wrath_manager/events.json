@@ -57,7 +57,7 @@
           "StaminaRegenerationTime": 3.0,
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.1000000,
-          "NPCKnockbackMultiplier":1.000000",
+          "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
@@ -78,7 +78,7 @@
           "StaminaRegenerationTime": 3.0,
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.200000,
-          "NPCKnockbackMultiplier":1.000000",
+          "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
@@ -99,7 +99,7 @@
           "StaminaRegenerationTime": 3.0,
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier"=1.300000,
-          "NPCKnockbackMultiplier":1.000000",
+          "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
@@ -121,7 +121,7 @@
           "PlayerDamageTakenMultiplier": 1.0,
           "ThrallDamageToNPCsMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.500000,
-          "NPCKnockbackMultiplier":1.000000",
+          "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
@@ -142,7 +142,7 @@
           "StaminaRegenerationTime": 3.0,
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.300000,
-          "NPCKnockbackMultiplier":1.000000",
+          "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
@@ -163,7 +163,7 @@
           "StaminaRegenerationTime": 3.0,
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.200000,
-          "NPCKnockbackMultiplier":1.000000",
+          "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
@@ -184,7 +184,7 @@
           "StaminaRegenerationTime": 3.0,
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.100000,
-          "NPCKnockbackMultiplier":1.000000",
+          "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
@@ -253,8 +253,8 @@
           "NPCMaxSpawnCapMultiplier": 2.0,
           "MaxAggroRange": 15000,
           "PlayerDamageMultiplier":2.000000
-          "PlayerKnockbackMultiplier":2.000000
-          "NPCKnockbackMultiplier":1.000000
+          "PlayerKnockbackMultiplier":1.000000
+          "NPCKnockbackMultiplier":2.000000
 
         }
       }
@@ -274,5 +274,6 @@
     "always_include": true
   }
 }
+
 
 
