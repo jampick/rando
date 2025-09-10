@@ -31,10 +31,15 @@
         "settings": {
           "ServerMessageOfTheDay": "New Moon: safer world, lean harvest. Explore, build, and prepare.",
           "MaxAggroRange": 7000,
-          "NPCMaxSpawnCapMultiplier": 0.8,
-          "NPCRespawnMultiplier": 1.2,
-          "PlayerHealthRegenSpeedScale": 1.3,
-          "PlayerDamageTakenMultiplier": 0.9
+          "NPCMaxSpawnCapMultiplier": 1.0,
+          "NPCRespawnMultiplier": 1.0,
+          "PlayerHealthRegenSpeedScale": 1.0,
+          "PlayerDamageTakenMultiplier": 1.0,
+          "PlayerKnockbackMultiplier":1.000000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.200000,
+          "FuelBurnTimeMultiplier":1.200000,
         }
       },
       "waxing_crescent": {
@@ -49,8 +54,13 @@
           "MaxAggroRange": 9000,
           "NPCMaxSpawnCapMultiplier": 1.0,
           "NPCRespawnMultiplier": 0.95,
-          "StaminaRegenerationTime": 3.9,
-          "PlayerStaminaCostSprintMultiplier": 1.1
+          "StaminaRegenerationTime": 3.0,
+          "PlayerStaminaCostSprintMultiplier": 1.0,
+          "PlayerKnockbackMultiplier":1.1000000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000,
         }
       },
       "first_quarter": {
@@ -63,10 +73,15 @@
         "settings": {
           "ServerMessageOfTheDay": "First Quarter: the Ascent-adventure awaits; resources improving.",
           "MaxAggroRange": 10500,
-          "NPCMaxSpawnCapMultiplier": 1.2,
+          "NPCMaxSpawnCapMultiplier": 1.0,
           "NPCRespawnMultiplier": 0.9,
-          "StaminaRegenerationTime": 4.1,
-          "PlayerStaminaCostSprintMultiplier": 1.15
+          "StaminaRegenerationTime": 3.0,
+          "PlayerStaminaCostSprintMultiplier": 1.0,
+          "PlayerKnockbackMultiplier":1.200000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000,
         }
       },
       "waxing_gibbous": {
@@ -79,10 +94,15 @@
         "settings": {
           "ServerMessageOfTheDay": "Waxing Gibbous: the Surge-stronger foes, richer rewards.",
           "MaxAggroRange": 12000,
-          "NPCMaxSpawnCapMultiplier": 1.3,
+          "NPCMaxSpawnCapMultiplier": 1.0,
           "NPCRespawnMultiplier": 0.85,
-          "StaminaRegenerationTime": 4.2,
-          "PlayerStaminaCostSprintMultiplier": 1.2
+          "StaminaRegenerationTime": 3.0,
+          "PlayerStaminaCostSprintMultiplier": 1.0,
+          "PlayerKnockbackMultiplier"=1.300000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000,
         }
       },
       "full": {
@@ -95,10 +115,16 @@
         "settings": {
           "ServerMessageOfTheDay": "Full Moon: the Hunt-enemies at peak power; harvest at its best.",
           "MaxAggroRange": 15000,
-          "NPCMaxSpawnCapMultiplier": 1.5,
+          "NPCMaxSpawnCapMultiplier": 1.0,
           "NPCRespawnMultiplier": 0.75,
-          "PlayerDamageTakenMultiplier": 1.2,
-          "ThrallDamageToNPCsMultiplier": 0.4
+          "PlayerXPKillMultiplier": 2.0,
+          "PlayerDamageTakenMultiplier": 1.0,
+          "ThrallDamageToNPCsMultiplier": 1.0,
+          "PlayerKnockbackMultiplier":1.500000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000,
         }
       },
       "waning_gibbous": {
@@ -111,10 +137,15 @@
         "settings": {
           "ServerMessageOfTheDay": "Waning Gibbous: the Fade-intensity easing; treasure still plentiful.",
           "MaxAggroRange": 13000,
-          "NPCMaxSpawnCapMultiplier": 1.4,
-          "NPCRespawnMultiplier": 0.9,
-          "StaminaRegenerationTime": 4.1,
-          "PlayerStaminaCostSprintMultiplier": 1.15
+          "NPCMaxSpawnCapMultiplier": 1.0,
+          "NPCRespawnMultiplier": 0.85,
+          "StaminaRegenerationTime": 3.0,
+          "PlayerStaminaCostSprintMultiplier": 1.0,
+          "PlayerKnockbackMultiplier":1.300000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000,
         }
       },
       "last_quarter": {
@@ -127,10 +158,15 @@
         "settings": {
           "ServerMessageOfTheDay": "Last Quarter: the Ebb-press on; fortunes balancing.",
           "MaxAggroRange": 10000,
-          "NPCMaxSpawnCapMultiplier": 1.1,
+          "NPCMaxSpawnCapMultiplier": 1.0,
           "NPCRespawnMultiplier": 0.95,
-          "StaminaRegenerationTime": 3.9,
-          "PlayerStaminaCostSprintMultiplier": 1.1
+          "StaminaRegenerationTime": 3.0,
+          "PlayerStaminaCostSprintMultiplier": 1.0,
+          "PlayerKnockbackMultiplier":1.200000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000,
         }
       },
       "waning_crescent": {
@@ -143,10 +179,15 @@
         "settings": {
           "ServerMessageOfTheDay": "Waning Crescent: the Dusk-quiet returns; stock your stores.",
           "MaxAggroRange": 8000,
-          "NPCMaxSpawnCapMultiplier": 0.9,
-          "NPCRespawnMultiplier": 1.05,
-          "StaminaRegenerationTime": 3.8,
-          "PlayerStaminaCostSprintMultiplier": 1.05
+          "NPCMaxSpawnCapMultiplier": 1.0,
+          "NPCRespawnMultiplier": 1.00,
+          "StaminaRegenerationTime": 3.0,
+          "PlayerStaminaCostSprintMultiplier": 1.0,
+          "PlayerKnockbackMultiplier":1.100000,
+          "NPCKnockbackMultiplier":1.000000",
+          "DogsOfTheDesertSpawnWithDogs":True,
+          "ItemConvertionMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000,
         }
       }
     },
@@ -170,16 +211,16 @@
           "PurgeLevel": 6,
           "ServerMessageOfTheDay": "Blood Moon Event: Elite monsters prowl! High risk, high reward.",
           "MaxAggroRange": 15000,
+          "PlayerXPKillMultiplier": 5.0,
           "NPCMaxSpawnCapMultiplier": 2.0,
           "NPCRespawnMultiplier": 0.5,
-          "PlayerDamageTakenMultiplier": 1.3,
+          "PlayerDamageTakenMultiplier": 1.0,
           "HealthbarVisibilityDistance": 10000,
-          "ThrallDamageToNPCsMultiplier": 0.3,
+          "ThrallDamageToNPCsMultiplier": 1.0,
           "StormEnabled": true,
           "StormAlwaysOn": true,
           "StormMinimumHours": 0.1,
           "StormMaximumHours": 0.1,
-          "ElderThingsEnabled": true,
           "ElderThingsIdleLifespan": 600
         }
       },
@@ -201,12 +242,20 @@
           "timezone_offset_hours": 0
         },
         "settings": {
-          "PlayerXPTimeMultiplier": 2.0,
+          "PlayerXPTimeMultiplier": 4.0,
           "ServerMessageOfTheDay": "Blue Moon: rare augury-unique loot and power await.",
           "PlayerXPRateMultiplier": 4.0,
-          "PlayerXPKillMultiplier": 2.0,
-          "PlayerXPHarvestMultiplier": 1.5,
-          "PlayerXPCraftMultiplier": 1.5
+          "PlayerXPKillMultiplier": 5.0,
+          "PlayerXPHarvestMultiplier": 2.0,
+          "PlayerXPCraftMultiplier": 2.0
+          "PlayerDamageTakenMultiplier": 0.10,
+          "NPCRespawnMultiplier": 2.0,
+          "NPCMaxSpawnCapMultiplier": 2.0,
+          "MaxAggroRange": 15000,
+          "PlayerDamageMultiplier":2.000000
+          "PlayerKnockbackMultiplier":2.000000
+          "NPCKnockbackMultiplier":1.000000"
+
         }
       }
     ]
@@ -225,3 +274,4 @@
     "always_include": true
   }
 }
+
