@@ -37,7 +37,7 @@
           "PlayerDamageTakenMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.000000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.200000,
           "FuelBurnTimeMultiplier":1.200000,
         }
@@ -58,7 +58,7 @@
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.1000000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
         }
@@ -79,7 +79,7 @@
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.200000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
         }
@@ -100,7 +100,7 @@
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier"=1.300000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
         }
@@ -122,7 +122,7 @@
           "ThrallDamageToNPCsMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.500000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
         }
@@ -143,7 +143,7 @@
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.300000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
         }
@@ -164,7 +164,7 @@
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.200000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
         }
@@ -185,7 +185,7 @@
           "PlayerStaminaCostSprintMultiplier": 1.0,
           "PlayerKnockbackMultiplier":1.100000,
           "NPCKnockbackMultiplier":1.000000",
-          "DogsOfTheDesertSpawnWithDogs":True,
+          "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
           "FuelBurnTimeMultiplier":1.000000,
         }
@@ -254,7 +254,7 @@
           "MaxAggroRange": 15000,
           "PlayerDamageMultiplier":2.000000
           "PlayerKnockbackMultiplier":2.000000
-          "NPCKnockbackMultiplier":1.000000"
+          "NPCKnockbackMultiplier":1.000000
 
         }
       }
@@ -274,4 +274,5 @@
     "always_include": true
   }
 }
+
 
