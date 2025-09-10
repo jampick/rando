@@ -98,7 +98,7 @@
           "NPCRespawnMultiplier": 0.85,
           "StaminaRegenerationTime": 3.0,
           "PlayerStaminaCostSprintMultiplier": 1.0,
-          "PlayerKnockbackMultiplier"=1.300000,
+          "PlayerKnockbackMultiplier":1.300000,
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
@@ -274,6 +274,7 @@
     "always_include": true
   }
 }
+
 
 
 
