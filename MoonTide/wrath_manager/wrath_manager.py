@@ -425,8 +425,8 @@ def remove_duplicate_settings(lines: List[str], section_name: str) -> List[str]:
     start, end = sections[section_name]
     key_pattern = re.compile(r"^\s*([^#;\s][^=\s]*)\s*=\s*(.*)\s*$", re.IGNORECASE)
     
-    # Track seen keys and their last occurrence
-    seen_keys: Dict[str, int] = {}  # key -> line_index
+    # Track seen keys and their last occurrence (normalize case for comparison)
+    seen_keys: Dict[str, int] = {}  # normalized_key -> line_index
     lines_to_remove: List[int] = []
     
     # First pass: identify duplicates and mark earlier ones for removal
@@ -439,11 +439,12 @@ def remove_duplicate_settings(lines: List[str], section_name: str) -> List[str]:
         match = key_pattern.match(line)
         if match:
             key = match.group(1).strip()
-            if key in seen_keys:
+            normalized_key = key.lower()  # Normalize case for comparison
+            if normalized_key in seen_keys:
                 # Mark the earlier occurrence for removal
-                lines_to_remove.append(seen_keys[key])
+                lines_to_remove.append(seen_keys[normalized_key])
             # Update to the latest occurrence
-            seen_keys[key] = i
+            seen_keys[normalized_key] = i
     
     # Second pass: remove the marked lines (in reverse order to maintain indices)
     lines_to_remove.sort(reverse=True)
