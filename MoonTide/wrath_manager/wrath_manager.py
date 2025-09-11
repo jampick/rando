@@ -454,6 +454,52 @@ def remove_duplicate_settings(lines: List[str], section_name: str) -> List[str]:
     return lines
 
 
+def remove_all_duplicate_settings(lines: List[str]) -> List[str]:
+    """
+    Remove duplicate key=value pairs from ALL sections in the INI file, 
+    keeping only the last occurrence of each key regardless of section.
+    
+    Args:
+        lines: List of INI file lines
+        
+    Returns:
+        New list of lines with duplicates removed across all sections
+    """
+    key_pattern = re.compile(r"^\s*([^#;\s][^=\s]*)\s*=\s*(.*)\s*$", re.IGNORECASE)
+    
+    # Track seen keys and their last occurrence (normalize case for comparison)
+    seen_keys: Dict[str, int] = {}  # normalized_key -> line_index
+    lines_to_remove: List[int] = []
+    
+    # First pass: identify duplicates across ALL sections
+    for i, line in enumerate(lines):
+        line_stripped = line.strip()
+        # Skip empty lines and comments
+        if not line_stripped or line_stripped.startswith(';') or line_stripped.startswith('#'):
+            continue
+        
+        # Skip section headers
+        if line_stripped.startswith('[') and line_stripped.endswith(']'):
+            continue
+        
+        match = key_pattern.match(line)
+        if match:
+            key = match.group(1).strip()
+            normalized_key = key.lower()  # Normalize case for comparison
+            if normalized_key in seen_keys:
+                # Mark the earlier occurrence for removal
+                lines_to_remove.append(seen_keys[normalized_key])
+            # Update to the latest occurrence
+            seen_keys[normalized_key] = i
+    
+    # Second pass: remove the marked lines (in reverse order to maintain indices)
+    lines_to_remove.sort(reverse=True)
+    for line_index in lines_to_remove:
+        lines.pop(line_index)
+    
+    return lines
+
+
 def read_text_lines_with_meta(path: str) -> Tuple[List[str], str, str]:
     enc, newline = _detect_encoding_and_newline(path)
     try:
@@ -466,8 +512,8 @@ def read_text_lines_with_meta(path: str) -> Tuple[List[str], str, str]:
     
     lines = text.splitlines()
     
-    # Remove duplicate settings from the ServerSettings section
-    lines = remove_duplicate_settings(lines, SERVER_SETTINGS_SECTION)
+    # Remove duplicate settings from ALL sections, keeping only the last occurrence
+    lines = remove_all_duplicate_settings(lines)
     
     return lines, enc, newline
 
