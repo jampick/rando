@@ -113,10 +113,23 @@ echo    MAP:    %MAP%
 echo    EXTRA:  %EXTRA_ARGS%
 
 rem Pass the mode, log file, and map parameter to grim_observer for secrets loading
-"%PYTHON_EXE%" %PY_ARGS% "%GRIM_SCRIPT%" %MODE% "%LOG_FILE%" %EXTRA_ARGS% --map %MAP%
-set "RC=%ERRORLEVEL%"
-if not "%RC%"=="0" (
-  echo [GrimObserver][WARN] Observer exited with code %RC%
+rem For monitor modes, run in background to prevent blocking game server manager
+if /I "%MODE%"=="monitor" (
+  echo [GrimObserver][INFO] Starting monitor mode in background...
+  start /B "" "%PYTHON_EXE%" %PY_ARGS% "%GRIM_SCRIPT%" %MODE% "%LOG_FILE%" %EXTRA_ARGS% --map %MAP%
+  echo [GrimObserver][INFO] Monitor started in background (PID: !ERRORLEVEL!)
+  endlocal & exit /b 0
+) else if /I "%MODE%"=="scan-monitor" (
+  echo [GrimObserver][INFO] Starting scan-monitor mode in background...
+  start /B "" "%PYTHON_EXE%" %PY_ARGS% "%GRIM_SCRIPT%" %MODE% "%LOG_FILE%" %EXTRA_ARGS% --map %MAP%
+  echo [GrimObserver][INFO] Scan-monitor started in background (PID: !ERRORLEVEL!)
+  endlocal & exit /b 0
+) else (
+  rem For scan mode, run normally (it exits after completion)
+  "%PYTHON_EXE%" %PY_ARGS% "%GRIM_SCRIPT%" %MODE% "%LOG_FILE%" %EXTRA_ARGS% --map %MAP%
+  set "RC=%ERRORLEVEL%"
+  if not "%RC%"=="0" (
+    echo [GrimObserver][WARN] Observer exited with code %RC%
+  )
+  endlocal & exit /b %RC%
 )
-
-endlocal & exit /b %RC%
