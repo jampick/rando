@@ -159,15 +159,39 @@ echo [DEBUG] All checks passed, starting Grim Observer...
 echo Starting Grim Observer for %MAP% map in %MODE% mode...
 echo Log directory: %LOG_FILE_PATH%
 echo Auto-detection: ENABLED
-echo Press Ctrl+C to stop
-echo.
 
-echo [DEBUG] Running command: python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
-python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
-
-echo.
-echo [DEBUG] Python script finished
-echo Observer stopped.
-echo [DEBUG] Exiting with code 0: Success
-pause
-exit /b 0
+REM For monitor modes, run in background to prevent blocking game server manager
+if /I "%MODE%"=="monitor" (
+  echo [DEBUG] Starting monitor mode in background...
+  echo Press Ctrl+C to stop (monitor running in background)
+  echo.
+  start /B "" python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
+  echo [DEBUG] Monitor started in background (PID: !ERRORLEVEL!)
+  echo Observer monitor started in background.
+  echo [DEBUG] Exiting with code 0: Background monitor started
+  pause
+  exit /b 0
+) else if /I "%MODE%"=="scan-monitor" (
+  echo [DEBUG] Starting scan-monitor mode in background...
+  echo Press Ctrl+C to stop (scan-monitor running in background)
+  echo.
+  start /B "" python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
+  echo [DEBUG] Scan-monitor started in background (PID: !ERRORLEVEL!)
+  echo Observer scan-monitor started in background.
+  echo [DEBUG] Exiting with code 0: Background scan-monitor started
+  pause
+  exit /b 0
+) else (
+  rem For scan mode, run normally (it exits after completion)
+  echo Press Ctrl+C to stop
+  echo.
+  echo [DEBUG] Running command: python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
+  python "%GRIM_SCRIPT%" %MODE% "%LOG_FILE_PATH%" --map %MAP% --discord --force-curl --auto-detect-log
+  
+  echo.
+  echo [DEBUG] Python script finished
+  echo Observer stopped.
+  echo [DEBUG] Exiting with code 0: Success
+  pause
+  exit /b 0
+)
