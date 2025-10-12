@@ -24,7 +24,7 @@ import time
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 from pathlib import Path
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 import logging
 import random # Added for peak milestone messages
 
@@ -60,7 +60,7 @@ class LogEvent:
         self.ip_address = ip_address
         self.player_id = player_id
         self.raw_line = raw_line
-        self.parsed_at = datetime.now(UTC).isoformat()
+        self.parsed_at = datetime.now(timezone.utc).isoformat()
     
     def to_dict(self) -> Dict:
         """Convert event to dictionary for serialization."""
@@ -827,7 +827,7 @@ class GrimObserver:
         for i, payload in enumerate(payloads, 1):
             print(f"\n--- Event {i} ---")
             print(f"Content: {payload['content']}")
-            if 'embeds' in payload:
+            if 'embeds' in payload and payload['embeds']:
                 embed = payload['embeds'][0]
                 print(f"Title: {embed.get('title', 'N/A')}")
                 print(f"Description: {embed.get('description', 'N/A')}")
@@ -857,7 +857,7 @@ class GrimObserver:
         print(f"{'='*80}")
         print(f"Total events: {len(events)}")
         print(f"Log file: {self.log_file_path}")
-        print(f"Scan time: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Scan time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"{'='*80}\n")
         
         # Group events by type
@@ -955,7 +955,7 @@ class GrimObserver:
         if connection_time and connection_time > 0:
             # Calculate duration from connection to now (approximate)
             # Use UTC timestamp for consistency
-            current_time = datetime.now(UTC).timestamp()
+            current_time = datetime.now(timezone.utc).timestamp()
             duration_seconds = current_time - connection_time
             
             # Debug logging
@@ -1139,7 +1139,7 @@ class GrimObserver:
     
     def _get_time_context(self) -> dict:
         """Get time-based context for seasonal variations."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         hour = now.hour
         
         # Determine time of day
@@ -1225,7 +1225,7 @@ class GrimObserver:
                     "text": random.choice(self.empty_server_footer_variations),
                     "icon_url": self.empty_server_images["footer_icon"]
                 },
-                "timestamp": datetime.now(UTC).isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             return {
@@ -1294,7 +1294,7 @@ class GrimObserver:
     
     def get_recent_events(self, minutes: int = 10) -> List[LogEvent]:
         """Get events from the last N minutes."""
-        cutoff_time = datetime.now(UTC).timestamp() - (minutes * 60)
+        cutoff_time = datetime.now(timezone.utc).timestamp() - (minutes * 60)
         return [e for e in self.events if self.parse_timestamp(e.timestamp) > cutoff_time]
     
     def parse_timestamp(self, timestamp: str) -> float:
@@ -1316,11 +1316,11 @@ class GrimObserver:
                 try:
                     dt = datetime.strptime(dt_str, fmt)
                     # Make the parsed datetime timezone-aware by assuming UTC
-                    dt = dt.replace(tzinfo=UTC)
+                    dt = dt.replace(tzinfo=timezone.utc)
                     
                     # Handle timezone issues: server timestamps might be in different timezone
                     # Use UTC time for consistent comparison
-                    current_utc = datetime.now(UTC)
+                    current_utc = datetime.now(timezone.utc)
                     server_time = dt
                     
                     # If server time is more than 24 hours in the future relative to current time,
