@@ -831,11 +831,19 @@ def apply_settings_map(
     precision: int,
     insert_missing_keys: bool,
     backup_manager: BackupManager,
+    validate_settings_enabled: bool = True,
+    strict_validation: bool = True,
 ) -> Tuple[bool, List[str]]:
     changes: List[str] = []
     lines, file_encoding, file_newline = read_text_lines_with_meta(ini_path)
 
-    for key, raw_value in settings.items():
+    # Validate settings if enabled
+    validated_settings = settings
+    if validate_settings_enabled:
+        validated_settings, validation_warnings = validate_settings(settings, strict_validation)
+        changes.extend(validation_warnings)
+
+    for key, raw_value in validated_settings.items():
         value_str = format_value(raw_value, precision)
         old_lines = list(lines)
         if insert_missing_keys or key_exists_in_section(lines, SERVER_SETTINGS_SECTION, key):
@@ -937,6 +945,92 @@ def apply_caps(
     return clamped
 
 
+def get_allowed_server_settings() -> set[str]:
+    """Return a comprehensive set of allowed Conan Exiles server settings."""
+    return {
+        # Core gameplay multipliers
+        "HarvestAmountMultiplier",
+        "NPCDamageMultiplier", 
+        "NPCHealthMultiplier",
+        "NPCDamageTakenMultiplier",
+        "PlayerDamageMultiplier",
+        "PlayerDamageTakenMultiplier",
+        "PlayerHealthRegenSpeedScale",
+        "PlayerXPKillMultiplier",
+        "PlayerXPTimeMultiplier",
+        "PlayerXPRateMultiplier",
+        "PlayerXPHarvestMultiplier",
+        "PlayerXPCraftMultiplier",
+        
+        # Combat and aggression
+        "MaxAggroRange",
+        "NPCMaxSpawnCapMultiplier",
+        "NPCRespawnMultiplier",
+        "PlayerKnockbackMultiplier",
+        "NPCKnockbackMultiplier",
+        "ThrallDamageToNPCsMultiplier",
+        
+        # Stamina and movement
+        "StaminaRegenerationTime",
+        "PlayerStaminaCostSprintMultiplier",
+        
+        # Purge system
+        "PurgeLevel",
+        
+        # World and environment
+        "StormEnabled",
+        "StormAlwaysOn", 
+        "StormMinimumHours",
+        "StormMaximumHours",
+        "ElderThingsIdleLifespan",
+        "HealthbarVisibilityDistance",
+        
+        # Items and crafting
+        "ItemConvertionMultiplier",
+        "FuelBurnTimeMultiplier",
+        
+        # Special spawns
+        "DogsOfTheDesertSpawnWithDogs",
+        
+        # Server messages
+        "ServerMessageOfTheDay",
+    }
+
+
+def validate_settings(
+    settings: Dict[str, Union[int, float, str, bool]],
+    strict_mode: bool = True,
+    allowed_settings: Optional[set[str]] = None,
+) -> Tuple[Dict[str, Union[int, float, str, bool]], List[str]]:
+    """Validate settings against allowed list and return filtered settings with warnings.
+    
+    Args:
+        settings: Settings dictionary to validate
+        strict_mode: If True, remove disallowed settings. If False, keep them but warn.
+        allowed_settings: Set of allowed setting names. If None, uses default set.
+        
+    Returns:
+        Tuple of (filtered_settings, warning_messages)
+    """
+    if allowed_settings is None:
+        allowed_settings = get_allowed_server_settings()
+    
+    filtered_settings: Dict[str, Union[int, float, str, bool]] = {}
+    warnings: List[str] = []
+    
+    for key, value in settings.items():
+        if key in allowed_settings:
+            filtered_settings[key] = value
+        else:
+            if strict_mode:
+                warnings.append(f"Removed disallowed setting: {key} = {value}")
+            else:
+                filtered_settings[key] = value
+                warnings.append(f"Warning: Unknown setting may be invalid: {key} = {value}")
+    
+    return filtered_settings, warnings
+
+
 # ------------------------------
 # CLI and orchestration
 # ------------------------------
@@ -1003,6 +1097,16 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         action="store_true",
         help="Verbose debug logging to help diagnose issues (e.g., Discord posting)",
     )
+    parser.add_argument(
+        "--no-validate-settings",
+        action="store_true",
+        help="Disable validation of server settings against allowed list",
+    )
+    parser.add_argument(
+        "--lenient-validation",
+        action="store_true",
+        help="Use lenient validation mode (warn but don't remove disallowed settings)",
+    )
     return parser.parse_args(argv)
 
 
@@ -1029,6 +1133,11 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # Precision override from file if present, else CLI arg
     precision = int(config.get("precision", args.precision))
+    
+    # Validation settings from config file
+    validation_cfg = config.get("validate_settings", {})
+    validate_enabled = bool(validation_cfg.get("enabled", True)) and not args.no_validate_settings
+    strict_validation = bool(validation_cfg.get("strict_mode", True)) and not args.lenient_validation
 
     # Decide behavior: phase mapping and/or discrete events
     # Time override handling for tests
@@ -1137,6 +1246,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 precision=precision,
                 insert_missing_keys=bool(config.get("insert_missing_keys", False)),
                 backup_manager=backup_manager,
+                validate_settings_enabled=validate_enabled,
+                strict_validation=strict_validation,
             )
             any_changes = any_changes or changed
             change_msgs.extend(msgs)
@@ -1304,6 +1415,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             precision=precision,
             insert_missing_keys=bool(config.get("insert_missing_keys", False)),
             backup_manager=backup_manager,
+            validate_settings_enabled=validate_enabled,
+            strict_validation=strict_validation,
         )
         any_changes = any_changes or changed
         for name in applied_event_names:
@@ -1340,6 +1453,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 precision=precision,
                 insert_missing_keys=bool(config.get("insert_missing_keys", False)),
                 backup_manager=backup_manager,
+                validate_settings_enabled=validate_enabled,
+                strict_validation=strict_validation,
             )
             any_changes = any_changes or changed
             change_msgs.extend([f"[defaults] {m}" for m in msgs])

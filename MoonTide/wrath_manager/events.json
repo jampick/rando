@@ -1,6 +1,11 @@
 {
   "precision": 2,
   "insert_missing_keys": true,
+  "validate_settings": {
+    "enabled": true,
+    "strict_mode": true,
+    "custom_allowed_settings": []
+  },
   "moon_phase": {
     "enabled": true,
     "gamma": 1.0,
@@ -39,7 +44,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.200000,
-          "FuelBurnTimeMultiplier":1.200000,
+          "FuelBurnTimeMultiplier":1.200000
         }
       },
       "waxing_crescent": {
@@ -60,7 +65,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
-          "FuelBurnTimeMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000
         }
       },
       "first_quarter": {
@@ -81,7 +86,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
-          "FuelBurnTimeMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000
         }
       },
       "waxing_gibbous": {
@@ -102,7 +107,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
-          "FuelBurnTimeMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000
         }
       },
       "full": {
@@ -124,7 +129,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
-          "FuelBurnTimeMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000
         }
       },
       "waning_gibbous": {
@@ -145,7 +150,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
-          "FuelBurnTimeMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000
         }
       },
       "last_quarter": {
@@ -166,7 +171,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
-          "FuelBurnTimeMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000
         }
       },
       "waning_crescent": {
@@ -187,7 +192,7 @@
           "NPCKnockbackMultiplier":1.000000,
           "DogsOfTheDesertSpawnWithDogs": true,
           "ItemConvertionMultiplier":1.000000,
-          "FuelBurnTimeMultiplier":1.000000,
+          "FuelBurnTimeMultiplier":1.000000
         }
       }
     },
@@ -247,15 +252,14 @@
           "PlayerXPRateMultiplier": 4.0,
           "PlayerXPKillMultiplier": 5.0,
           "PlayerXPHarvestMultiplier": 2.0,
-          "PlayerXPCraftMultiplier": 2.0
+          "PlayerXPCraftMultiplier": 2.0,
           "PlayerDamageTakenMultiplier": 0.10,
           "NPCRespawnMultiplier": 2.0,
           "NPCMaxSpawnCapMultiplier": 2.0,
           "MaxAggroRange": 15000,
-          "PlayerDamageMultiplier":2.000000
-          "PlayerKnockbackMultiplier":1.000000
+          "PlayerDamageMultiplier":2.000000,
+          "PlayerKnockbackMultiplier":1.000000,
           "NPCKnockbackMultiplier":2.000000
-
         }
       }
     ]
