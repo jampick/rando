@@ -8,6 +8,11 @@ from datetime import datetime
 
 router = APIRouter()
 
+@router.post("/test")
+async def test_endpoint():
+    """Test endpoint to debug issues"""
+    return {"message": "Trading endpoint is working", "status": "ok"}
+
 @router.post("/orders", response_model=OrderResponse)
 async def create_order(
     order_data: OrderCreate,
@@ -16,71 +21,83 @@ async def create_order(
 ):
     """Create a new trading order"""
     
-    # Validate user exists
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Validate topic exists
-    topic = db.query(Topic).filter(Topic.id == order_data.topic_id).first()
-    if not topic:
-        raise HTTPException(status_code=404, detail="Topic not found")
-    
-    # Validate order constraints
-    if order_data.order_type == OrderType.BUY:
-        # Check if user has enough cash
-        required_cash = order_data.quantity * (order_data.price_limit or topic.current_price)
-        if user.cash_balance < required_cash:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Insufficient cash. Required: ${required_cash:.2f}, Available: ${user.cash_balance:.2f}"
-            )
-    
-    elif order_data.order_type == OrderType.SELL:
-        # Check if user has enough shares
-        from app.models.models import Position
-        position = db.query(Position).filter(
-            Position.user_id == user_id,
-            Position.topic_id == order_data.topic_id
-        ).first()
+    try:
+        # Validate user exists
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
         
-        if not position or position.quantity < order_data.quantity:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Insufficient shares. Required: {order_data.quantity}, Available: {position.quantity if position else 0}"
-            )
+        # Validate topic exists
+        topic = db.query(Topic).filter(Topic.id == order_data.topic_id).first()
+        if not topic:
+            raise HTTPException(status_code=404, detail="Topic not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Validation error: {str(e)}")
     
-    elif order_data.order_type == OrderType.SHORT:
-        # Check short selling limits (max 20% of float)
-        max_short_shares = int(topic.total_shares * 0.2)
-        from app.models.models import Position
-        current_short_positions = db.query(Position).filter(
-            Position.topic_id == order_data.topic_id,
-            Position.quantity < 0
-        ).all()
+    try:
+        # Validate order constraints
+        if order_data.order_type == OrderType.BUY:
+            # Check if user has enough cash
+            required_cash = order_data.quantity * (order_data.price_limit or topic.current_price)
+            if user.cash_balance < required_cash:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Insufficient cash. Required: ${required_cash:.2f}, Available: ${user.cash_balance:.2f}"
+                )
         
-        total_short = sum(abs(pos.quantity) for pos in current_short_positions)
-        if total_short + order_data.quantity > max_short_shares:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Short selling limit exceeded. Max: {max_short_shares}, Current: {total_short}, Requested: {order_data.quantity}"
-            )
+        elif order_data.order_type == OrderType.SELL:
+            # Check if user has enough shares
+            from app.models.models import Position
+            position = db.query(Position).filter(
+                Position.user_id == user_id,
+                Position.topic_id == order_data.topic_id
+            ).first()
+            
+            if not position or position.quantity < order_data.quantity:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Insufficient shares. Required: {order_data.quantity}, Available: {position.quantity if position else 0}"
+                )
+        
+        elif order_data.order_type == OrderType.SHORT:
+            # Check short selling limits (max 20% of float)
+            max_short_shares = int(topic.total_shares * 0.2)
+            from app.models.models import Position
+            current_short_positions = db.query(Position).filter(
+                Position.topic_id == order_data.topic_id,
+                Position.quantity < 0
+            ).all()
+            
+            total_short = sum(abs(pos.quantity) for pos in current_short_positions)
+            if total_short + order_data.quantity > max_short_shares:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Short selling limit exceeded. Max: {max_short_shares}, Current: {total_short}, Requested: {order_data.quantity}"
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Order validation error: {str(e)}")
     
     # Create the order
-    order = Order(
-        user_id=user_id,
-        topic_id=order_data.topic_id,
-        order_type=order_data.order_type,
-        quantity=order_data.quantity,
-        price_limit=order_data.price_limit,
-        status=OrderStatus.PENDING
-    )
-    
-    db.add(order)
-    db.commit()
-    db.refresh(order)
-    
-    return order
+    try:
+        order = Order(
+            user_id=user_id,
+            topic_id=order_data.topic_id,
+            order_type=order_data.order_type,
+            quantity=order_data.quantity,
+            price_limit=order_data.price_limit,
+            status=OrderStatus.PENDING
+        )
+        
+        db.add(order)
+        db.commit()
+        db.refresh(order)
+        
+        return order
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to create order: {str(e)}")
 
 @router.get("/orders", response_model=List[OrderResponse])
 async def get_user_orders(

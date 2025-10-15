@@ -69,7 +69,7 @@ class OrderBase(BaseModel):
     topic_id: int
     order_type: OrderType
     quantity: int = Field(..., gt=0)
-    price_limit: Optional[float] = Field(None, gt=0)
+    price_limit: Optional[float] = Field(None, gt=0, description="Price limit for limit orders, null for market orders")
 
 class OrderCreate(OrderBase):
     pass
@@ -81,7 +81,7 @@ class OrderResponse(OrderBase):
     filled_quantity: int
     average_fill_price: Optional[float]
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime]
     
     class Config:
         from_attributes = True

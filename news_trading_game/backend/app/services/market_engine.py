@@ -8,7 +8,7 @@ import logging
 
 from app.core.database import SessionLocal
 from app.models.models import (
-    Topic, Category, Order, Trade, Position, Auction, 
+    Topic, Category, Order, Trade, Position, Auction, User, PriceHistory,
     OrderType, OrderStatus, CategoryType
 )
 from app.core.config import settings
