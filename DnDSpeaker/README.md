@@ -28,7 +28,35 @@ A desktop application that allows Dungeon Masters to transform their voice in re
 
 ## Installation
 
-1. Install Python dependencies:
+### Quick Setup (Recommended)
+
+**macOS/Linux:**
+```bash
+cd DnDSpeaker
+./setup.sh
+```
+
+**Windows:**
+```batch
+cd DnDSpeaker
+setup.bat
+```
+
+The setup script will:
+- Create a virtual environment (if needed)
+- Install all required dependencies
+- Handle system-level dependencies (PortAudio on macOS)
+
+### Manual Installation
+
+1. Create a virtual environment (recommended):
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On macOS/Linux
+# or: venv\Scripts\activate  # On Windows
+```
+
+2. Install Python dependencies:
 ```bash
 pip install -r requirements.txt
 ```
