@@ -15,9 +15,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     
     # Market Engine
-    auction_interval_minutes: int = 15
-    auction_randomization_seconds: int = 120
-    price_update_interval_seconds: int = 30
+    auction_interval_minutes: int = 1  # Set to 1 minute for troubleshooting
+    auction_randomization_seconds: int = 10  # Reduced randomization for testing
+    price_update_interval_seconds: int = 10  # More frequent price updates
     
     # Game Settings
     initial_cash: float = 10000.0

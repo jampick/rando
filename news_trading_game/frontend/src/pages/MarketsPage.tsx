@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Activity, Eye, BarChart3, Zap } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { TrendingUp, TrendingDown, Activity, Eye, BarChart3, Zap, Clock } from 'lucide-react'
 import { marketsApi } from '../services/api'
 import { MarketData } from '../types'
 import { usePriceUpdates } from '../hooks/useWebSocket'
 
 const MarketsPage: React.FC = () => {
+  const navigate = useNavigate()
   const [marketData, setMarketData] = useState<MarketData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [auctionStatus, setAuctionStatus] = useState<any>(null)
+  const [countdown, setCountdown] = useState<number>(0)
 
   // Get all topic IDs for price updates
   const topicIds = marketData.map(topic => topic.topic_id)
@@ -15,11 +19,18 @@ const MarketsPage: React.FC = () => {
 
   useEffect(() => {
     fetchMarketData()
+    fetchAuctionStatus()
     
     // Refresh market data every 30 seconds
-    const interval = setInterval(fetchMarketData, 30000)
+    const marketInterval = setInterval(fetchMarketData, 30000)
     
-    return () => clearInterval(interval)
+    // Refresh auction status every second for countdown
+    const auctionInterval = setInterval(fetchAuctionStatus, 1000)
+    
+    return () => {
+      clearInterval(marketInterval)
+      clearInterval(auctionInterval)
+    }
   }, [])
 
   const fetchMarketData = async () => {
@@ -35,6 +46,17 @@ const MarketsPage: React.FC = () => {
     }
   }
 
+  const fetchAuctionStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/markets/auction-status')
+      const data = await response.json()
+      setAuctionStatus(data)
+      setCountdown(data.seconds_until_next_auction || 0)
+    } catch (err) {
+      console.error('Error fetching auction status:', err)
+    }
+  }
+
   const getPriceChangeColor = (change: number) => {
     if (change > 0) return 'price-positive'
     if (change < 0) return 'price-negative'
@@ -45,6 +67,20 @@ const MarketsPage: React.FC = () => {
     if (change > 0) return <TrendingUp className="w-4 h-4" />
     if (change < 0) return <TrendingDown className="w-4 h-4" />
     return <Activity className="w-4 h-4" />
+  }
+
+  const handleTradeClick = (topic: MarketData) => {
+    // Navigate to trading page with the selected topic
+    navigate('/trading', { 
+      state: { 
+        selectedTopic: {
+          id: topic.topic_id,
+          ticker: topic.ticker,
+          name: topic.name,
+          current_price: topic.current_price
+        }
+      }
+    })
   }
 
   if (loading) {
@@ -82,6 +118,21 @@ const MarketsPage: React.FC = () => {
             <div className="status-indicator status-online"></div>
             <span>Live</span>
           </div>
+          {auctionStatus && (
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
+                <Clock className="w-4 h-4" />
+                <span>Next Reset:</span>
+              </div>
+              <div className={`px-2 py-1 rounded text-xs font-mono ${
+                countdown <= 10 ? 'bg-red-600 text-white' : 
+                countdown <= 30 ? 'bg-yellow-600 text-black' : 
+                'bg-green-600 text-white'
+              }`}>
+                {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+              </div>
+            </div>
+          )}
           <span>Last updated: {new Date().toLocaleTimeString()}</span>
         </div>
       </div>
@@ -231,7 +282,10 @@ const MarketsPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button className="btn btn-primary text-xs px-3 py-1">
+                      <button 
+                        onClick={() => handleTradeClick(topic)}
+                        className="btn btn-primary text-xs px-3 py-1 hover:bg-blue-600 transition-colors"
+                      >
                         Trade
                       </button>
                     </td>

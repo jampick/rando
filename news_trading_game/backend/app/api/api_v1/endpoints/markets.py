@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException  # type: ignore
+from sqlalchemy.orm import Session  # type: ignore
 from typing import List
 from app.core.database import get_db
 from app.models.models import Topic, Category, PriceHistory
 from app.models.schemas import TopicResponse, TopicDetail, CategoryResponse, MarketSnapshot, MarketData
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc  # type: ignore
 from datetime import datetime, timedelta
 
 router = APIRouter()
@@ -201,3 +201,22 @@ async def get_leaderboard(
         "leaderboard": leaderboard[:limit],
         "timestamp": datetime.now()
     }
+
+@router.get("/auction-status")
+async def get_auction_status():
+    """Get current auction status and next auction time"""
+    # Import here to avoid circular imports
+    from main import market_engine
+    
+    status = market_engine.get_auction_status()
+    
+    # Calculate time until next auction
+    if status["next_auction_time"]:
+        time_until_auction = (status["next_auction_time"] - datetime.now()).total_seconds()
+        status["seconds_until_next_auction"] = max(0, int(time_until_auction))
+        status["minutes_until_next_auction"] = max(0, int(time_until_auction / 60))
+    else:
+        status["seconds_until_next_auction"] = None
+        status["minutes_until_next_auction"] = None
+    
+    return status

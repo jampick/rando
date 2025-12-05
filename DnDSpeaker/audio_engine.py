@@ -1,5 +1,5 @@
 """Audio engine for real-time capture and playback."""
-import pyaudio
+import pyaudio  # type: ignore
 import numpy as np
 import threading
 import queue
@@ -311,7 +311,8 @@ class AudioEngineV2:
             except Exception:
                 pass
         
-        return (None, pyaudio.paContinue)
+        # Input-only streams should return None, not a tuple
+        return None
     
     def _output_thread_func(self):
         """Output thread that plays processed audio."""

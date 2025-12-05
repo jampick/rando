@@ -1,7 +1,7 @@
 """Main entry point for DnDSpeaker application."""
 import sys
 import signal
-import keyboard
+import keyboard  # type: ignore
 import numpy as np
 from audio_engine import AudioEngine
 from voice_processor import VoiceProcessor

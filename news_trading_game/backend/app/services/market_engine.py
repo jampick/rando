@@ -478,6 +478,16 @@ class MarketEngine:
         """Get current time for health checks"""
         return datetime.now()
     
+    def get_auction_status(self) -> dict:
+        """Get current auction status"""
+        return {
+            "current_auction_id": self.current_auction_id,
+            "next_auction_time": self.next_auction_time,
+            "is_running": self.is_running,
+            "auction_interval_minutes": settings.auction_interval_minutes,
+            "auction_randomization_seconds": settings.auction_randomization_seconds
+        }
+    
     def stop(self):
         """Stop the market engine"""
         self.is_running = False

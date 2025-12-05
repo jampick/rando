@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { ArrowUpDown, TrendingUp, TrendingDown, DollarSign, Clock, Target } from 'lucide-react'
 import { marketsApi, tradingApi } from '../services/api'
 import { Topic, Order } from '../types'
 
 const TradingPage: React.FC = () => {
+  const location = useLocation()
   const [topics, setTopics] = useState<Topic[]>([])
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null)
   const [orderType, setOrderType] = useState<'buy' | 'sell' | 'short'>('buy')
@@ -12,19 +14,58 @@ const TradingPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [auctionStatus, setAuctionStatus] = useState<any>(null)
+  const [countdown, setCountdown] = useState<number>(0)
 
   useEffect(() => {
     fetchTopics()
     fetchOrders()
-  }, [])
+    fetchAuctionStatus()
+    
+    // Check if a topic was selected from the markets page
+    if (location.state?.selectedTopic) {
+      const { selectedTopic: navTopic } = location.state
+      // Set the selected topic immediately, will be updated when topics are fetched
+      setSelectedTopic({
+        id: navTopic.id,
+        ticker: navTopic.ticker,
+        name: navTopic.name,
+        current_price: navTopic.current_price,
+        previous_price: navTopic.current_price,
+        price_change_percent: 0,
+        total_shares: 1000000,
+        available_shares: 1000000,
+        mentions_count: 0,
+        fatigue_level: 0,
+        is_active: true,
+        category_id: 1,
+        description: ''
+      })
+      setPriceLimit(navTopic.current_price)
+    }
+
+    // Refresh auction status every second for countdown
+    const auctionInterval = setInterval(fetchAuctionStatus, 1000)
+    
+    return () => clearInterval(auctionInterval)
+  }, [location.state])
 
   const fetchTopics = async () => {
     try {
       const response = await marketsApi.getTopics()
       setTopics(response.data)
-      if (response.data.length > 0) {
+      
+      // If no topic was selected from navigation, select the first one
+      if (!location.state?.selectedTopic && response.data.length > 0) {
         setSelectedTopic(response.data[0])
         setPriceLimit(response.data[0].current_price)
+      } else if (location.state?.selectedTopic) {
+        // Find the full topic data for the selected topic
+        const fullTopic = response.data.find(t => t.id === location.state.selectedTopic.id)
+        if (fullTopic) {
+          setSelectedTopic(fullTopic)
+          setPriceLimit(fullTopic.current_price)
+        }
       }
     } catch (err) {
       console.error('Error fetching topics:', err)
@@ -37,6 +78,17 @@ const TradingPage: React.FC = () => {
       setOrders(response.data)
     } catch (err) {
       console.error('Error fetching orders:', err)
+    }
+  }
+
+  const fetchAuctionStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/markets/auction-status')
+      const data = await response.json()
+      setAuctionStatus(data)
+      setCountdown(data.seconds_until_next_auction || 0)
+    } catch (err) {
+      console.error('Error fetching auction status:', err)
     }
   }
 
@@ -105,10 +157,19 @@ const TradingPage: React.FC = () => {
           <p className="text-gray-400 mt-1">Place orders and manage positions</p>
         </div>
         <div className="flex items-center space-x-4 text-sm text-gray-400">
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4" />
-            <span>Next Auction: 15:23</span>
-          </div>
+          {auctionStatus && (
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4" />
+              <span>Next Reset:</span>
+              <div className={`px-2 py-1 rounded text-xs font-mono ${
+                countdown <= 10 ? 'bg-red-600 text-white' : 
+                countdown <= 30 ? 'bg-yellow-600 text-black' : 
+                'bg-green-600 text-white'
+              }`}>
+                {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

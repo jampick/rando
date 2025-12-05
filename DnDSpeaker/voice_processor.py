@@ -1,6 +1,6 @@
 """Real-time voice transformation processor."""
 import numpy as np
-from scipy import signal
+from scipy import signal  # type: ignore
 from typing import Optional, Dict, Any
 import collections
 
@@ -97,15 +97,14 @@ class VoiceProcessor:
         if self.current_preset is None:
             return audio_chunk
         
-        # Ensure float32 and normalize
-        if audio_chunk.dtype != np.float32:
-            audio_chunk = audio_chunk.astype(np.float32)
-        
-        # Normalize to [-1, 1] range
+        # Normalize to [-1, 1] range based on input dtype
         if audio_chunk.dtype == np.int16:
             audio_chunk = audio_chunk.astype(np.float32) / 32768.0
         elif audio_chunk.dtype == np.int32:
             audio_chunk = audio_chunk.astype(np.float32) / 2147483648.0
+        elif audio_chunk.dtype != np.float32:
+            # For other types, convert to float32 (assume already normalized)
+            audio_chunk = audio_chunk.astype(np.float32)
         
         # Apply processing pipeline
         processed = audio_chunk.copy()
