@@ -556,7 +556,8 @@ def upsert_key_in_section(
     
     if section_name in sections:
         start, end = sections[section_name]
-        # Look for existing key in the section
+        # Find ALL occurrences of the key in the section (case-insensitive)
+        matching_indices: List[int] = []
         for i in range(start + 1, end):
             line = lines[i].strip()
             # Skip empty lines and comments
@@ -564,11 +565,18 @@ def upsert_key_in_section(
                 continue
             # Check if this line contains our key
             if key_pattern.match(line):
-                # Found existing key, update it
-                lines[i] = f"{key}={value_str}"
-                updated = True
-                break
-        if not updated:
+                matching_indices.append(i)
+        
+        if matching_indices:
+            # Found existing key(s) - update the last occurrence and remove all others
+            # This ensures only one occurrence remains
+            last_index = matching_indices[-1]
+            lines[last_index] = f"{key}={value_str}"
+            # Remove all other occurrences (in reverse order to maintain indices)
+            for idx in reversed(matching_indices[:-1]):
+                lines.pop(idx)
+            updated = True
+        else:
             # Key not found, insert at the end of the section
             insertion_index = end
             lines.insert(insertion_index, f"{key}={value_str}")
@@ -622,6 +630,10 @@ def apply_settings(
     set_key("HarvestAmountMultiplier", harvest_amount)
     set_key("NPCDamageMultiplier", npc_damage)
     set_key("NPCHealthMultiplier", npc_health)
+
+    # Final cleanup: remove any remaining duplicates from ServerSettings section
+    # This ensures only one occurrence of each key exists
+    lines = remove_duplicate_settings(lines, SERVER_SETTINGS_SECTION)
 
     if not changes:
         return False, []
@@ -853,6 +865,10 @@ def apply_settings_map(
         else:
             # Skip keys that don't already exist in the INI
             changes.append(f"(skipped) {key} not present in [{SERVER_SETTINGS_SECTION}]")
+
+    # Final cleanup: remove any remaining duplicates from ServerSettings section
+    # This ensures only one occurrence of each key exists, even if duplicates were somehow introduced
+    lines = remove_duplicate_settings(lines, SERVER_SETTINGS_SECTION)
 
     if not changes:
         return False, []
