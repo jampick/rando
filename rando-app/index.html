@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Rando</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Rando</h1>
+      <p class="tagline">Let fate decide</p>
+    </header>
+
+    <nav id="tabs">
+      <button class="tab active" data-tab="coin">Coin</button>
+      <button class="tab" data-tab="dice">Dice</button>
+      <button class="tab" data-tab="number">Number</button>
+      <button class="tab" data-tab="picker">Picker</button>
+    </nav>
+
+    <!-- Coin Flip -->
+    <section id="coin" class="panel active">
+      <div class="coin-container">
+        <div id="coin" class="coin">
+          <div class="coin-face coin-heads">H</div>
+          <div class="coin-face coin-tails">T</div>
+        </div>
+      </div>
+      <div id="coin-result" class="result"></div>
+      <button id="flip-btn" class="action-btn">Flip</button>
+      <div id="coin-stats" class="stats">
+        <span>Heads: <strong id="heads-count">0</strong></span>
+        <span>Tails: <strong id="tails-count">0</strong></span>
+      </div>
+    </section>
+
+    <!-- Dice Roller -->
+    <section id="dice" class="panel">
+      <div class="dice-options">
+        <button class="dice-type active" data-sides="6">d6</button>
+        <button class="dice-type" data-sides="4">d4</button>
+        <button class="dice-type" data-sides="8">d8</button>
+        <button class="dice-type" data-sides="10">d10</button>
+        <button class="dice-type" data-sides="12">d12</button>
+        <button class="dice-type" data-sides="20">d20</button>
+        <button class="dice-type" data-sides="100">d100</button>
+      </div>
+      <div class="dice-count-row">
+        <button id="dice-minus" class="small-btn">-</button>
+        <span id="dice-count">1</span>
+        <button id="dice-plus" class="small-btn">+</button>
+      </div>
+      <div id="dice-display" class="dice-display"></div>
+      <div id="dice-total" class="result"></div>
+      <button id="roll-btn" class="action-btn">Roll</button>
+    </section>
+
+    <!-- Random Number -->
+    <section id="number" class="panel">
+      <div class="range-inputs">
+        <label>
+          Min
+          <input type="number" id="num-min" value="1" inputmode="numeric">
+        </label>
+        <label>
+          Max
+          <input type="number" id="num-max" value="100" inputmode="numeric">
+        </label>
+      </div>
+      <div id="number-display" class="big-number"></div>
+      <button id="generate-btn" class="action-btn">Generate</button>
+    </section>
+
+    <!-- List Picker -->
+    <section id="picker" class="panel">
+      <textarea id="picker-items" placeholder="Enter items, one per line&#10;&#10;e.g.&#10;Pizza&#10;Tacos&#10;Sushi&#10;Burgers" rows="6"></textarea>
+      <div id="picker-display" class="big-number"></div>
+      <button id="pick-btn" class="action-btn">Pick One</button>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
