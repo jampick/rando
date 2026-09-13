@@ -64,11 +64,15 @@ secrets/
 config.local.json
 deploy.config.local
 deploy_local.config.local
+# Real Conan server settings contain the admin password and Discord webhook
+ServerSettings.ini
 
 # Backup files
 *.bak
+*.bak.*
 *.backup
 *.old
+MoonTide/wrath_manager/tests/backups/
 
 # Coverage reports
 htmlcov/

@@ -1575,7 +1575,7 @@ def load_secrets(map_name: Optional[str] = None) -> Dict[str, str]:
     
     # DEBUG: Log all environment variables for troubleshooting
     print(f"[DEBUG] Environment variables check:", file=sys.stderr)
-    print(f"[DEBUG] - DISCORD_WEBHOOK_URL: {os.environ.get('DISCORD_WEBHOOK_URL', 'NOT_SET')}", file=sys.stderr)
+    print(f"[DEBUG] - DISCORD_WEBHOOK_URL: {'SET (hidden)' if os.environ.get('DISCORD_WEBHOOK_URL') else 'NOT_SET'}", file=sys.stderr)
     print(f"[DEBUG] - MAP_NAME: {os.environ.get('MAP_NAME', 'NOT_SET')}", file=sys.stderr)
     print(f"[DEBUG] - LOG_FILE_PATH: {os.environ.get('LOG_FILE_PATH', 'NOT_SET')}", file=sys.stderr)
     print(f"[DEBUG] - Current working directory: {os.getcwd()}", file=sys.stderr)
